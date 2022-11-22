@@ -2,7 +2,7 @@ import speech_recognition as sr
 import pyttsx3
 
 def main():
-    engine = pyttsx3.init('espeak')
+    engine = pyttsx3.init('sapi5')
 
     #set voice type
     voices = engine.getProperty('voices')
