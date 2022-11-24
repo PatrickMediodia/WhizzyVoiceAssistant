@@ -8,7 +8,7 @@ greeting = tk.Label(text='Hello, world')
 greeting.pack()
 
 #Image
-image1 = Image.open("avatar.png")
+image1 = Image.open("images/avatar.png")
 test = ImageTk.PhotoImage(image1)
 
 labelImage = tk.Label(image=test)

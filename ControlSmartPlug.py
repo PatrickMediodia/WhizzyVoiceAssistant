@@ -4,20 +4,23 @@ import time
 username = 'whizzyassistant@gmail.com'
 password = 'Admin1234@'
 
+# IP of Smart Plug, Account Credentials
 p100 = PyP100.P100('192.168.1.9', username, password)
 
 p100.handshake()
 p100.login()
 
-while True:
+
+def device_state(): 
+    print(p100.getDeviceInfo()['result']['device_on'])
+
+def turnOnPlug():
     p100.turnOn()
     print('Turned On')
-
-    time.sleep(5)
     
+def turnOffPlug():
     p100.turnOff()
     print('Turned Off')
-    
-    time.sleep(5)
+
 
 
