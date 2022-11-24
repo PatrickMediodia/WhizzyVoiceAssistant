@@ -8,6 +8,9 @@ def gtts_speak(speech):
     os.system("mpg123 audio/speech.mp3")
 
 """
+#User in main method
+with noalsaerr():
+
 #Initialize in File
 pyttsx3_engine = Text_to_Speech.initialize_pyttsx3()
 
