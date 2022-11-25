@@ -1,3 +1,8 @@
+"""
+Ideas:
+- generate avatar with video of talking then play video using openCV
+"""
+
 import tkinter as tk
 from PIL import ImageTk, Image
 
