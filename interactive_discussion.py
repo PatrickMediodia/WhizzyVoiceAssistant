@@ -14,3 +14,6 @@ sample_dialogs = [
         }
     }
 ]
+
+def start_interactive_discussion():
+    pass

@@ -1,27 +1,32 @@
-import Dialog_handler
 from ALSA_handler import noalsaerr
-from Text_to_Speech import gtts_speak
-from Speech_to_Text import speech_to_text
-from ControlSmartPlug import turnOnPlug, turnOffPlug
+from text_to_speech import gtts_speak
+from speech_to_text import speech_to_text
 from detect_hotword import detect_hotword
+from smart_controls import start_smart_controls
+from google_assistant.run import start_google_assistant
+from interactive_discussion import start_interactive_discussion
+
+modes = (
+    'web searching',
+    'smart control',
+    'interactive discussion'
+)
+    
+mode_map = {
+    'web searching': start_google_assistant,
+    'smart control': start_smart_controls,
+    'interactive discussion': start_interactive_discussion
+}
+
+current_mode = modes[1]
 
 def main():
     gtts_speak('Hello I am Whizzy, your personal assistant')
     
     with noalsaerr():
         while True:
-            detected = detect_hotword()
-            
-            if detected:
-                command = speech_to_text()
-                
-                if 'turn' and 'plug' in command:
-                    if 'off' in command: 
-                        turnOffPlug()
-                        gtts_speak('Plug turned off')
-                    elif 'on' in command:
-                        turnOnPlug()
-                        gtts_speak('Plug turned on')
+            if detect_hotword():
+                mode_map[current_mode]()
                 
 if __name__ == '__main__':
     main()
