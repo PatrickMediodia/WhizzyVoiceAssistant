@@ -266,7 +266,7 @@ class ConversationStream(object):
         self._sink = sink
         self._iter_size = iter_size
         self._sample_width = sample_width
-        self._volume_percentage = 50
+        self._volume_percentage = 100
         self._stop_recording = threading.Event()
         self._source_lock = threading.RLock()
         self._recording = False

@@ -31,10 +31,12 @@ from google.assistant.embedded.v1alpha2 import (
 try:
     from . import (
         assistant_helpers,
+        audio_helpers,
         browser_helpers,
     )
 except (SystemError, ImportError):
     import assistant_helpers
+    import audio_helpers
     import browser_helpers
 
 
@@ -42,6 +44,8 @@ ASSISTANT_API_ENDPOINT = 'embeddedassistant.googleapis.com'
 DEFAULT_GRPC_DEADLINE = 60 * 3 + 5
 PLAYING = embedded_assistant_pb2.ScreenOutConfig.PLAYING
 
+
+import sounddevice as sd
 
 class SampleTextAssistant(object):
     """Sample Assistant that supports text based conversations.
@@ -105,7 +109,32 @@ class SampleTextAssistant(object):
             req = embedded_assistant_pb2.AssistRequest(config=config)
             assistant_helpers.log_assist_request_without_audio(req)
             yield req
-
+        
+        #configured conversation stream
+        audio_device = None
+        audio_source = audio_device = (
+            audio_device or audio_helpers.SoundDeviceStream(
+                sample_rate=audio_helpers.DEFAULT_AUDIO_SAMPLE_RATE,
+                sample_width=audio_helpers.DEFAULT_AUDIO_SAMPLE_WIDTH,
+                block_size=audio_helpers.DEFAULT_AUDIO_DEVICE_BLOCK_SIZE,
+                flush_size=audio_helpers.DEFAULT_AUDIO_DEVICE_FLUSH_SIZE
+            )
+        )
+        audio_sink = audio_device = (
+        audio_device or audio_helpers.SoundDeviceStream(
+                sample_rate=audio_helpers.DEFAULT_AUDIO_SAMPLE_RATE,
+                sample_width=audio_helpers.DEFAULT_AUDIO_SAMPLE_WIDTH,
+                block_size=audio_helpers.DEFAULT_AUDIO_DEVICE_BLOCK_SIZE,
+                flush_size=audio_helpers.DEFAULT_AUDIO_DEVICE_FLUSH_SIZE
+            )
+        )
+        conversation_stream = audio_helpers.ConversationStream(
+            source=audio_source,
+            sink=audio_sink,
+            iter_size=audio_helpers.DEFAULT_AUDIO_ITER_SIZE,
+            sample_width=audio_helpers.DEFAULT_AUDIO_SAMPLE_WIDTH,
+        )
+    
         text_response = None
         html_response = None
         for resp in self.assistant.Assist(iter_assist_requests(),
@@ -118,8 +147,17 @@ class SampleTextAssistant(object):
                 self.conversation_state = conversation_state
             if resp.dialog_state_out.supplemental_display_text:
                 text_response = resp.dialog_state_out.supplemental_display_text
+                
+            #added sound output
+            if len(resp.audio_out.audio_data) > 0:
+                if not conversation_stream.playing:
+                    conversation_stream.stop_recording()
+                    conversation_stream.start_playback()
+                    logging.info('Playing assistant response.')
+                conversation_stream.write(resp.audio_out.audio_data)
+                
+        conversation_stream.stop_playback()
         return text_response, html_response
-
 
 @click.command()
 @click.option('--command',
