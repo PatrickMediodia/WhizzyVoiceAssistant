@@ -1,6 +1,6 @@
+import os
 import json
 import logging
-import os.path
 
 import click
 import grpc
@@ -36,7 +36,8 @@ class GoogleAssistant(object):
 
     def __enter__(self):
         return self
-
+    
+    
     def __exit__(self, etype, e, traceback):
         if e:
             return False
@@ -56,7 +57,8 @@ class GoogleAssistant(object):
 
         self.conversation_stream.start_recording()
         logging.info('Recording audio request.')
-
+        os.system("mpg123 audio/ding_sound_2.mp3")
+        
         def iter_converse_requests():
             for c in self.gen_converse_requests():
                 assistant_helpers.log_converse_request_without_audio(c)
@@ -75,6 +77,20 @@ class GoogleAssistant(object):
             if resp.result.spoken_request_text:
                 logging.info('Transcript of user request: "%s".',
                              resp.result.spoken_request_text)
+                
+                """
+                current_mode = 'web searching'
+                from change_mode import change_mode
+                
+                new_mode = change_mode(
+                    current_mode,
+                    resp.result.spoken_request_text
+                )
+                
+                if  new_mode != current_mode:
+                    break
+                """
+                
                 logging.info('Playing assistant response.')
             if len(resp.audio_out.audio_data) > 0:
                 self.conversation_stream.write(resp.audio_out.audio_data)
@@ -96,7 +112,9 @@ class GoogleAssistant(object):
                 continue_conversation = False
         logging.info('Finished playing assistant response.')
         self.conversation_stream.stop_playback()
+        
         return continue_conversation
+        #return current_mode
 
     def gen_converse_requests(self):
         converse_state = None
@@ -230,6 +248,8 @@ def start_google_assistant(api_endpoint, credentials, verbose,
         iter_size=audio_iter_size,
         sample_width=audio_sample_width,
     )
-
+    
     with GoogleAssistant(conversation_stream, grpc_channel, grpc_deadline) as assistant:
-       assistant.converse()
+        return assistant.converse()
+    
+    return current_mode

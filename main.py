@@ -3,7 +3,7 @@ from text_to_speech import gtts_speak
 from speech_to_text import speech_to_text
 from detect_hotword import detect_hotword
 from smart_controls import start_smart_controls
-from google_assistant.run import start_google_assistant
+from web_searching import start_google_assistant
 from interactive_discussion import start_interactive_discussion
 
 modes = (
@@ -11,22 +11,47 @@ modes = (
     'smart control',
     'interactive discussion'
 )
-    
+
 mode_map = {
     'web searching': start_google_assistant,
     'smart control': start_smart_controls,
     'interactive discussion': start_interactive_discussion
 }
 
-current_mode = modes[1]
+current_mode = modes[0]
+
+def change_mode(current_mode, command):
+    if 'change' in command:
+        for mode in modes:
+            if mode in command and current_mode != mode:
+                return mode
+    return current_mode
 
 def main():
+    global current_mode
+    
     gtts_speak('Hello I am Whizzy, your personal assistant')
     
     with noalsaerr():
         while True:
+            print(f'Current mode: {current_mode}')
             if detect_hotword():
-                mode_map[current_mode]()
+                command = speech_to_text()
                 
+                #command is empty, ignore
+                if command != '':
+                    pass
+                
+                #change modes
+                new_mode = change_mode(current_mode, command)
+                if  new_mode != current_mode:
+                    current_mode = new_mode
+                    gtts_speak(f'Switched to {new_mode}')
+                    continue
+                
+                #send command to current mode
+                else:
+                    mode_map[current_mode](command)
+                    
 if __name__ == '__main__':
     main()

@@ -2,6 +2,7 @@ import os
 import pyttsx3
 from gtts import gTTS
 
+
 def gtts_speak(speech):
     tts = gTTS(text=speech, lang='en', tld='com')
     tts.save("audio/speech.mp3")
