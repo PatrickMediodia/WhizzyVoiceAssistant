@@ -1,27 +1,12 @@
-# Copyright (C) 2017 Google Inc.
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#     http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
-
-"""Sample that implements a text client for the Google Assistant Service."""
-
 import os
 import logging
 import json
 
 import click
+import sounddevice as sd
+import google.oauth2.credentials
 import google.auth.transport.grpc
 import google.auth.transport.requests
-import google.oauth2.credentials
 
 from google.assistant.embedded.v1alpha2 import (
     embedded_assistant_pb2,
@@ -44,34 +29,16 @@ ASSISTANT_API_ENDPOINT = 'embeddedassistant.googleapis.com'
 DEFAULT_GRPC_DEADLINE = 60 * 3 + 5
 PLAYING = embedded_assistant_pb2.ScreenOutConfig.PLAYING
 
-
-import sounddevice as sd
-
-class SampleTextAssistant(object):
-    """Sample Assistant that supports text based conversations.
-
-    Args:
-      language_code: language for the conversation.
-      device_model_id: identifier of the device model.
-      device_id: identifier of the registered device instance.
-      display: enable visual display of assistant response.
-      channel: authorized gRPC channel for connection to the
-        Google Assistant API.
-      deadline_sec: gRPC deadline in seconds for Google Assistant API call.
-    """
-
+class GoogleAssistant(object):
     def __init__(self, language_code, device_model_id, device_id,
                  display, channel, deadline_sec):
         self.language_code = language_code
         self.device_model_id = device_model_id
         self.device_id = device_id
         self.conversation_state = None
-        # Force reset of first conversation.
         self.is_new_conversation = True
         self.display = display
-        self.assistant = embedded_assistant_pb2_grpc.EmbeddedAssistantStub(
-            channel
-        )
+        self.assistant = embedded_assistant_pb2_grpc.EmbeddedAssistantStub(channel)
         self.deadline = deadline_sec
 
     def __enter__(self):
@@ -82,8 +49,6 @@ class SampleTextAssistant(object):
             return False
 
     def assist(self, text_query):
-        """Send a text request to the Assistant and playback the response.
-        """
         def iter_assist_requests():
             config = embedded_assistant_pb2.AssistConfig(
                 audio_out_config=embedded_assistant_pb2.AudioOutConfig(
@@ -102,7 +67,6 @@ class SampleTextAssistant(object):
                 ),
                 text_query=text_query,
             )
-            # Continue current conversation with later requests.
             self.is_new_conversation = False
             if self.display:
                 config.screen_out_config.screen_mode = PLAYING
@@ -153,7 +117,7 @@ class SampleTextAssistant(object):
                 if not conversation_stream.playing:
                     conversation_stream.stop_recording()
                     conversation_stream.start_playback()
-                    logging.info('Playing assistant response.')
+                    print('Playing assistant response.....')
                 conversation_stream.write(resp.audio_out.audio_data)
                 
         conversation_stream.stop_playback()
@@ -198,10 +162,8 @@ class SampleTextAssistant(object):
 def main(command, api_endpoint, credentials,
          device_model_id, device_id, lang, display, verbose,
          grpc_deadline, *args, **kwargs):
-    # Setup logging.
     logging.basicConfig(level=logging.DEBUG if verbose else logging.INFO)
 
-    # Load OAuth 2.0 credentials.
     try:
         with open(credentials, 'r') as f:
             credentials = google.oauth2.credentials.Credentials(token=None,
@@ -214,19 +176,17 @@ def main(command, api_endpoint, credentials,
                       'new OAuth 2.0 credentials.')
         return
 
-    # Create an authorized gRPC channel.
     grpc_channel = google.auth.transport.grpc.secure_authorized_channel(
         credentials, http_request, api_endpoint)
 
-    with SampleTextAssistant(lang, device_model_id, device_id, display,
+    with GoogleAssistant(lang, device_model_id, device_id, display,
                              grpc_channel, grpc_deadline) as assistant:
         response_text, response_html = assistant.assist(text_query=command)
         if display and response_html:
             system_browser = browser_helpers.system_browser
             system_browser.display(response_html)
         if response_text:
-            click.echo(response_text)
+            print(f'Transcript of response: {response_text}')
 
 if __name__ == '__main__':
     main()
-

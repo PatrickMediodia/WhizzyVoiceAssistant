@@ -9,7 +9,7 @@ def speech_to_text():
         listener.adjust_for_ambient_noise(source)
         
         print('Say command')
-        os.system("mpg123 audio/ding_sound_2.mp3")
+        os.system("mpg123 audio/ding_sound_2.mp3 >/dev/null 2>&1")
         
         voice = listener.listen(source)
                 

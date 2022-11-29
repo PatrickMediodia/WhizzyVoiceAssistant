@@ -2,16 +2,12 @@ import os
 import pyttsx3
 from gtts import gTTS
 
-
 def gtts_speak(speech):
     tts = gTTS(text=speech, lang='en', tld='com')
     tts.save("audio/speech.mp3")
-    os.system("mpg123 audio/speech.mp3")
-
+    os.system("mpg123 audio/speech.mp3 >/dev/null 2>&1")
+    
 """
-#User in main method
-with noalsaerr():
-
 #Initialize in File
 pyttsx3_engine = Text_to_Speech.initialize_pyttsx3()
 
