@@ -39,12 +39,12 @@ def main():
                 command = speech_to_text()
                 
                 #command is empty, ignore
-                if command != '':
-                    pass
+                if command == '':
+                    continue
                 
                 #change modes
                 new_mode = change_mode(current_mode, command)
-                if  new_mode != current_mode:
+                if new_mode != current_mode:
                     current_mode = new_mode
                     gtts_speak(f'Switched to {new_mode}')
                     continue

@@ -1,147 +1,131 @@
+# Copyright (C) 2017 Google Inc.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+"""Sample that implements a text client for the Google Assistant Service."""
+
 import os
-import json
 import logging
+import json
 
 import click
-import grpc
 import google.auth.transport.grpc
 import google.auth.transport.requests
 import google.oauth2.credentials
 
-from google.assistant.embedded.v1alpha1 import embedded_assistant_pb2_grpc, embedded_assistant_pb2
-from google.rpc import code_pb2
-from tenacity import retry, stop_after_attempt, retry_if_exception
+from google.assistant.embedded.v1alpha2 import (
+    embedded_assistant_pb2,
+    embedded_assistant_pb2_grpc
+)
 
 try:
-    from google_assistant import (
+    from . import (
         assistant_helpers,
-        audio_helpers
+        browser_helpers,
     )
-except SystemError:
-    import google_assistant.assistant_helpers
-    import google_assistant.audio_helpers
-    
-ASSISTANT_API_ENDPOINT = 'embeddedassistant.googleapis.com'
-END_OF_UTTERANCE = embedded_assistant_pb2.ConverseResponse.END_OF_UTTERANCE
-DIALOG_FOLLOW_ON = embedded_assistant_pb2.ConverseResult.DIALOG_FOLLOW_ON
-CLOSE_MICROPHONE = embedded_assistant_pb2.ConverseResult.CLOSE_MICROPHONE
-DEFAULT_GRPC_DEADLINE = 60 * 3 + 5
+except (SystemError, ImportError):
+    import assistant_helpers
+    import browser_helpers
 
-class GoogleAssistant(object):
-    def __init__(self, conversation_stream, channel, deadline_sec):
-        self.conversation_stream = conversation_stream
+
+ASSISTANT_API_ENDPOINT = 'embeddedassistant.googleapis.com'
+DEFAULT_GRPC_DEADLINE = 60 * 3 + 5
+PLAYING = embedded_assistant_pb2.ScreenOutConfig.PLAYING
+
+
+class SampleTextAssistant(object):
+    """Sample Assistant that supports text based conversations.
+
+    Args:
+      language_code: language for the conversation.
+      device_model_id: identifier of the device model.
+      device_id: identifier of the registered device instance.
+      display: enable visual display of assistant response.
+      channel: authorized gRPC channel for connection to the
+        Google Assistant API.
+      deadline_sec: gRPC deadline in seconds for Google Assistant API call.
+    """
+
+    def __init__(self, language_code, device_model_id, device_id,
+                 display, channel, deadline_sec):
+        self.language_code = language_code
+        self.device_model_id = device_model_id
+        self.device_id = device_id
         self.conversation_state = None
-        self.assistant = embedded_assistant_pb2_grpc.EmbeddedAssistantStub(channel)
+        # Force reset of first conversation.
+        self.is_new_conversation = True
+        self.display = display
+        self.assistant = embedded_assistant_pb2_grpc.EmbeddedAssistantStub(
+            channel
+        )
         self.deadline = deadline_sec
 
     def __enter__(self):
         return self
-    
-    
+
     def __exit__(self, etype, e, traceback):
         if e:
             return False
-        self.conversation_stream.close()
 
-    def is_grpc_error_unavailable(e):
-        is_grpc_error = isinstance(e, grpc.RpcError)
-        if is_grpc_error and (e.code() == grpc.StatusCode.UNAVAILABLE):
-            logging.error('grpc unavailable error: %s', e)
-            return True
-        return False
-
-    @retry(reraise=True, stop=stop_after_attempt(3),
-           retry=retry_if_exception(is_grpc_error_unavailable))
-    def converse(self):
-        continue_conversation = False
-
-        self.conversation_stream.start_recording()
-        logging.info('Recording audio request.')
-        os.system("mpg123 audio/ding_sound_2.mp3")
-        
-        def iter_converse_requests():
-            for c in self.gen_converse_requests():
-                assistant_helpers.log_converse_request_without_audio(c)
-                yield c
-            self.conversation_stream.start_playback()
-
-        for resp in self.assistant.Converse(iter_converse_requests(),
-                                            self.deadline):
-            assistant_helpers.log_converse_response_without_audio(resp)
-            if resp.error.code != code_pb2.OK:
-                logging.error('server error: %s', resp.error.message)
-                break
-            if resp.event_type == END_OF_UTTERANCE:
-                logging.info('End of audio request detected')
-                self.conversation_stream.stop_recording()
-            if resp.result.spoken_request_text:
-                logging.info('Transcript of user request: "%s".',
-                             resp.result.spoken_request_text)
-                
-                """
-                current_mode = 'web searching'
-                from change_mode import change_mode
-                
-                new_mode = change_mode(
-                    current_mode,
-                    resp.result.spoken_request_text
-                )
-                
-                if  new_mode != current_mode:
-                    break
-                """
-                
-                logging.info('Playing assistant response.')
-            if len(resp.audio_out.audio_data) > 0:
-                self.conversation_stream.write(resp.audio_out.audio_data)
-            if resp.result.spoken_response_text:
-                logging.info(
-                    'Transcript of TTS response '
-                    '(only populated from IFTTT): "%s".',
-                    resp.result.spoken_response_text)
-            if resp.result.conversation_state:
-                self.conversation_state = resp.result.conversation_state
-            if resp.result.volume_percentage != 0:
-                self.conversation_stream.volume_percentage = (
-                    resp.result.volume_percentage
-                )
-            if resp.result.microphone_mode == DIALOG_FOLLOW_ON:
-                continue_conversation = True
-                logging.info('Expecting follow-on query from user.')
-            elif resp.result.microphone_mode == CLOSE_MICROPHONE:
-                continue_conversation = False
-        logging.info('Finished playing assistant response.')
-        self.conversation_stream.stop_playback()
-        
-        return continue_conversation
-        #return current_mode
-
-    def gen_converse_requests(self):
-        converse_state = None
-        if self.conversation_state:
-            logging.debug('Sending converse_state: %s',
-                          self.conversation_state)
-            converse_state = embedded_assistant_pb2.ConverseState(
-                conversation_state=self.conversation_state,
+    def assist(self, text_query):
+        """Send a text request to the Assistant and playback the response.
+        """
+        def iter_assist_requests():
+            config = embedded_assistant_pb2.AssistConfig(
+                audio_out_config=embedded_assistant_pb2.AudioOutConfig(
+                    encoding='LINEAR16',
+                    sample_rate_hertz=16000,
+                    volume_percentage=0,
+                ),
+                dialog_state_in=embedded_assistant_pb2.DialogStateIn(
+                    language_code=self.language_code,
+                    conversation_state=self.conversation_state,
+                    is_new_conversation=self.is_new_conversation,
+                ),
+                device_config=embedded_assistant_pb2.DeviceConfig(
+                    device_id=self.device_id,
+                    device_model_id=self.device_model_id,
+                ),
+                text_query=text_query,
             )
-        config = embedded_assistant_pb2.ConverseConfig(
-            audio_in_config=embedded_assistant_pb2.AudioInConfig(
-                encoding='LINEAR16',
-                sample_rate_hertz=self.conversation_stream.sample_rate,
-            ),
-            audio_out_config=embedded_assistant_pb2.AudioOutConfig(
-                encoding='LINEAR16',
-                sample_rate_hertz=self.conversation_stream.sample_rate,
-                volume_percentage=self.conversation_stream.volume_percentage,
-            ),
-            converse_state=converse_state
-        )
-        yield embedded_assistant_pb2.ConverseRequest(config=config)
-        
-        for data in self.conversation_stream:
-            yield embedded_assistant_pb2.ConverseRequest(audio_in=data)
+            # Continue current conversation with later requests.
+            self.is_new_conversation = False
+            if self.display:
+                config.screen_out_config.screen_mode = PLAYING
+            req = embedded_assistant_pb2.AssistRequest(config=config)
+            assistant_helpers.log_assist_request_without_audio(req)
+            yield req
+
+        text_response = None
+        html_response = None
+        for resp in self.assistant.Assist(iter_assist_requests(),
+                                          self.deadline):
+            assistant_helpers.log_assist_response_without_audio(resp)
+            if resp.screen_out.data:
+                html_response = resp.screen_out.data
+            if resp.dialog_state_out.conversation_state:
+                conversation_state = resp.dialog_state_out.conversation_state
+                self.conversation_state = conversation_state
+            if resp.dialog_state_out.supplemental_display_text:
+                text_response = resp.dialog_state_out.supplemental_display_text
+        return text_response, html_response
+
 
 @click.command()
+@click.option('--command',
+              metavar='<command>',
+              required=True,
+              help=('Command entered by the user'))
 @click.option('--api-endpoint', default=ASSISTANT_API_ENDPOINT,
               metavar='<api endpoint>', show_default=True,
               help='Address of Google Assistant API service.')
@@ -150,50 +134,36 @@ class GoogleAssistant(object):
               default=os.path.join(click.get_app_dir('google-oauthlib-tool'),
                                    'credentials.json'),
               help='Path to read OAuth2 credentials.')
+@click.option('--device-model-id',
+              metavar='<device model id>',
+              required=True,
+              help=(('Unique device model identifier, '
+                     'if not specifed, it is read from --device-config')))
+@click.option('--device-id',
+              metavar='<device id>',
+              required=True,
+              help=(('Unique registered device instance identifier, '
+                     'if not specified, it is read from --device-config, '
+                     'if no device_config found: a new device is registered '
+                     'using a unique id and a new device config is saved')))
+@click.option('--lang', show_default=True,
+              metavar='<language code>',
+              default='en-US',
+              help='Language code of the Assistant')
+@click.option('--display', is_flag=True, default=False,
+              help='Enable visual display of Assistant responses in HTML.')
 @click.option('--verbose', '-v', is_flag=True, default=False,
               help='Verbose logging.')
-@click.option('--input-audio-file', '-i',
-              metavar='<input file>',
-              help='Path to input audio file. '
-              'If missing, uses audio capture')
-@click.option('--output-audio-file', '-o',
-              metavar='<output file>',
-              help='Path to output audio file. '
-              'If missing, uses audio playback')
-@click.option('--audio-sample-rate',
-              default=audio_helpers.DEFAULT_AUDIO_SAMPLE_RATE,
-              metavar='<audio sample rate>', show_default=True,
-              help='Audio sample rate in hertz.')
-@click.option('--audio-sample-width',
-              default=audio_helpers.DEFAULT_AUDIO_SAMPLE_WIDTH,
-              metavar='<audio sample width>', show_default=True,
-              help='Audio sample width in bytes.')
-@click.option('--audio-iter-size',
-              default=audio_helpers.DEFAULT_AUDIO_ITER_SIZE,
-              metavar='<audio iter size>', show_default=True,
-              help='Size of each read during audio stream iteration in bytes.')
-@click.option('--audio-block-size',
-              default=audio_helpers.DEFAULT_AUDIO_DEVICE_BLOCK_SIZE,
-              metavar='<audio block size>', show_default=True,
-              help=('Block size in bytes for each audio device '
-                    'read and write operation..'))
-@click.option('--audio-flush-size',
-              default=audio_helpers.DEFAULT_AUDIO_DEVICE_FLUSH_SIZE,
-              metavar='<audio flush size>', show_default=True,
-              help=('Size of silence data in bytes written '
-                    'during flush operation'))
 @click.option('--grpc-deadline', default=DEFAULT_GRPC_DEADLINE,
               metavar='<grpc deadline>', show_default=True,
               help='gRPC deadline in seconds')
-@click.option('--once', default=False, is_flag=True,
-              help='Force termination after a single conversation.')
-def start_google_assistant(api_endpoint, credentials, verbose,
-         input_audio_file, output_audio_file,
-         audio_sample_rate, audio_sample_width,
-         audio_iter_size, audio_block_size, audio_flush_size,
-         grpc_deadline, once, *args, **kwargs):
+def main(command, api_endpoint, credentials,
+         device_model_id, device_id, lang, display, verbose,
+         grpc_deadline, *args, **kwargs):
+    # Setup logging.
     logging.basicConfig(level=logging.DEBUG if verbose else logging.INFO)
 
+    # Load OAuth 2.0 credentials.
     try:
         with open(credentials, 'r') as f:
             credentials = google.oauth2.credentials.Credentials(token=None,
@@ -206,50 +176,19 @@ def start_google_assistant(api_endpoint, credentials, verbose,
                       'new OAuth 2.0 credentials.')
         return
 
+    # Create an authorized gRPC channel.
     grpc_channel = google.auth.transport.grpc.secure_authorized_channel(
         credentials, http_request, api_endpoint)
-    logging.info('Connecting to %s', api_endpoint)
 
-    audio_device = None
-    if input_audio_file:
-        audio_source = audio_helpers.WaveSource(
-            open(input_audio_file, 'rb'),
-            sample_rate=audio_sample_rate,
-            sample_width=audio_sample_width
-        )
-    else:
-        audio_source = audio_device = (
-            audio_device or audio_helpers.SoundDeviceStream(
-                sample_rate=audio_sample_rate,
-                sample_width=audio_sample_width,
-                block_size=audio_block_size,
-                flush_size=audio_flush_size
-            )
-        )
-    if output_audio_file:
-        audio_sink = audio_helpers.WaveSink(
-            open(output_audio_file, 'wb'),
-            sample_rate=audio_sample_rate,
-            sample_width=audio_sample_width
-        )
-    else:
-        audio_sink = audio_device = (
-            audio_device or audio_helpers.SoundDeviceStream(
-                sample_rate=audio_sample_rate,
-                sample_width=audio_sample_width,
-                block_size=audio_block_size,
-                flush_size=audio_flush_size
-            )
-        )
-        
-    conversation_stream = audio_helpers.ConversationStream(
-        source=audio_source,
-        sink=audio_sink,
-        iter_size=audio_iter_size,
-        sample_width=audio_sample_width,
-    )
-    
-    with GoogleAssistant(conversation_stream, grpc_channel, grpc_deadline) as assistant:
-        return assistant.converse()
-    
-    return current_mode
+    with SampleTextAssistant(lang, device_model_id, device_id, display,
+                             grpc_channel, grpc_deadline) as assistant:
+        response_text, response_html = assistant.assist(text_query=command)
+        if display and response_html:
+            system_browser = browser_helpers.system_browser
+            system_browser.display(response_html)
+        if response_text:
+            click.echo(response_text)
+
+if __name__ == '__main__':
+    main()
+
