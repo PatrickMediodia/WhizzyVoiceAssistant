@@ -3,23 +3,24 @@ from speech_to_text import speech_to_text
 
 interactive_discussion_data = [
     {
-        'course_code': 'IT101',
+        'course_code' : 'IT101',
+        'course_title' : 'Capstone',
         'lessons': [
-            'lesson_code' :
-                'trigger': [],
+            {
+                'lesson_code' : 'Code of lesson 1',
+                'lesson_title' : 'Title of lesson 1',
                 'dialogs': {
                     'introduction': 'Introduction for lesson 2',
                     'discussion' : [],
                     'trivia': [],
                     'questions': [],
                     'conclusion' : ''
+                }
             },
         ]
-    }
+    },
 ]
 
-course_code = ""
-lesson_code = ""
 course_data = None
 lesson_data = None
 
@@ -41,51 +42,60 @@ Note: take into account change course code and lesson
     - if change lesson, make sure to check if lesson is within course code
 """
 
-def start_interactive_discussion(command):
-    global course_code, lesson_code, course_data, lesson_data
+def get_lesson_data():
+    global course_data, lesson_data
     
-    if course_code == "":
-        gtts_speak('What is the course code that you want?')
+    if course_data is None:
+        gtts_speak('What is the course that you want?')
         requested_course = speech_to_text()
-        
+            
         for course in interactive_discussion_data:
-            if requested_course == course['course_code']:
-                course_code = requested_course
+            if requested_course in course['course_title'].lower():
                 course_data = course
+                lesson_data = None
+                gtts_speak(f'{course["course_title"]} has been selected')
                 break
         else:
             gtts_speak('Sorry, I cannnot find that course')
             return
-        
-    if lesson_code = "":
-        gtts_speak(f'What is the course lesson that you want for course {course_code}?')
+
+    if lesson_data is None:
+        gtts_speak(f'What is the lesson that you want for the course, {course_data["course_title"]}?')
         requested_lesson = speech_to_text()
         
-        for key, lesson in course_data['lessons'].items():
-            if requested_lesson == key:
-                lesson_code = requested_lesson
+        for lesson in course_data['lessons']:
+            if requested_lesson in lesson['lesson_title'].lower():
                 lesson_data = lesson
+                gtts_speak(f'{lesson["lesson_title"]} has been selected')
                 break
         else:
             gtts_speak('Sorry, I cannnot find that lesson')
             return
         
-    if lesson_data not None:
+    return lesson_data
+
+def start_interactive_discussion(command):
+    global lesson_data
+    
+    if lesson_data is None:
+        lesson_data = get_lesson_data()
+    
+    else:
         if 'start' in command:
             if 'introduction' in command:
-                gtts_speak('introduction')
-            
+                gtts_speak(lesson_data['dialogs']['introduction'])
+                
             elif 'discussion' in command:
-                gtts_speak('discussion')
-            
+                gtts_speak(lesson_data['dialogs']['discussion'])
+                
             elif 'trivia' in command:
-                gtts_speak('trivia')
-            
+                gtts_speak(lesson_data['dialogs']['trivia'])
+                
             elif 'questioning' or 'question' in command:
-                gtts_speak('questioning')
-            
+                gtts_speak(lesson_data['dialogs']['questioning'])
+                
             elif 'conclusion' in command:
-                gtts_speak('conclusion')
-            
+                gtts_speak(lesson_data['dialogs']['conclusion'])
+                
             else:
                 gtts_speak('Sorry, I cannot process that request')
