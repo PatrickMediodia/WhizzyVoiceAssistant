@@ -1,12 +1,13 @@
 import threading
 from ALSA_handler import noalsaerr
+from API_requests import authenticate, get_module_data
 from text_to_speech import gtts_speak
 from speech_to_text import speech_to_text
-from detect_hotword import detect_hotword
 from whizzy_avatar import initialize_avatar
-from smart_controls import start_smart_controls
 from web_searching import start_google_assistant
+from picovoice.detect_hotword import detect_hotword
 from interactive_discussion import start_interactive_discussion
+from smart_controls import initialize_devices, start_smart_controls
 
 modes = (
     'web searching',
@@ -20,6 +21,10 @@ mode_map = {
     'interactive discussion': start_interactive_discussion
 }
 
+#temp
+username = "faculty1"
+password = "123456"
+
 current_mode = modes[2]
 
 def change_mode(current_mode, command):
@@ -31,7 +36,24 @@ def change_mode(current_mode, command):
 
 def main():
     global current_mode
+    account = authenticate(username, password)
     
+    if account == None:
+        gtts_speak('Incorrect credentials')
+        print('Incorrect credentials')
+        return
+    
+    '''
+    #GET MODULE DATA OF ACCOUNT	
+    print(account.jwt)
+    get_module_data(account.jwt)
+    '''
+    
+    #start after authentication
+    #initializing devices in the classroon
+    initialize_devices()
+    
+    #start new thread for avatar
     threading.Thread(target=initialize_avatar).start()
     gtts_speak('Hello I am Whizzy, your personal assistant')
     

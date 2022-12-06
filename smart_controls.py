@@ -16,25 +16,25 @@ devices = {
     }
 }
 
-#initialize
-print('Initializing devices ........')
+def initialize_devices():
+    print('Initializing devices ........')
 
-for key, device in devices.items():
-    try:
-        initiated_device = PyP100.P100(
-                                device['ip-address'],
-                                username,
-                                password
-                            )
-        initiated_device.handshake()
-        initiated_device.login()
-        
-        device['object'] = initiated_device
-        device['connected'] = True
-      
-        print(f'\n{key} is connected\n')
-    except:
-        print(f'\n{key} is not connected\n')
+    for key, device in devices.items():
+        try:
+            initiated_device = PyP100.P100(
+                                    device['ip-address'],
+                                    username,
+                                    password
+                                )
+            initiated_device.handshake()
+            initiated_device.login()
+            
+            device['object'] = initiated_device
+            device['connected'] = True
+          
+            print(f'\n{key} is connected\n')
+        except:
+            print(f'\n{key} is not connected\n')
         
 def start_smart_controls(command):
     for device_name, device_dict in devices.items():
