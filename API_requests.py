@@ -6,32 +6,38 @@ from models.userData import UserData
 url = "https://api.jhonlloydclarion.online/api/"
 
 def authenticate(username, password):
+    end_point = url + 'auth/local'
+
+    headers = {
+      'Content-Type': 'application/json'
+    }
+    
     payload = json.dumps({
       "identifier": username,
       "password": password
     })
     
-    headers = {
-      'Content-Type': 'application/json'
-    }
-    
-    response = requests.request("POST", url + 'auth/local', headers=headers, data=payload)
+    response = requests.request("POST", end_point, headers=headers, data=payload)
     
     try:
         account_dict = json.loads(response.text)
         account_object = Account(**account_dict)
         return account_object
     except:
-        return
+        return None
 
 def get_lesson_data(jwt, trigger_word):
-    url = 'https://api.jhonlloydclarion.online/api/users/me?populate[0]=courses&populate[1]=courses.modules&populate[2]=courses.modules.lessons&fields=id,username,email'
-
+    end_point = url + 'users/me?'
+    end_point += 'populate[0]=courses'
+    end_point += '&populate[1]=courses.modules'
+    end_point += '&populate[2]=courses.modules.lessons'
+    end_point += '&fields=id,username,email'
+    
     headers = {
         'Authorization': 'Bearer ' + jwt
     }
-
-    response = requests.request("GET", url, headers=headers, data={})
+    
+    response = requests.request("GET", end_point, headers=headers)
 
     user_data_dict = json.loads(response.text)
     user_data_object = UserData(**user_data_dict)
