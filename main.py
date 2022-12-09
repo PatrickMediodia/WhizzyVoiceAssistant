@@ -1,6 +1,6 @@
 import threading
 from ALSA_handler import noalsaerr
-from API_requests import authenticate, get_module_data
+from API_requests import authenticate, get_lesson_data
 from text_to_speech import gtts_speak
 from speech_to_text import speech_to_text
 from whizzy_avatar import initialize_avatar
@@ -43,15 +43,24 @@ def main():
         print('Incorrect credentials')
         return
     
-    '''
-    #GET MODULE DATA OF ACCOUNT	
-    print(account.jwt)
-    get_module_data(account.jwt)
-    '''
-    
     #start after authentication
     #initializing devices in the classroon
     initialize_devices()
+    
+    
+    
+    '''
+    sample get interactive discussion data
+    integrate in interactive_discussion.py
+    '''
+    lesson_data = get_lesson_data(account.jwt, 'sample')
+    if lesson_data is None:
+      print('No lesson data found')
+    else:
+      for question in lesson_data.questions:
+        print(question.question)
+
+    
     
     #start new thread for avatar
     threading.Thread(target=initialize_avatar).start()
