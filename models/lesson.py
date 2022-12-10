@@ -9,5 +9,5 @@ class Lesson(object):
       self.introduction = responses['introduction']
       self.summarization = responses['summarization']
       self.questions = [ Question(**question) for question in responses['questions'] ] 
-      self.trivias = [ Trivia(**trivia) for trivia in responses['trivias'] ] 
+      self.trivias = [ Trivia(**trivia) for trivia in responses['trivias'] ]
       self.conclusion = responses['conclusion']

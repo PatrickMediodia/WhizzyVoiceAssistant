@@ -4,8 +4,11 @@ from models.account import Account
 from models.userData import UserData
 
 url = "https://api.jhonlloydclarion.online/api/"
+jwt = None
 
 def authenticate(username, password):
+    global jwt
+    
     end_point = url + 'auth/local'
 
     headers = {
@@ -22,9 +25,18 @@ def authenticate(username, password):
     try:
         account_dict = json.loads(response.text)
         account_object = Account(**account_dict)
+        
+        jwt = account_object.jwt
+        
         return account_object
     except:
         return None
+    
+def get_jwt_token():
+    if jwt is None:
+        print('No jwt token, please authenticate')
+        return
+    return jwt
 
 def get_lesson_data(jwt, trigger_word):
     end_point = url + 'users/me?'
