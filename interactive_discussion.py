@@ -4,20 +4,25 @@ from API_requests import get_jwt_token, get_lesson_data
 
 """
 Flow
-1. get course code
-2. get lesson code
-3. say "It is all set, tell me when to start"
-4. keyword command should be "start" + "type"
+1. get lesson code
+2. say "It is all set, tell me when to start"
+3. keyword command should be "start" + "type"
     Types:
         a. Introduction
         b. Short Discussion
         c. Trivia
         d. Questions
         e. Conclusion
-            
-Note: take into account change course code and lesson
-    - if change course code, also get lesson
-    - if change lesson, make sure to check if lesson is within course code
+4. take into account change lesson
+
+Handling Questions and Trivias
+1. wait for phrase "start" + "type" where type is "question" or "trivia"
+2. (Not saure) when in question and trivia mode, say "start" + "first question"
+3. Whizzy will say the question and wait for answer from student
+4. Whizzy will reply if the answer is correct or not
+5. Teacher can reveal the correct answer "What Whizzy, what is the correct answer"
+6. Teacher can tell Whizzy to move on to the next question wth "Hey Whizzy, next question"
+7. Teacher can exit Whizzy question mode by saying "Exit" + "question" or "trivia"
 """
 
 lesson_data = None
