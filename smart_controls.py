@@ -40,9 +40,9 @@ def start_smart_controls(command):
     for device_name, device_dict in devices.items():
         device_object = device_dict['object']
         
-        if key in command:
+        if device_name in command:
             if device_dict['connected'] == False:
-                gtts_speak(f'{key} is not connected')
+                gtts_speak(f'{device_name} is not connected')
                 break
             elif 'status' in command:
                 device_status(device_name, device_object)
