@@ -8,7 +8,7 @@ from PIL import ImageTk, Image
 
 def initialize_avatar():
     window = tk.Tk()
-
+    window.attributes('-zoomed', True)
     #Text
     greeting = tk.Label(text='Hello, world')
     greeting.pack()

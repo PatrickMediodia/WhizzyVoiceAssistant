@@ -8,8 +8,8 @@ def speech_to_text():
     
     with sr.Microphone() as source:
         listener.adjust_for_ambient_noise(source, duration=0.5)
-        #listener.energy_threshold = 250
-        listener.dynamic_energy_threshold = True
+        listener.energy_threshold = 300
+        #listener.dynamic_energy_threshold = True
         
         print('Listening to command ...')
         os.system("mpg123 audio/ding_sound_2.mp3 >/dev/null 2>&1")

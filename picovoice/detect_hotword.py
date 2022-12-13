@@ -14,7 +14,7 @@ def detect_hotword():
         )
 
         py_audio = pyaudio.PyAudio()
-
+    
         audio_stream = py_audio.open(
             rate=porcupine.sample_rate,
             channels=1,
@@ -22,7 +22,7 @@ def detect_hotword():
             input=True,
             frames_per_buffer=porcupine.frame_length
         )
-            
+        
         while True:
             pcm = audio_stream.read(porcupine.frame_length)
             pcm = struct.unpack_from("h" * porcupine.frame_length, pcm)
