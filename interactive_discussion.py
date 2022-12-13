@@ -31,6 +31,7 @@ lesson_data = None
 def load_lesson_data():
     global lesson_data
     
+    '''
     gtts_speak('What is the lesson that you want?')
     
     requested_course = speech_to_text()
@@ -40,6 +41,10 @@ def load_lesson_data():
         gtts_speak('No lesson data found')
     else:
         gtts_speak(f'Lesson has been loaded')
+    '''
+    
+    #testing purposes
+    lesson_data = get_lesson_data(get_jwt_token(), 'lesson 1')
 
 def load_questions(questions):
     gtts_speak('Ok lets start')
@@ -58,31 +63,48 @@ def load_questions(questions):
             if detect_hotword():
                 command = speech_to_text()
                 
+                #previous question
+                if 'previous question' in command:
+                    if current_index > 0:
+                        current_index -= 1
+                        current_question = questions[current_index]
+                        gtts_speak(current_question.question)
+                    else:
+                        gtts_speak('No previous question')
+                        
+                #next question
+                elif 'next question' in command:
+                    if current_index < len(questions) - 1:
+                        current_index += 1
+                        current_question = questions[current_index]
+                        gtts_speak(current_question.question)
+                    else:
+                        gtts_speak('No next question')
+                        
+                #reveal correct answer
+                elif 'correct answer' in command:
+                    gtts_speak(f'The correct answer is {current_question.answer}')
+                
+                #current question
+                elif 'repeat question' in command:
+                    gtts_speak(current_question.question)
+                
                 #students answer
-                if 'answer' in command:
+                elif 'answer' in command:
                     if current_question.answer in command:
                         gtts_speak(current_question.response)
                     else:
                         gtts_speak('Incorrect answer')
                         
-                #previous question
-                elif ('previous' and 'question') in command:
-                    current_index -= 1
-                    
-                #next question
-                elif ('next' and 'question') in command:
-                    current_index += 1
-                
-                #reveal correct answer
-                elif ('correct' and 'answer') in command:
-                    gtts_speak(f'The correct answer is {current_question.answer}')
-                
                 #exit questioning mode
                 elif 'exit' in command:
                     gtts_speak(f'Exiting questioning mode')
                     return
-
+                
 def start_interactive_discussion(command):
+    #testing purposes
+    load_lesson_data()
+    
     if 'load' and 'lesson' in command:
         load_lesson_data()
     

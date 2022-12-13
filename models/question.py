@@ -1,5 +1,8 @@
+from models.lowercase import lowercase
+
 class Question(object):
-    def __init__(self, question, answer, response):
-      self.question = question
-      self.answer = answer
-      self.response = response
+    def __init__(self, id, question, answer, response):
+      self.id = id
+      self.question = lowercase(question)
+      self.answer = lowercase(answer)
+      self.response = lowercase(response)

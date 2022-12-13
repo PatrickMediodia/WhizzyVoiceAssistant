@@ -43,6 +43,8 @@ def get_lesson_data(jwt, trigger_word):
     end_point += 'populate[0]=courses'
     end_point += '&populate[1]=courses.modules'
     end_point += '&populate[2]=courses.modules.lessons'
+    end_point += '&populate[4]=courses.modules.lessons.trivias'
+    end_point += '&populate[3]=courses.modules.lessons.questions'
     end_point += '&fields=id,username,email'
     
     headers = {
@@ -57,6 +59,8 @@ def get_lesson_data(jwt, trigger_word):
     for course in user_data_object.courses:
         for module in course.modules:
             for lesson in module.lessons:
+                if lesson.trigger_word is None:
+                    continue
                 if trigger_word in lesson.trigger_word:
                     print('Found trigger word')
                     return lesson

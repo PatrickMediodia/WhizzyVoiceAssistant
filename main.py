@@ -48,8 +48,11 @@ def main():
     initialize_devices()
     
     #start new thread for avatar
+    '''
+    #Testing purposes
     threading.Thread(target=initialize_avatar).start()
     gtts_speak('Hello I am Whizzy, your personal assistant')
+    '''
     
     with noalsaerr():
         while True:
