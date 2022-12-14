@@ -44,8 +44,55 @@ def load_lesson_data():
     '''
     
     #testing purposes
-    lesson_data = get_lesson_data(get_jwt_token(), 'lesson 1')
+    lesson_data = get_lesson_data(get_jwt_token(), 'lesson 2')
 
+def load_trivias(trivias):
+    gtts_speak('Ok lets start')
+    
+    current_index = 0
+    
+    #repeat while in trivia mode
+    while True:
+        current_trivia = trivias[current_index]
+        
+        #say the question
+        gtts_speak(current_trivia.response)
+        
+        #repeat until next or previous trivia command
+        while True:
+            if detect_hotword():
+                command = speech_to_text()
+                
+                #previous question
+                if 'previous trivia' in command:
+                    if current_index > 0:
+                        current_index -= 1
+                        current_trivia = trivias[current_index]
+                        gtts_speak(current_trivia.response)
+                    else:
+                        gtts_speak('No previous trivia')
+                        
+                #next question
+                elif 'next trivia' in command:
+                    if current_index < len(trivias) - 1:
+                        current_index += 1
+                        current_trivia = trivias[current_index]
+                        gtts_speak(current_trivia.response)
+                    else:
+                        gtts_speak('No next trivia')
+                                       
+                #current trivia
+                elif 'repeat trivia' in command:
+                    gtts_speak(current_trivia.response)
+                    
+                #exit trivia mode
+                elif 'exit' in command:
+                    gtts_speak(f'Exiting trivia mode')
+                    return
+                
+                else:
+                    gtts_speak(f'Sorry I cannot process that request')
+                
 def load_questions(questions):
     gtts_speak('Ok lets start')
     
@@ -101,6 +148,9 @@ def load_questions(questions):
                     gtts_speak(f'Exiting questioning mode')
                     return
                 
+                else:
+                    gtts_speak(f'Sorry I cannot process that request')
+                    
 def start_interactive_discussion(command):
     #testing purposes
     load_lesson_data()
@@ -119,7 +169,7 @@ def start_interactive_discussion(command):
             gtts_speak(lesson_data.summarization)
                 
         elif 'trivia' in command:
-            print(f'Im in the trivia')
+            load_trivias(lesson_data.trivias)
            
         elif ('questioning' or 'question') in command:
             load_questions(lesson_data.questions)
