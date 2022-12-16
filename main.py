@@ -1,11 +1,11 @@
 import threading
 from ALSA_handler import noalsaerr
-from API_requests import authenticate
 from text_to_speech import gtts_speak
 from speech_to_text import speech_to_text
 from whizzy_avatar import initialize_avatar
 from web_searching import start_google_assistant
 from picovoice.detect_hotword import detect_hotword
+from API_requests import authenticate, detect_intent
 from interactive_discussion import start_interactive_discussion
 from smart_controls import initialize_devices, start_smart_controls
 
@@ -28,6 +28,7 @@ password = "123456"
 #Session id must be unique to each raspberry PI
 #Denotes the current conversation
 session_id = 'RoomNumber'
+project_id = 'whizzy-1d843'
 
 current_mode = modes[0]
 
@@ -53,7 +54,6 @@ def main():
     
     #start new thread for avatar
     '''
-    #Testing purposes
     threading.Thread(target=initialize_avatar).start()
     gtts_speak('Hello I am Whizzy, your personal assistant')
     '''

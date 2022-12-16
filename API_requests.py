@@ -68,7 +68,7 @@ def get_lesson_data(jwt, trigger_word):
                 
     return None
 
-def detect_intent_texts(project_id, session_id, text, language_code):    
+def detect_intent(project_id, session_id, text, language_code):    
     session_client = dialogflow.SessionsClient()
     
     session = session_client.session_path(project_id, session_id)
@@ -77,11 +77,12 @@ def detect_intent_texts(project_id, session_id, text, language_code):
     text_input = dialogflow.TextInput(text=text, language_code=language_code)
 
     query_input = dialogflow.QueryInput(text=text_input)
-
+    
     response = session_client.detect_intent(
         request={"session": session, "query_input": query_input}
     )
-
+    
+    '''
     print("=" * 20)
     print("Query text: {}".format(response.query_result.query_text))
     print(
@@ -91,5 +92,8 @@ def detect_intent_texts(project_id, session_id, text, language_code):
         )
     )
     print("Fulfillment text: {}\n".format(response.query_result.fulfillment_text))
+    '''
     
-detect_intent_texts('whizzy-1d843', 'dasdasdasdsada3132131', 'Begin introduction', 'en')
+    return response
+
+print(detect_intent('whizzy-1d843', '123456789', 'Begin introduction', 'en'))
