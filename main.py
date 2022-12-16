@@ -21,11 +21,15 @@ mode_map = {
     'interactive discussion': start_interactive_discussion
 }
 
-#temp
+#temporary credentials
 username = "faculty1"
 password = "123456"
 
-current_mode = modes[2]
+#Session id must be unique to each raspberry PI
+#Denotes the current conversation
+session_id = 'RoomNumber'
+
+current_mode = modes[0]
 
 def change_mode(current_mode, command):
     if 'change' in command:
