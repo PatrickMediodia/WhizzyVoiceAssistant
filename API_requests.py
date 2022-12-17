@@ -95,5 +95,3 @@ def detect_intent(project_id, session_id, text, language_code):
     '''
     
     return response
-
-print(detect_intent('whizzy-1d843', '123456789', 'Begin introduction', 'en'))
