@@ -1,11 +1,11 @@
 import threading
 from ALSA_handler import noalsaerr
 from text_to_speech import gtts_speak
+from API_requests import authenticate
 from speech_to_text import speech_to_text
 from whizzy_avatar import initialize_avatar
 from web_searching import start_google_assistant
 from picovoice.detect_hotword import detect_hotword
-from API_requests import authenticate, detect_intent
 from interactive_discussion import start_interactive_discussion
 from smart_controls import initialize_devices, start_smart_controls
 
@@ -25,15 +25,10 @@ mode_map = {
 username = "faculty1"
 password = "123456"
 
-#Session id must be unique to each raspberry PI
-#Denotes the current conversation
-session_id = 'RoomNumber'
-project_id = 'whizzy-1d843'
-
-current_mode = modes[0]
+current_mode = modes[2]
 
 def change_mode(current_mode, command):
-    if 'change' in command:
+    if 'switch' in command or 'change' in command:
         for mode in modes:
             if mode in command and current_mode != mode:
                 return mode
@@ -53,11 +48,9 @@ def main():
     initialize_devices()
     
     #start new thread for avatar
-    '''
-    threading.Thread(target=initialize_avatar).start()
-    gtts_speak('Hello I am Whizzy, your personal assistant')
-    '''
-    
+    #threading.Thread(target=initialize_avatar).start()
+    #gtts_speak('Hello I am Whizzy, your personal assistant')
+
     with noalsaerr():
         while True:
             print(f'Current mode: {current_mode}')

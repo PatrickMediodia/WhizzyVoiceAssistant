@@ -39,7 +39,7 @@ def get_jwt_token():
         return
     return jwt
 
-def get_lesson_data(jwt, trigger_word):
+def get_user_data(jwt, trigger_word):
     end_point = url + 'users/me?'
     end_point += 'populate[0]=courses'
     end_point += '&populate[1]=courses.modules'
@@ -56,44 +56,5 @@ def get_lesson_data(jwt, trigger_word):
 
     user_data_dict = json.loads(response.text)
     user_data_object = UserData(**user_data_dict)
-
-    for course in user_data_object.courses:
-        for module in course.modules:
-            for lesson in module.lessons:
-                if lesson.trigger_word is None:
-                    continue
-                if trigger_word in lesson.trigger_word:
-                    print('Found trigger word')
-                    return lesson
-                
-    return None
-
-def detect_intent(project_id, session_id, text, language_code):    
-    session_client = dialogflow.SessionsClient()
-    
-    session = session_client.session_path(project_id, session_id)
-    print("Session path: {}\n".format(session))
-
-    text_input = dialogflow.TextInput(text=text, language_code=language_code)
-
-    query_input = dialogflow.QueryInput(text=text_input)
-    
-    response = session_client.detect_intent(
-        request={"session": session, "query_input": query_input}
-    )
-    
-    '''
-    print("=" * 20)
-    print("Query text: {}".format(response.query_result.query_text))
-    print(
-        "Detected intent: {} (confidence: {})\n".format(
-            response.query_result.intent.display_name,
-            response.query_result.intent_detection_confidence,
-        )
-    )
-    print("Fulfillment text: {}\n".format(response.query_result.fulfillment_text))
-    '''
-    
-    return response
-
-print(detect_intent('whizzy-1d843', '123456789', 'Begin introduction', 'en'))
+   
+    return user_data_object

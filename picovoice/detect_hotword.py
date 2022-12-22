@@ -29,7 +29,7 @@ def detect_hotword():
             keyword_index = porcupine.process(pcm)
                             
             if keyword_index == 0:
-                print('Hey Whizzy detected')
+                print('\nHey Whizzy detected')
                 return True
             
     finally:
