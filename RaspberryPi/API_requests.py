@@ -63,7 +63,7 @@ def get_room_device_data(jwt, room_number):
 
     for data in room_device_data['data']:
         return data['attributes']['devices']['data']
-    
+
     return None
 
 def get_device_status(device_id):
