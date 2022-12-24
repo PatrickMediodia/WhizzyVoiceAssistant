@@ -22,8 +22,8 @@ mode_map = {
 }
 
 #temporary credentials
-username = "faculty1"
-password = "123456"
+username = 'faculty1'
+password = '123456'
 
 current_mode = modes[2]
 
