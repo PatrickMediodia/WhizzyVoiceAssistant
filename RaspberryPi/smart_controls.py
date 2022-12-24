@@ -56,7 +56,7 @@ def start_smart_controls(command):
         attributes = device['attributes']
 
         if attributes['name'] in command:
-            if attributes['status'] == 'Not connected':
+            if attributes['connected'] == False:
                 #gtts_speak(f'{device_name} is not connected')
                 print(f'{attributes["name"]} is not connected')
                 break
@@ -77,10 +77,10 @@ def device_status(device_dict):
     attributes = device_dict['attributes']
     status = ''
     
-    if get_device_state(attributes['object']) == True:
+    if get_device_state(device_id_to_object_map[device_dict['id']]) == True:
         set_device_status(device_dict['id'], 'true')
         status = 'on'
-    elif get_device_state(attributes['object']) == False:
+    elif get_device_state(device_id_to_object_map[device_dict['id']]) == False:
         set_device_status(device_dict['id'], 'false')
         status = 'off'
     #gtts_speak(f'{device_name} is currently {status}')
@@ -92,12 +92,12 @@ def get_device_state(device):
 def turn_on_device(device_dict):
     attributes = device_dict['attributes']
 
-    if get_device_state(attributes['object']) == True:
+    if get_device_state(device_id_to_object_map[device_dict['id']]) == True:
         #gtts_speak(f'{device_name} is already on')
         print(f'{attributes["name"]} is already on')
         return
 
-    attributes['object'].turnOn()
+    device_id_to_object_map[device_dict['id']].turnOn()
     set_device_status(device_dict['id'], 'true')
 
     #gtts_speak(f'{device_name} turned on')
@@ -107,12 +107,12 @@ def turn_off_device(device_dict):
     global room_device_data
     attributes = device_dict['attributes']
 
-    if get_device_state(attributes['object']) == False:
+    if get_device_state(device_id_to_object_map[device_dict['id']]) == False:
         #gtts_speak(f'{device_name} is already off')
         print(f'{attributes["name"]} is already off')
         return
 
-    attributes['object'].turnOff()
+    device_id_to_object_map[device_dict['id']].turnOff()
     set_device_status(device_dict['id'], 'false')
     #gtts_speak(f'{device_name} turned off')
     print(f'{attributes["name"]} turned off')
