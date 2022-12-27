@@ -48,8 +48,6 @@ def server():
                 else:
                     connection.sendall('Application not found'.encode('utf-8'))
                     break
-                
-                
 
 if __name__ == '__main__':
     while True:

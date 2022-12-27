@@ -48,9 +48,9 @@ def main():
     threading.Thread(target=initialize_devices).start()
 
     #start new thread for avatar
-    #threading.Thread(target=initialize_avatar).start()
-    #gtts_speak('Hello I am Whizzy, your personal assistant')
-
+    threading.Thread(target=initialize_avatar).start()
+    gtts_speak('Hello I am Whizzy, your personal assistant')
+    
     while True:
         command = input('\nEnter a command: ')
         start_smart_controls(command)

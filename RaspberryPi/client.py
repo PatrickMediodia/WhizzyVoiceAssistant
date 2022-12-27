@@ -1,9 +1,4 @@
-try:
-    import socket
-    import threading
-    import time
-except:
-    print('library not found ')
+import socket
 
 #match details with server
 HOST = '192.168.1.4'
@@ -23,5 +18,5 @@ def client(application):
         print(f'Response : {response}')
 
         s.close()
-        
+
 client('open MSTeams')
