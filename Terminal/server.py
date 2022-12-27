@@ -1,6 +1,4 @@
-import os
 import socket
-import signal
 import webbrowser
 import subprocess
 
