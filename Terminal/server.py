@@ -8,8 +8,7 @@ HOST = '192.168.1.4'
 PORT = 65432
 
 application_map = {
-    'application' : 'address in host computer',
-    'MSTeams' : 'C:\\Users\\Pat\\AppData\\Local\\Microsoft\\Teams\\current\\Teams.exe',
+    'microsoft teams' : 'C:\\Users\\Pat\\AppData\\Local\\Microsoft\\Teams\\current\\Teams.exe',
 }
 
 MSTeamsProcess = None
@@ -33,14 +32,14 @@ def server():
                     if 'browser' in data:
                         print(f"Opening browser {data}")
                         webbrowser.open("www.google.com")                   
-                        connection.sendall(f'{data} has been opened'.encode('utf-8'))
+                        connection.sendall(f'browser has been opened'.encode('utf-8'))
 
-                    elif 'MSTeams' in data:
-                        connection.sendall(f'{data} has been opened'.encode('utf-8'))
-                        MSTeamsProcess = subprocess.Popen([application_map['MSTeams']])
+                    elif 'microsoft teams' in data:
+                        connection.sendall(f'microsoft teams has been opened'.encode('utf-8'))
+                        MSTeamsProcess = subprocess.Popen([application_map['microsoft teams']])
 
                 elif 'close' in data:
-                    if 'MSTeams' in data:
+                    if 'microsoft teams' in data:
                         print('trying to close MSTeams')
                         MSTeamsProcess.kill()
                         connection.sendall(f'{data} has been closed'.encode('utf-8'))
@@ -48,7 +47,7 @@ def server():
                 else:
                     connection.sendall('Application not found'.encode('utf-8'))
                     break
-
+                
 if __name__ == '__main__':
     while True:
         server()
