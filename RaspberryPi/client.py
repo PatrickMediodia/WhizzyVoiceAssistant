@@ -4,19 +4,28 @@ import socket
 HOST = '192.168.1.4'
 PORT = 65432
 
+application_map = {
+    'microsoft teams' : ['microsoft teams', 'ms teams', 'teams'],
+    'blackboard learn' : ['blackboard learn', 'blackboard', 'bbl'],
+    'browser' : ['browser', 'web', 'web browser'],
+}
+
 def client(application):
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-        #connect to server
-        s.connect((HOST, PORT))
-        
-        #send message
-        message = application.encode('utf-8')
-        s.sendall(message)
-        
-        #receive response
-        response = s.recv(1024).decode('utf-8')
-        print(f'Response : {response}')
-
-        s.close()
-
-client('open MSTeams')
+        try:
+            #connect to server
+            s.settimeout(1)
+            s.connect((HOST, PORT))
+            
+            #send message
+            message = application.encode('utf-8')
+            s.sendall(message)
+            
+            #receive response
+            response = s.recv(1024).decode('utf-8')
+            s.close()
+            
+            return response
+            
+        except:
+            return 'Cannot connect to host machine'
