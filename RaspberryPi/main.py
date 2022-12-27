@@ -25,7 +25,7 @@ mode_map = {
 username = 'faculty1'
 password = '123456'
 
-current_mode = modes[2]
+current_mode = modes[1]
 
 def change_mode(current_mode, command):
     if 'switch' in command or 'change' in command:
@@ -42,14 +42,18 @@ def main():
         gtts_speak('Incorrect credentials')
         print('Incorrect credentials')
         return
-    
+
     #start after authentication
     #initializing devices in the classroon
-    initialize_devices()
-    
+    threading.Thread(target=initialize_devices).start()
+
     #start new thread for avatar
     #threading.Thread(target=initialize_avatar).start()
     #gtts_speak('Hello I am Whizzy, your personal assistant')
+
+    while True:
+        command = input('\nEnter a command: ')
+        start_smart_controls(command)
 
     with noalsaerr():
         while True:
@@ -74,6 +78,6 @@ def main():
                 #send command to current mode
                 else:
                     mode_map[current_mode](command)
-                    
+
 if __name__ == '__main__':
     main()

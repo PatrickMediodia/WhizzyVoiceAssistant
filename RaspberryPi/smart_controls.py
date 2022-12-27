@@ -1,7 +1,7 @@
-import json
+import time
 from PyP100 import PyP100
-#from text_to_speech import gtts_speak
-from API_requests import get_jwt_token, get_room_device_data, set_device_status, authenticate #Remove authenticate
+from text_to_speech import gtts_speak
+from API_requests import get_jwt_token, get_room_device_data, set_device_status, set_device_connectivity
 
 #TABO credentails
 username = 'whizzyassistant@gmail.com'
@@ -18,47 +18,47 @@ def initialize_devices():
     global room_device_data
     global device_id_to_object_map
 
-    print('Initializing devices ........')
+    while True:
+        time.sleep(1)
 
-    room_device_data = get_room_device_data(get_jwt_token(), room_number)
+        #API call
+        room_device_data = get_room_device_data(get_jwt_token(), room_number)
 
-    for device in room_device_data:
-        attributes = device['attributes']
-        id = device['id']
+        #iterate through devices
+        for device in room_device_data:
+            #deserialize json data
+            attributes = device['attributes']
+            id = device['id']
 
-        try:
-            #check if id has PyP100 object in dictionary
-            if device_id_to_object_map.get(id) == None:
-                print('Initialize')
-                initiated_device = PyP100.P100(attributes['ip_address'], username, password)
-                initiated_device.handshake()
-                initiated_device.login()
-                device_id_to_object_map[id] = initiated_device
+            try:
+                #check if id has PyP100 object in dictionary
+                if device_id_to_object_map.get(id) == None:
+                    #print('Initialize')
+                    initiated_device = PyP100.P100(attributes['ip_address'], username, password)
+                    initiated_device.handshake()
+                    initiated_device.login()
+                    device_id_to_object_map[id] = initiated_device
 
-            #reflect the current state based on db
-            if attributes['status'] == True:
-                device_id_to_object_map[id].turnOn()
-            else:
-                device_id_to_object_map[id].turnOff()
+                #reflect the current state based on db
+                if attributes['status'] == True:
+                    device_id_to_object_map[id].turnOn()
+                else:
+                    device_id_to_object_map[id].turnOff()
 
-            attributes['connected'] = True
-            print(f'\n{attributes["name"]} is connected')
-        except:
-            attributes['connected'] = False
-            print(f'\n{attributes["name"]} is not connected')
+                set_device_connectivity(id, True)
+                attributes['connected'] = True
 
-    print('\n', room_device_data)
-    
+            except:
+                set_device_connectivity(id, False)
+                attributes['connected'] = False
+                
 def start_smart_controls(command):
-    initialize_devices()
-
     for device in room_device_data:
         attributes = device['attributes']
 
         if attributes['name'] in command:
             if attributes['connected'] == False:
-                #gtts_speak(f'{device_name} is not connected')
-                print(f'{attributes["name"]} is not connected')
+                gtts_speak(f'{attributes["name"]} is not connected')
                 break
             elif 'status' in command:
                 device_status(device)
@@ -70,56 +70,34 @@ def start_smart_controls(command):
                 turn_off_device(device)
                 break
     else:
-        #gtts_speak('Command not found')
-        print('Command not found')
+        gtts_speak('Command not found')
 
 def device_status(device_dict):
     attributes = device_dict['attributes']
     status = ''
     
-    if get_device_state(device_id_to_object_map[device_dict['id']]) == True:
-        set_device_status(device_dict['id'], 'true')
+    if attributes['status'] == True:
         status = 'on'
-    elif get_device_state(device_id_to_object_map[device_dict['id']]) == False:
-        set_device_status(device_dict['id'], 'false')
+    elif attributes['status'] == False:
         status = 'off'
-    #gtts_speak(f'{device_name} is currently {status}')
-    print(f'{device_dict["name"]} is currently {status}')
-
-def get_device_state(device):
-    return device.getDeviceInfo()['result']['device_on']
+    gtts_speak(f'{device_dict["name"]} is currently {status}')
 
 def turn_on_device(device_dict):
     attributes = device_dict['attributes']
 
-    if get_device_state(device_id_to_object_map[device_dict['id']]) == True:
-        #gtts_speak(f'{device_name} is already on')
-        print(f'{attributes["name"]} is already on')
+    if attributes['status'] == True:
+        gtts_speak(f'{attributes["name"]} is already on')
         return
 
-    device_id_to_object_map[device_dict['id']].turnOn()
     set_device_status(device_dict['id'], 'true')
-
-    #gtts_speak(f'{device_name} turned on')
-    print(f'{attributes["name"]} turned on')
+    gtts_speak(f'{attributes["name"]} turned on')
 
 def turn_off_device(device_dict):
-    global room_device_data
     attributes = device_dict['attributes']
 
-    if get_device_state(device_id_to_object_map[device_dict['id']]) == False:
-        #gtts_speak(f'{device_name} is already off')
-        print(f'{attributes["name"]} is already off')
+    if attributes['status'] == False:
+        gtts_speak(f'{attributes["name"]} is already off')
         return
 
-    device_id_to_object_map[device_dict['id']].turnOff()
     set_device_status(device_dict['id'], 'false')
-    #gtts_speak(f'{device_name} turned off')
-    print(f'{attributes["name"]} turned off')
-
-#test
-authenticate('faculty1', '123456')
-initialize_devices()
-while True:
-    command = input('\nEnter a command: ')
-    start_smart_controls(command)
+    gtts_speak(f'{attributes["name"]} turned off')

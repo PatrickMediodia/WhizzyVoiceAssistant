@@ -87,40 +87,27 @@ def set_device_status(device_id, status):
         'Content-Type': 'application/json'
     }
 
-    payload = json.dumps({
-        "data" : { "status" : status }
-    })
+    payload = json.dumps({ "data" : { "status" : status } })
 
     response = requests.request("PUT", end_point, headers=headers, data=payload)
     device_status_response = json.loads(response.text)
 
     return device_status_response['data']
 
-'''
-class Room:
-    def __init__(self, id, attributes):
-        self.id = id
-        self.attributes = RoomAttributes(**attributes)
+def set_device_connectivity(device_id, connected):
+    if jwt == None:
+        return 'Please authenticate'
 
-class RoomAttributes:
-    def __init__(self, createdAt, updatedAt, publishedAt, name, devices):
-        self.createdAt = createdAt,
-        self.updatedAt = updatedAt,
-        self.publishedAt = publishedAt,
-        self.name = name
-        self.devices = [ Device(**device) for device in devices['data'] ]
-    
-class Device:
-    def __init__(self, id, attributes):
-        self.id = id
-        self.attributes = DeviceAttributes(**attributes)
+    end_point = url + f'devices/{device_id}'
 
-class DeviceAttributes:
-    def __init__(self, name, identifier, status, createdAt, updatedAt, publishedAt):
-        self.name = name
-        self.identifier = identifier
-        self.status = status
-        self.createdAt = createdAt
-        self.updatedAt = updatedAt
-        self.publishedAt = publishedAt
-'''
+    headers = {
+        'Authorization': 'Bearer ' + jwt,
+        'Content-Type': 'application/json'
+    }
+
+    payload = json.dumps({ "data" : { "connected" : connected } })
+
+    response = requests.request("PUT", end_point, headers=headers, data=payload)
+    device_status_response = json.loads(response.text)
+
+    return device_status_response['data']
