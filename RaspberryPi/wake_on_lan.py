@@ -13,6 +13,9 @@ Steps
     - Allow the computer to turn off this device to save power
     - Allow this device to wake the computer
         - Only allow a magic packet to wake the computer
+
+If Advanced and Power Management tabs are not available
+update the ethernet device driver
 '''
 
 from wakeonlan import send_magic_packet
