@@ -17,8 +17,7 @@ Steps
 
 from wakeonlan import send_magic_packet
 
-terminal_MAC_address = 'B8.97.5A.C0.EA.09'
-
-send_magic_packet(terminal_MAC_address)
+def start_terminal(MAC_address):
+    send_magic_packet(MAC_address)
 
 print('\nMagic Packet Sent\n')

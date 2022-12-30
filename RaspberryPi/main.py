@@ -2,6 +2,7 @@ import threading
 from ALSA_handler import noalsaerr
 from API_requests import authenticate
 from text_to_speech import gtts_speak
+from wake_on_lan import start_terminal
 from speech_to_text import speech_to_text
 from whizzy_avatar import initialize_avatar
 from web_searching import start_google_assistant
@@ -22,8 +23,10 @@ mode_map = {
 }
 
 #temporary credentials
-username = 'faculty1'
-password = '123456'
+USERNAME = 'faculty1'
+PASSWORD = '123456'
+
+MAC_ADDRESS = 'B8.97.5A.C0.EA.09'
 
 current_mode = modes[1]
 
@@ -36,7 +39,7 @@ def change_mode(current_mode, command):
 
 def main():
     global current_mode
-    account = authenticate(username, password)
+    account = authenticate(USERNAME, PASSWORD)
     
     if account == None:
         gtts_speak('Incorrect credentials')
@@ -50,6 +53,9 @@ def main():
     #start new thread for avatar
     #threading.Thread(target=initialize_avatar).start()
     #gtts_speak('Hello I am Whizzy, your personal assistant')
+    
+    #turn on professor terminal using WOL packet
+    start_terminal(MAC_ADDRESS)
     
     while True:
         command = input('\nEnter a command: ')
