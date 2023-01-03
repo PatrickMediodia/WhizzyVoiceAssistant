@@ -2,7 +2,8 @@ import socket
 import webbrowser
 import subprocess
 
-HOST = '192.168.1.4'
+#static IP address and port
+HOST = '192.168.1.13'
 PORT = 65432
 
 application_map = {
@@ -45,7 +46,7 @@ def server():
                 else:
                     connection.sendall('Application not found'.encode('utf-8'))
                     break
-                
+
 if __name__ == '__main__':
     while True:
         server()

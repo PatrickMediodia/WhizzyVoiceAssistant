@@ -44,4 +44,4 @@ def blackboard(username, password):
     login_button.click()
     
 #call blackboard function
-blackboard('sample username', 'sample password')
+#blackboard('sample username', 'sample password')
