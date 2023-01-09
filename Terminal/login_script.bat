@@ -5,18 +5,12 @@
 @echo off
 setlocal enabledelayedexpansion
 
-set count=0
-
-for /f "tokens=*" %%x in (login_credentials.txt) do (
-    set /a count+=1
-    set var[!count!]=%%x
-)
-
 :: change registry values
+:: get data as parameters; irst (%1) -> username, second (%2) -> password, third (%3) -> domain
 reg add "HKEY_LOCAL_MACHINE\Software\Microsoft\Windows NT\CurrentVersion\Winlogon" /v AutoAdminLogon /t REG_SZ /d 1 /f
-reg add "HKEY_LOCAL_MACHINE\Software\Microsoft\Windows NT\CurrentVersion\Winlogon" /v DefaultUserName /t REG_SZ /d Pat /f
-reg add "HKEY_LOCAL_MACHINE\Software\Microsoft\Windows NT\CurrentVersion\Winlogon" /v DefaultDomainName /t REG_SZ /d DESKTOP-0K06L79 /f
-reg add "HKEY_LOCAL_MACHINE\Software\Microsoft\Windows NT\CurrentVersion\Winlogon" /v DefaultPassword /t REG_SZ /d Password /f
+reg add "HKEY_LOCAL_MACHINE\Software\Microsoft\Windows NT\CurrentVersion\Winlogon" /v DefaultUserName /t REG_SZ /d %1 /f
+reg add "HKEY_LOCAL_MACHINE\Software\Microsoft\Windows NT\CurrentVersion\Winlogon" /v DefaultPassword /t REG_SZ /d %2 /f
+reg add "HKEY_LOCAL_MACHINE\Software\Microsoft\Windows NT\CurrentVersion\Winlogon" /v DefaultDomainName /t REG_SZ /d %3 /f
 
 :: reboot system to use new credentials loaded
-:: shutdown /r /t 00
+shutdown /r /t 00
