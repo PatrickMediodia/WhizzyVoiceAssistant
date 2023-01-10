@@ -22,5 +22,4 @@ from wakeonlan import send_magic_packet
 
 def start_terminal(MAC_address):
     send_magic_packet(MAC_address)
-
-print('\nMagic Packet Sent\n')
+    print('\nMagic Packet Sent\n')
