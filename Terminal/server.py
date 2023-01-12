@@ -3,7 +3,7 @@ import webbrowser
 import subprocess
 
 #static IP address and port
-HOST = '192.168.1.13'
+HOST = '192.168.1.9'
 PORT = 65432
 
 application_map = {

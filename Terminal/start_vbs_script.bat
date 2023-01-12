@@ -1,1 +1,0 @@
-start wscript.exe "C:\Users\Pat\Documents\WhizzyVoiceAssistant\Terminal\login_vb.vbs"
