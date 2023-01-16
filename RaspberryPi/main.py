@@ -1,14 +1,22 @@
+#Main Imports
 import threading
 from ALSA_handler import noalsaerr
 from API_requests import authenticate
 from text_to_speech import gtts_speak
-from wake_on_lan import start_terminal
 from speech_to_text import speech_to_text
 from whizzy_avatar import initialize_avatar
-from web_searching import start_google_assistant
 from picovoice.detect_hotword import detect_hotword
+
+#Web Searching
+from web_searching import start_google_assistant
+
+#Interactive Discussion
 from interactive_discussion import start_interactive_discussion
-from smart_controls import initialize_devices, start_smart_controls
+
+#Smart Controls
+from smart_controls.wake_on_lan import start_terminal
+from smart_controls.windows_login import login_terminal
+from smart_controls.smart_controls import initialize_devices, start_smart_controls
 
 modes = (
     'web searching',
@@ -50,17 +58,17 @@ def main():
     #initializing devices in the classroon
     threading.Thread(target=initialize_devices).start()
 
-    #start new thread for avatar
-    #threading.Thread(target=initialize_avatar).start()
-    #gtts_speak('Hello I am Whizzy, your personal assistant')
-    
     #turn on professor terminal using WOL packet
     start_terminal(MAC_ADDRESS)
     
-    while True:
-        command = input('\nEnter a command: ')
-        mode_map[current_mode](command)
-
+    #login to windows
+    #Local credentials, connect to API
+    login_terminal('Pat', 'Admin1234@', 'DESKTOP-0K06L79')
+    
+    #start new thread for avatar
+    threading.Thread(target=initialize_avatar).start()
+    gtts_speak('Hello I am Whizzy, your personal assistant')
+    
     with noalsaerr():
         while True:
             print(f'Current mode: {current_mode}')
@@ -84,6 +92,6 @@ def main():
                 #send command to current mode
                 else:
                     mode_map[current_mode](command)
-
+                    
 if __name__ == '__main__':
     main()

@@ -12,16 +12,15 @@ def login_terminal(username, password, domain):
             print('Session established')
             
             #trigger batch script that changes registry on terminal
-            result = sess.run_cmd(f'cd / && cd Users/Pat/Documents/WhizzyVoiceAssistant/Terminal && login_script.bat {username} {password} {domain}')
+            result = sess.run_cmd(f'cd / && cd Users/Pat/Documents/WhizzyVoiceAssistant/Terminal/windows && login_script.bat {username} {password} {domain}')
             print('Credentials changed')
             break
         
         except Exception as e:
             print('An error has occured')
 
-
 #Admin
-login_terminal('Pat', 'Admin1234@', 'DESKTOP-0K06L79')
-
+#login_terminal('Pat', 'Admin1234@', 'DESKTOP-0K06L79')
+            
 #Whizzy
 #login_terminal('Whizzy', 'Admin1234@', 'DESKTOP-0K06L79')
