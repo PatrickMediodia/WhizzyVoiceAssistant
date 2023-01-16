@@ -18,13 +18,13 @@ options.add_experimental_option('detach', True)
 options.add_experimental_option("useAutomationExtension", False)
 options.add_experimental_option("excludeSwitches",["enable-automation"])
 
-#initialize driver object
-driver = webdriver.Chrome(
-    service=Service(ChromeDriverManager().install()),
-    options=options
-)
-
 def blackboard(username, password):
+    #initialize driver object
+    driver = webdriver.Chrome(
+        service=Service(ChromeDriverManager().install()),
+        options=options
+    )
+    
     #open Brwoser
     driver.get('https://mcl.blackboard.com/')
     driver.maximize_window()
@@ -42,6 +42,5 @@ def blackboard(username, password):
     #click login button
     login_button = driver.find_element(By.ID, 'entry-login')
     login_button.click()
-    
-#call blackboard function
-#blackboard('sample username', 'sample password')
+
+    return driver

@@ -37,7 +37,7 @@ while True:
         else:
             print(f'Access Denied, {rfid_UID}')
             serialObj.write(b'Denied\n')
-    
+
         input("Press enter to be able to read another card: ")
         print('message sent')
         serialObj.write(b'Logout\n')
