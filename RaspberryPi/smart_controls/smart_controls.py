@@ -1,8 +1,8 @@
 import time
 from PyP100 import PyP100
 from text_to_speech import gtts_speak
-from client import client, application_map
-from API_requests import get_jwt_token, get_room_device_data, set_device_status, set_device_connectivity
+from smart_controls.client import client, application_map
+from API_requests import get_room_device_data, set_device_status, set_device_connectivity
 
 #TABO credentails
 username = 'whizzyassistant@gmail.com'
@@ -24,8 +24,8 @@ def initialize_devices():
         time.sleep(1)
 
         #API call
-        room_device_data = get_room_device_data(get_jwt_token(), room_number)
-
+        room_device_data = get_room_device_data(room_number)
+        
         #iterate through devices
         for device in room_device_data:
             #deserialize json data
@@ -62,7 +62,7 @@ def device_status(device_dict):
     elif attributes['status'] == False:
         status = 'off'
         
-    gtts_speak(f'{device_dict["name"]} is currently {status}')
+    gtts_speak(f'{attributes["name"]} is currently {status}')
 
 def turn_on_device(device_dict):
     attributes = device_dict['attributes']

@@ -27,14 +27,8 @@ def authenticate(username, password):
         return account_object
     except:
         return None
-
-def get_jwt_token():
-    if jwt is None:
-        print('No jwt token, please authenticate')
-        return
-    return jwt
     
-def get_user_data(jwt, trigger_word):
+def get_user_data(trigger_word):
     end_point = url + 'users/me?'
     end_point += 'populate[0]=courses'
     end_point += '&populate[1]=courses.modules'
@@ -51,7 +45,7 @@ def get_user_data(jwt, trigger_word):
 
     return user_data_object
 
-def get_room_device_data(jwt, room_number):
+def get_room_device_data(room_number):
     end_point = url + 'rooms?'
     end_point += 'populate=devices'
     end_point += f'&filters[name][$eq]={room_number}'

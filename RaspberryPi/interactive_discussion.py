@@ -1,7 +1,7 @@
 from text_to_speech import gtts_speak
+from API_requests import get_user_data
 from speech_to_text import speech_to_text
 from picovoice.detect_hotword import detect_hotword
-from API_requests import get_jwt_token, get_user_data
 
 """
 Flow
@@ -46,7 +46,7 @@ def load_lesson_data():
     if requested_course == '':
         return
     
-    user_data = get_user_data(get_jwt_token(), requested_course)
+    user_data = get_user_data(requested_course)
     
     found = False
     

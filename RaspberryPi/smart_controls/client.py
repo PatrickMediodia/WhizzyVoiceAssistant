@@ -1,7 +1,7 @@
 import socket
 
 #match details with server
-HOST = '192.168.1.4'
+HOST = '192.168.1.9'
 PORT = 65432
 
 application_map = {
@@ -27,5 +27,6 @@ def client(application):
             
             return response
             
-        except:
+        except Exception as e:
+            print(e)
             return 'Cannot connect to host machine'
