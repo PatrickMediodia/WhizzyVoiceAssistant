@@ -64,11 +64,11 @@ def main():
     
     #login to windows
     #Local credentials, connect to API
-    #login_terminal('Pat', 'Admin1234@', 'DESKTOP-0K06L79')
+    login_terminal('Pat', 'Admin1234@', 'DESKTOP-0K06L79')
     
     #start new thread for avatar
     threading.Thread(target=initialize_avatar).start()
-    time.sleep(2)
+    time.sleep(5)
     gtts_speak('Hello I am Whizzy, your personal assistant')
     
     with noalsaerr():

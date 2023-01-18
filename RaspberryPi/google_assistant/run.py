@@ -8,8 +8,6 @@ import google.oauth2.credentials
 import google.auth.transport.grpc
 import google.auth.transport.requests
 
-
-
 from google.assistant.embedded.v1alpha2 import (
     embedded_assistant_pb2,
     embedded_assistant_pb2_grpc
@@ -117,65 +115,29 @@ class GoogleAssistant(object):
                 self.conversation_state = conversation_state
             if resp.dialog_state_out.supplemental_display_text:
                 text_response = resp.dialog_state_out.supplemental_display_text
-            
-            change_avatar_state(True) #start avatar talking
-            
+                
             #added sound output
             if len(resp.audio_out.audio_data) > 0:
                 if not conversation_stream.playing:
                     conversation_stream.stop_recording()
-                    
+                    change_avatar_state(True) #start avatar talking
                     conversation_stream.start_playback()
-                    
                     print('Playing assistant response.....')
                 conversation_stream.write(resp.audio_out.audio_data)
                 
         conversation_stream.stop_playback()
-        #change_avatar_state(False) #stop avatar talking
+        change_avatar_state(False) #stop avatar talking
         
         return text_response, html_response
 
-@click.command()
-@click.option('--command',
-              metavar='<command>',
-              required=True,
-              help=('Command entered by the user'))
-@click.option('--api-endpoint', default=ASSISTANT_API_ENDPOINT,
-              metavar='<api endpoint>', show_default=True,
-              help='Address of Google Assistant API service.')
-@click.option('--credentials',
-              metavar='<credentials>', show_default=True,
-              default=os.path.join(click.get_app_dir('google-oauthlib-tool'),
-                                   'credentials.json'),
-              help='Path to read OAuth2 credentials.')
-@click.option('--device-model-id',
-              metavar='<device model id>',
-              required=True,
-              help=(('Unique device model identifier, '
-                     'if not specifed, it is read from --device-config')))
-@click.option('--device-id',
-              metavar='<device id>',
-              required=True,
-              help=(('Unique registered device instance identifier, '
-                     'if not specified, it is read from --device-config, '
-                     'if no device_config found: a new device is registered '
-                     'using a unique id and a new device config is saved')))
-@click.option('--lang', show_default=True,
-              metavar='<language code>',
-              default='en-US',
-              help='Language code of the Assistant')
-@click.option('--display', is_flag=True, default=False,
-              help='Enable visual display of Assistant responses in HTML.')
-@click.option('--verbose', '-v', is_flag=True, default=False,
-              help='Verbose logging.')
-@click.option('--grpc-deadline', default=DEFAULT_GRPC_DEADLINE,
-              metavar='<grpc deadline>', show_default=True,
-              help='gRPC deadline in seconds')
-def main(command, api_endpoint, credentials,
-         device_model_id, device_id, lang, display, verbose,
-         grpc_deadline, *args, **kwargs):
-    logging.basicConfig(level=logging.DEBUG if verbose else logging.INFO)
-
+def main(command, device_model_id, device_id):
+    lang = 'en-US'
+    display = False
+    verbose = False
+    grpc_deadline = DEFAULT_GRPC_DEADLINE
+    api_endpoint = ASSISTANT_API_ENDPOINT
+    credentials = os.path.join(click.get_app_dir('google-oauthlib-tool'), 'credentials.json')
+    
     try:
         with open(credentials, 'r') as f:
             credentials = google.oauth2.credentials.Credentials(token=None,
@@ -199,6 +161,3 @@ def main(command, api_endpoint, credentials,
             system_browser.display(response_html)
         if response_text:
             print(f'Transcript of response: {response_text}')
-
-if __name__ == '__main__':
-    main()

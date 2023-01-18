@@ -81,10 +81,11 @@ def face():
                 
 def initialize_avatar():
     global screen, handler
-    # Initialises the display-------------------------------------------------------
+    
+    #initialize display
     pygame.display.init()  # Initiates the display pygame
     pygame.display.set_caption("Whizzy")
-    screen = pygame.display.set_mode((pygame.display.Info().current_w, pygame.display.Info().current_h),pygame.SCALED)  # allows fullscreen
+    screen = pygame.display.set_mode((0,0),pygame.FULLSCREEN)  # allows fullscreen
     handler = imageHandler()
     
     display()         
