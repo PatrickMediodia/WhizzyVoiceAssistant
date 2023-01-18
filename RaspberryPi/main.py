@@ -35,7 +35,7 @@ mode_map = {
 USERNAME = 'faculty1'
 PASSWORD = '123456'
 
-MAC_ADDRESS = 'B8.97.5A.C0.EA.09'
+MAC_ADDRESS = '34.02.86.F8.DA.09' #'B8.97.5A.C0.EA.09'
 
 current_mode = modes[0]
 

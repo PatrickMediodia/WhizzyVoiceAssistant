@@ -1,6 +1,10 @@
 from __future__ import print_function
 
+#hide pygame import message
+import os
+os.environ['PYGAME_HIDE_SUPPORT_PROMPT'] = "hide"
 import pygame
+
 import time
 
 talking = False
