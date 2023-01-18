@@ -1,4 +1,5 @@
 #Main Imports
+import time
 import threading
 from ALSA_handler import noalsaerr
 from API_requests import authenticate
@@ -36,7 +37,7 @@ PASSWORD = '123456'
 
 MAC_ADDRESS = 'B8.97.5A.C0.EA.09'
 
-current_mode = modes[1]
+current_mode = modes[0]
 
 def change_mode(current_mode, command):
     if 'switch' in command or 'change' in command:
@@ -63,10 +64,11 @@ def main():
     
     #login to windows
     #Local credentials, connect to API
-    login_terminal('Pat', 'Admin1234@', 'DESKTOP-0K06L79')
+    #login_terminal('Pat', 'Admin1234@', 'DESKTOP-0K06L79')
     
     #start new thread for avatar
     threading.Thread(target=initialize_avatar).start()
+    time.sleep(2)
     gtts_speak('Hello I am Whizzy, your personal assistant')
     
     with noalsaerr():

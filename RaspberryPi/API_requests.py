@@ -105,3 +105,6 @@ def set_device_connectivity(device_id, connected):
     device_status_response = json.loads(response.text)
 
     return device_status_response['data']
+
+authenticate('faculty1', '123456');
+print(get_user_data('linear'))

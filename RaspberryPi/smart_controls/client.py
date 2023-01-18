@@ -1,7 +1,7 @@
 import socket
 
 #match details with server
-HOST = '192.168.1.9'
+HOST = '192.168.1.7'
 PORT = 65432
 
 application_map = {

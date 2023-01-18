@@ -8,6 +8,8 @@ import google.oauth2.credentials
 import google.auth.transport.grpc
 import google.auth.transport.requests
 
+
+
 from google.assistant.embedded.v1alpha2 import (
     embedded_assistant_pb2,
     embedded_assistant_pb2_grpc
@@ -24,6 +26,10 @@ except (SystemError, ImportError):
     import audio_helpers
     import browser_helpers
 
+#import avatar
+import sys
+sys.path.append('/home/whizzy/env/WhizzyVoiceAssistant/RaspberryPi')
+from whizzy_avatar import change_avatar_state
 
 ASSISTANT_API_ENDPOINT = 'embeddedassistant.googleapis.com'
 DEFAULT_GRPC_DEADLINE = 60 * 3 + 5
@@ -111,16 +117,22 @@ class GoogleAssistant(object):
                 self.conversation_state = conversation_state
             if resp.dialog_state_out.supplemental_display_text:
                 text_response = resp.dialog_state_out.supplemental_display_text
-                
+            
+            change_avatar_state(True) #start avatar talking
+            
             #added sound output
             if len(resp.audio_out.audio_data) > 0:
                 if not conversation_stream.playing:
                     conversation_stream.stop_recording()
+                    
                     conversation_stream.start_playback()
+                    
                     print('Playing assistant response.....')
                 conversation_stream.write(resp.audio_out.audio_data)
                 
         conversation_stream.stop_playback()
+        #change_avatar_state(False) #stop avatar talking
+        
         return text_response, html_response
 
 @click.command()
