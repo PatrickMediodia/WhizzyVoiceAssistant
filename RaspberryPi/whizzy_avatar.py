@@ -42,16 +42,16 @@ def change_avatar_state(avatar_state):
 #images
 def display():
     #not talking
-    handler.loadFromFile("Avatar/1.bmp", "1")
+    handler.loadFromFile("avatar/1.bmp", "1")
 
     #talking
-    handler.loadFromFile("Avatar/2.bmp", "2")
-    handler.loadFromFile("Avatar/3.bmp", "3")
-    handler.loadFromFile("Avatar/4.bmp", "4")
-    handler.loadFromFile("Avatar/5.bmp", "5")
-    handler.loadFromFile("Avatar/6.bmp", "6")
-    handler.loadFromFile("Avatar/7.bmp", "7")
-    handler.loadFromFile("Avatar/8.bmp", "8")
+    handler.loadFromFile("avatar/2.bmp", "2")
+    handler.loadFromFile("avatar/3.bmp", "3")
+    handler.loadFromFile("avatar/4.bmp", "4")
+    handler.loadFromFile("avatar/5.bmp", "5")
+    handler.loadFromFile("avatar/6.bmp", "6")
+    handler.loadFromFile("avatar/7.bmp", "7")
+    handler.loadFromFile("avatar/8.bmp", "8")
 
 def face():
     A = 0
