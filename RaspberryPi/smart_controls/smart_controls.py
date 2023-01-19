@@ -2,6 +2,7 @@ import time
 from PyP100 import PyP100
 from text_to_speech import gtts_speak
 from smart_controls.client import client, application_map
+from smart_controls.windows_script import shutdown_terminal, check_terminal_status
 from API_requests import get_room_device_data, set_device_status, set_device_connectivity
 
 #TABO credentails
@@ -18,7 +19,10 @@ device_id_to_object_map = {}
 def initialize_devices():
     global room_device_data
     global device_id_to_object_map
-
+    
+    #FLAG variable
+    startup = True
+    
     while True:
         #refresh data every second
         time.sleep(1)
@@ -39,16 +43,24 @@ def initialize_devices():
                     initiated_device.handshake()
                     initiated_device.login()
                     device_id_to_object_map[id] = initiated_device
-
+                
+                #set to connected
+                set_device_connectivity(id, True)
+                attributes['connected'] = True
+                
+                #turn PC on at startup
+                if startup and attributes['name'] == 'computer':
+                    device_id_to_object_map[id].turnOn() #turn on socket
+                    set_device_status(id, 'true') #set status to true
+                    startup = False #ignore on next iteration
+                    continue
+                
                 #reflect the current state based on db
                 if attributes['status'] == True:
                     device_id_to_object_map[id].turnOn()
                 else:
                     device_id_to_object_map[id].turnOff()
-
-                set_device_connectivity(id, True)
-                attributes['connected'] = True
-
+                
             except:
                 set_device_connectivity(id, False)
                 attributes['connected'] = False
@@ -80,7 +92,14 @@ def turn_off_device(device_dict):
     if attributes['status'] == False:
         gtts_speak(f'{attributes["name"]} is already off')
         return
-
+    
+    elif attributes['name'] == 'computer':
+        shutdown_terminal()
+        while(check_terminal_status()):
+            #wait until computer shutsdown
+            pass
+        time.sleep(5)
+        
     set_device_status(device_dict['id'], 'false')
     gtts_speak(f'{attributes["name"]} turned off')
 
