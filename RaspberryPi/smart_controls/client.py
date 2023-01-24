@@ -1,7 +1,7 @@
 import socket
 
 #match details with server
-HOST = '192.168.1.7'
+HOST = '192.168.0.101'
 PORT = 65432
 
 application_map = {
@@ -14,7 +14,7 @@ def client(application):
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
         try:
             #connect to server
-            s.settimeout(1)
+            #s.settimeout(1)
             s.connect((HOST, PORT))
             
             #send message

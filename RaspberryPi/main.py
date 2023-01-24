@@ -15,7 +15,6 @@ from web_searching import start_google_assistant
 from interactive_discussion import start_interactive_discussion
 
 #Smart Controls
-from smart_controls.windows_script import login_terminal
 from smart_controls.smart_controls import initialize_devices, start_smart_controls
 
 modes = (
@@ -33,8 +32,6 @@ mode_map = {
 #temporary credentials
 USERNAME = 'faculty1'
 PASSWORD = '123456'
-
-MAC_ADDRESS = '34.02.86.F8.DA.09' #'B8.97.5A.C0.EA.09'
 
 current_mode = modes[1]
 
@@ -55,21 +52,13 @@ def main():
         return
 
     #start after authentication
-    #initializing devices in the classroon
-    threading.Thread(target=initialize_devices, daemon=True).start()
-
-    #turn on professor terminal using WOL packet
-    #start_terminal(MAC_ADDRESS)
-    #start_terminal('68.F7.28.E3.B7.31')
-    
-    #login to windows
-    #Local credentials, connect to API
-    login_terminal('Pat', 'Admin1234@', 'DESKTOP-0K06L79')
-    
-    #start new thread for avatar
+    #new thread for avatar
     threading.Thread(target=initialize_avatar, daemon=True).start()
     time.sleep(5)
     gtts_speak('Hello I am Whizzy, your personal assistant')
+    
+    #initializing devices in the classroon
+    threading.Thread(target=initialize_devices, daemon=True).start()
     
     with noalsaerr():
         while True:

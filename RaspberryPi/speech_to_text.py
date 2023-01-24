@@ -23,7 +23,7 @@ def speech_to_text():
         except sr.UnknownValueError as e:
             gtts_speak('Sorry, I did not get that')
             print(e)
-        except sr.RequestError:
+        except sr.RequestError as e:
             gtts_speak('Sorry, my speech service is down')
             print(e)
             

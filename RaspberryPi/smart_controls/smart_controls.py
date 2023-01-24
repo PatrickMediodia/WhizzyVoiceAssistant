@@ -1,6 +1,8 @@
 import time
+import threading
 from PyP100 import PyP100
 from text_to_speech import gtts_speak
+from smart_controls.windows_script import login_terminal
 from smart_controls.client import client, application_map
 from smart_controls.windows_script import shutdown_terminal, check_terminal_status
 from API_requests import get_room_device_data, set_device_status, set_device_connectivity
@@ -16,12 +18,13 @@ room_device_data = None
 #{id : PyP100 Object} relation
 device_id_to_object_map = {}
 
+#FLAG variable
+startup = True
+
 def initialize_devices():
+    global startup
     global room_device_data
     global device_id_to_object_map
-    
-    #FLAG variable
-    startup = True
     
     while True:
         #refresh data every second
@@ -49,11 +52,13 @@ def initialize_devices():
                 attributes['connected'] = True
                 
                 #turn PC on at startup
+                '''
                 if startup and attributes['name'] == 'computer':
-                    device_id_to_object_map[id].turnOn() #turn on socket
-                    set_device_status(id, 'true') #set status to true
                     startup = False #ignore on next iteration
+                    print('Triggered on startup')
+                    threading.Thread(target=open_terminal, daemon=True, args=[id]).start()
                     continue
+                '''
                 
                 #reflect the current state based on db
                 if attributes['status'] == True:
@@ -82,7 +87,11 @@ def turn_on_device(device_dict):
     if attributes['status'] == True:
         gtts_speak(f'{attributes["name"]} is already on')
         return
-
+    
+    elif attributes['name'] == 'computer':
+        threading.Thread(target=open_terminal, daemon=True, args=[device_dict['id']]).start()
+        return
+    
     set_device_status(device_dict['id'], 'true')
     gtts_speak(f'{attributes["name"]} turned on')
 
@@ -94,15 +103,30 @@ def turn_off_device(device_dict):
         return
     
     elif attributes['name'] == 'computer':
-        shutdown_terminal()
-        while(check_terminal_status()):
-            #wait until computer shutsdown
-            pass
-        time.sleep(5)
-        
+        threading.Thread(target=close_terminal, daemon=True, args=[device_dict['id']]).start()
+        return
+    
     set_device_status(device_dict['id'], 'false')
     gtts_speak(f'{attributes["name"]} turned off')
 
+def open_terminal(id):
+    set_device_status(id, 'true')
+    gtts_speak(f'Computer turned on')
+    
+    #login to windows, local credentials, connect to API
+    login_terminal('Pat', 'Admin1234@', 'DESKTOP-0K06L79')
+    
+def close_terminal(id):
+    shutdown_terminal()
+    gtts_speak(f'Computer turned off')
+    
+    #wait until computer shutsdown
+    while(check_terminal_status()):
+        pass
+    time.sleep(1)
+    
+    set_device_status(id, 'false') #set status to false
+    
 def start_smart_controls(command):
     #check command for controlling devices
     for device in room_device_data:

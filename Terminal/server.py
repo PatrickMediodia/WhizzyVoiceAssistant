@@ -4,7 +4,7 @@ import subprocess
 from applications.web import blackboard
 
 #static IP address and port
-HOST = '192.168.1.7'
+HOST = '192.168.0.101'
 PORT = 65432
 
 application_location = {
