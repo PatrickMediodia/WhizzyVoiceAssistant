@@ -17,7 +17,7 @@
 ::      conditions tab -> power -> start uncheck power checkboxes
 
 :: timeout to wait for network connection
-:: timeout 5
+timeout 5
 
 :: turn off AutoAdminLogin on next startup
 reg add "HKEY_LOCAL_MACHINE\Software\Microsoft\Windows NT\CurrentVersion\Winlogon" /v AutoAdminLogon /t REG_SZ /d 0 /f
