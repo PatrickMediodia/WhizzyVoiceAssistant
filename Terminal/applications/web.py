@@ -21,7 +21,7 @@ options.add_experimental_option("excludeSwitches",["enable-automation"])
 def blackboard(username, password):
     #initialize driver object
     driver = webdriver.Chrome(
-        service=Service(ChromeDriverManager().install()),
+        service=Service(ChromeDriverManager(path ="./Terminal/drivers").install()),
         options=options
     )
     
