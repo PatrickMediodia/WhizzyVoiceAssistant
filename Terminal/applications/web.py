@@ -9,6 +9,8 @@ from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.chrome.options import Options
 from webdriver_manager.chrome import ChromeDriverManager
 
+from credentials import get_bbl_account_credentials
+
 options = Options()
 
 #window will not close of script will stop
@@ -18,13 +20,16 @@ options.add_experimental_option('detach', True)
 options.add_experimental_option("useAutomationExtension", False)
 options.add_experimental_option("excludeSwitches",["enable-automation"])
 
-def blackboard(username, password):
+def blackboard(jwt):
+    #get account details from database
+    account_details = get_bbl_account_credentials(jwt)
+
     #initialize driver object
     driver = webdriver.Chrome(
         service=Service(ChromeDriverManager(path ="./Terminal/drivers").install()),
         options=options
     )
-    
+
     #open Brwoser
     driver.get('https://mcl.blackboard.com/')
     driver.maximize_window()
@@ -34,10 +39,10 @@ def blackboard(username, password):
 
     #fill-up the form
     username_input = driver.find_element(By.ID, 'user_id')
-    username_input.send_keys(username)
-
+    username_input.send_keys(account_details['email'])
+    
     password_input = driver.find_element(By.ID, 'password')
-    password_input.send_keys(password)
+    password_input.send_keys(account_details['password'])
 
     #click login button
     login_button = driver.find_element(By.ID, 'entry-login')
