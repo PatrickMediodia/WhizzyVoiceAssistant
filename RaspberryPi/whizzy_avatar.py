@@ -12,6 +12,7 @@ screen = None
 handler = None
 
 mode_text = ''
+lesson_text = 'Lesson: Please load a lesson'
 
 class imageHandler:
     def __init__(self):
@@ -94,22 +95,35 @@ def face():
 # displays text
 def display_text():
     white = (255, 255, 255)
-    x = 100
-    y = 90
-    width = 400
-    height = 70
+    width, height = 400, 70
     
+    #display current mode
+    x, y = 100, 90
     font = pygame.font.SysFont('freesans', 35, bold= True)
-    text_render = font.render(mode_text, True, white)
-    text_width = text_render.get_width()
+    mode_text_render = font.render(mode_text, True, white)
+    text_width = mode_text_render.get_width()
     pygame.draw.rect(screen, white, (x, y, text_width+50, height+10), 3, 10)  # rectangle
-    screen.blit(text_render, (x+23, y+12, width, height))  # text
-
+    screen.blit(mode_text_render, (x+23, y+12, width, height))  # text
+    
+    if 'Interactive Discussion' in mode_text:
+        lesson_text_render = font.render(lesson_text, True, white)
+        text_width = lesson_text_render.get_width()
+        
+        #display current lesson
+        x_2,y_2 = 1920-(text_width+150), 90
+        
+        pygame.draw.rect(screen, white, (x_2, y_2, text_width+50, height+10), 3, 10)  # rectangle
+        screen.blit(lesson_text_render, (x_2+23, y_2+12, width, height))  # text
+        
     pygame.display.flip()
 
 def set_mode_text(text):
     global mode_text
-    mode_text = text.title()
+    mode_text = f'Mode: {text.title()}'
+
+def set_lesson_text(text):
+    global lesson_text
+    lesson_text = f'Lesson: {text}'
     
 def initialize_avatar():
     global screen, handler

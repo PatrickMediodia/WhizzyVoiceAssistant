@@ -5,8 +5,8 @@ from ALSA_handler import noalsaerr
 from API_requests import authenticate
 from text_to_speech import gtts_speak
 from speech_to_text import speech_to_text
-from whizzy_avatar import initialize_avatar, set_mode_text
 from picovoice.detect_hotword import detect_hotword
+from whizzy_avatar import initialize_avatar, set_mode_text
 
 #Web Searching
 from web_searching import start_google_assistant
@@ -33,7 +33,7 @@ mode_map = {
 USERNAME = 'faculty1'
 PASSWORD = '123456'
 
-current_mode = modes[1]
+current_mode = modes[2]
 
 def change_mode(current_mode, command):
     if 'switch' in command or 'change' in command:

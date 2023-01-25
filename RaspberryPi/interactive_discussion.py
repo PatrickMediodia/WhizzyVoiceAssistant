@@ -1,8 +1,3 @@
-from text_to_speech import gtts_speak
-from API_requests import get_user_data
-from speech_to_text import speech_to_text
-from picovoice.detect_hotword import detect_hotword
-
 """
 Flow
 1. get lesson code
@@ -25,6 +20,12 @@ Handling Questions and Trivias
 6. Teacher can tell Whizzy to move on to the next question wth "Hey Whizzy, next question"
 7. Teacher can exit Whizzy question mode by saying "Exit" + "question" or "trivia"
 """
+
+from text_to_speech import gtts_speak
+from API_requests import get_user_data
+from speech_to_text import speech_to_text
+from picovoice.detect_hotword import detect_hotword
+from whizzy_avatar import set_mode_text, set_lesson_text
 
 lesson_data = None
 
@@ -60,6 +61,7 @@ def load_lesson_data():
                     
                     print('Found lesson from trigger word')
                     gtts_speak(f'Lesson has been loaded')
+                    set_lesson_text(f'{lesson_data.name}')
                     break
                 
     if not found:
@@ -69,127 +71,120 @@ def load_trivias(trivias):
     gtts_speak('Ok lets start')
     
     current_index = 0
+    dialog = trivias[current_index].response
     
-    #repeat while in trivia mode
+    #repeat until next or previous trivia command
     while True:
-        current_trivia = trivias[current_index]
-        
-        #say the question
-        gtts_speak(current_trivia.response)
-        
-        #repeat until next or previous trivia command
-        while True:
-            if detect_hotword():
-                command = speech_to_text()
+        set_mode_text(f'Interactive Discussion - Trivia - {current_index+1}/{len(trivias)}')   
+        gtts_speak(dialog)
+    
+        if detect_hotword():
+            command = speech_to_text()
                 
-                #previous question
-                if 'previous trivia' in command:
-                    if current_index > 0:
-                        current_index -= 1
-                        current_trivia = trivias[current_index]
-                        gtts_speak(current_trivia.response)
-                    else:
-                        gtts_speak('No previous trivia')
-                        
-                #next question
-                elif 'next trivia' in command:
-                    if current_index < len(trivias) - 1:
-                        current_index += 1
-                        current_trivia = trivias[current_index]
-                        gtts_speak(current_trivia.response)
-                    else:
-                        gtts_speak('No next trivia')
-                                       
-                #current trivia
-                elif 'repeat trivia' in command:
-                    gtts_speak(current_trivia.response)
-                    
-                #exit trivia mode
-                elif 'exit' in command:
-                    return
-                
+            #previous question
+            if 'previous trivia' in command:
+                if current_index > 0:
+                    current_index -= 1
+                    dialog = trivias[current_index].response
                 else:
-                    gtts_speak(f'Sorry I cannot process that request')
+                    dialog = 'No previous trivia'
+                        
+            #next question
+            elif 'next trivia' in command:
+                if current_index < len(trivias) - 1:
+                    current_index += 1   
+                    dialog = trivias[current_index].response
+                else:
+                    dialog = 'No next trivia'
+                                       
+            #current trivia
+            elif 'repeat trivia' in command:
+                dialog = trivias[current_index].response
+                    
+            #exit trivia mode
+            elif 'exit' in command:
+                return
+                
+            else:
+                dialog = 'Sorry I cannot process that request'
                 
 def load_questions(questions):
     gtts_speak('Ok lets start')
     
     current_index = 0
-    
-    #repeat while in questioning mode
+    dialog = questions[current_index].question
+        
+        
+    #repeat until next or previous question command
     while True:
-        current_question = questions[current_index]
-        
-        #say the question
-        gtts_speak(current_question.question)
-        
-        #repeat until next or previous question command
-        while True:
-            if detect_hotword():
-                command = speech_to_text()
+        set_mode_text(f'Interactive Discussion - Questions - {current_index+1}/{len(questions)}') #change text
+        gtts_speak(dialog)
+            
+        if detect_hotword():
+            command = speech_to_text()
                 
-                #previous question
-                if 'previous question' in command:
-                    if current_index > 0:
-                        current_index -= 1
-                        current_question = questions[current_index]
-                        gtts_speak(current_question.question)
-                    else:
-                        gtts_speak('No previous question')
-                        
-                #next question
-                elif 'next question' in command:
-                    if current_index < len(questions) - 1:
-                        current_index += 1
-                        current_question = questions[current_index]
-                        gtts_speak(current_question.question)
-                    else:
-                        gtts_speak('No next question')
-                        
-                #reveal correct answer
-                elif 'correct answer' in command:
-                    gtts_speak(f'The correct answer is {current_question.answer}')
-                
-                #current question
-                elif 'repeat question' in command:
-                    gtts_speak(current_question.question)
-                
-                #students answer
-                elif 'answer' in command:
-                    if current_question.answer in command:
-                        gtts_speak(current_question.response)
-                    else:
-                        gtts_speak('Incorrect answer')
-                        
-                #exit questioning mode
-                elif 'exit' in command:
-                    return
-                
+            #previous question
+            if 'previous question' in command:
+                if current_index > 0:
+                    current_index -= 1
+                    dialog = questions[current_index].question
                 else:
-                    gtts_speak(f'Sorry I cannot process that request')
+                    dialog = 'No previous question'
                     
-def start_interactive_discussion(command):    
+            #next question
+            elif 'next question' in command:
+                if current_index < len(questions) - 1:
+                    current_index += 1
+                    dialog = questions[current_index].question
+                else:
+                    dialog = 'No next question'
+                    
+            #reveal correct answer
+            elif 'correct answer' in command:
+                dialog = f'The correct answer is {questions[current_index].answer}'
+
+            #current question
+            elif 'repeat question' in command:
+                dialog = questions[current_index].question
+                
+            #students answer
+            elif 'answer' in command:
+                if questions[current_index].answer in command:
+                    dialog = questions[current_index].response
+                else:
+                    dialog = 'Incorrect answer'
+                        
+            #exit questioning mode
+            elif 'exit' in command:
+                return
+                
+            else:
+                dialog = 'Sorry I cannot process that request'
+                
+def start_interactive_discussion(command):
     if 'load lesson' in command:
         load_lesson_data()
-        
+    
+    elif lesson_data is None:
+        gtts_speak('No lesson selected, please load a lesson')
+        set_lesson_text('Please load a lesson')
+        return
+    
     elif 'current lesson' in command:
         gtts_speak(f'The current lesson is {lesson_data.name}')
-    
+        
     elif 'start' in command:
         dialog = ''
         
-        #check if a lesson has been loaded
-        if lesson_data is None:
-            gtts_speak('No lesson selected, please load a lesson')
-            return
-        
         #check which part of the discussion is being selected
-        elif 'introduction' in command: 
+        if 'introduction' in command:
+            set_mode_text('Interactive Discussion - Introduction')
             dialog = lesson_data.introduction
-         
+            
         elif 'summarization' in command or 'summary' in command:
+            set_mode_text('Interactive Discussion - Summary')
             dialog = lesson_data.summarization
-                
+               
         elif 'trivia' in command:
             if len(lesson_data.trivias) > 0:
                 load_trivias(lesson_data.trivias)
@@ -201,17 +196,18 @@ def start_interactive_discussion(command):
                 dialog = 'Exiting questioning mode'
                 
         elif 'conclusion' in command:
+            set_mode_text('Interactive Discussion - Conclusion')
             dialog = lesson_data.conclusion
-            
+
         else:
-            gtts_speak('Sorry, I cannot process that request')
-            return
-        
+            dialog = 'Sorry, I cannot process that request'
+            
         #tell user if dialog is blank
         if dialog == '':
             dialog = f'No dialog set for that part of the discussion'
-            
+        
         gtts_speak(dialog)
-            
+        set_mode_text('Interactive Discussion')
+        
     else:
         gtts_speak('Sorry, I cannot process that request')
