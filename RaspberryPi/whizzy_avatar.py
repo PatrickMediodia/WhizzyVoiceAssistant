@@ -3,13 +3,15 @@ from __future__ import print_function
 #hide pygame import message
 import os
 os.environ['PYGAME_HIDE_SUPPORT_PROMPT'] = "hide"
-import pygame
 
+import pygame
 import time
 
 talking = False
 screen = None
 handler = None
+
+mode_text = ''
 
 class imageHandler:
     def __init__(self):
@@ -60,34 +62,61 @@ def display():
 def face():
     A = 0
     B = 0
-    x = 1920 #width
-    y = 1080 #length
-    
+    x = 1920
+    y = 1080
+
     count = 1
     global talking
     while True:
         pygame.event.get()
         if talking == False:
             handler.render(screen, "1", (A, B), True, (x, y))
-            pygame.display.update(A, B, x, y)
 
+            display_text()
+            time.sleep(0.3)
 
         elif talking == True:
+
             if count <= 2:
                 count += 1
             img = str(count)
             handler.render(screen, img, (A, B), True, (x, y))
-            pygame.display.update(A, B, x, y)
+
+            display_text()
+
             time.sleep(0.3)
             count += 1
             if count == 8:
                 count = 2
-                
+
+        pygame.display.update(A, B, x, y)
+        
+# displays text
+def display_text():
+    white = (255, 255, 255)
+    x = 100
+    y = 90
+    width = 400
+    height = 70
+    
+    font = pygame.font.SysFont('freesans', 35, bold= True)
+    text_render = font.render(mode_text, True, white)
+    text_width = text_render.get_width()
+    pygame.draw.rect(screen, white, (x, y, text_width+50, height+10), 3, 10)  # rectangle
+    screen.blit(text_render, (x+23, y+12, width, height))  # text
+
+    pygame.display.flip()
+
+def set_mode_text(text):
+    global mode_text
+    mode_text = text.title()
+    
 def initialize_avatar():
     global screen, handler
     
     #initialize display
     pygame.display.init()  # Initiates the display pygame
+    pygame.font.init()
     pygame.display.set_caption("Whizzy")
     screen = pygame.display.set_mode((0,0),pygame.FULLSCREEN)  # allows fullscreen
     handler = imageHandler()

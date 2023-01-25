@@ -5,7 +5,7 @@ from ALSA_handler import noalsaerr
 from API_requests import authenticate
 from text_to_speech import gtts_speak
 from speech_to_text import speech_to_text
-from whizzy_avatar import initialize_avatar
+from whizzy_avatar import initialize_avatar, set_mode_text
 from picovoice.detect_hotword import detect_hotword
 
 #Web Searching
@@ -54,6 +54,9 @@ def main():
     #start after authentication
     #new thread for avatar
     threading.Thread(target=initialize_avatar, daemon=True).start()
+    set_mode_text(current_mode)
+    
+    #initial speech of Whizzy
     time.sleep(5)
     gtts_speak('Hello I am Whizzy, your personal assistant')
     
@@ -74,6 +77,7 @@ def main():
                 new_mode = change_mode(current_mode, command)
                 if new_mode != current_mode:
                     current_mode = new_mode
+                    set_mode_text(current_mode)
                     gtts_speak(f'Switched to {new_mode}')
                 
                 #to get the current mode of Whizzy
