@@ -95,7 +95,7 @@ def display_text():
     
     #display current mode
     x, y = 100, 90
-    font = pygame.font.SysFont('freesans', 35, bold= True)
+    font = pygame.font.Font('avatar/comicsans.TTF', 35, bold= True)
     mode_text_render = font.render(mode_text, True, white)
     text_width = mode_text_render.get_width()
     pygame.draw.rect(screen, white, (x, y, text_width+50, height+10), 3, 10)  # rectangle
