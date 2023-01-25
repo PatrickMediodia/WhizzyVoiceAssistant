@@ -1,6 +1,5 @@
-import time
 import socket
-import webbrowser
+import threading
 import subprocess
 from applications.web import blackboard
 
@@ -19,7 +18,6 @@ application_instance = {
 
 def server():
     global application_instance
-
     print('Trying to start connection ......')
     
     while True:    
@@ -31,50 +29,39 @@ def server():
                 connection, address = s.accept()
 
                 with connection:
-                    found = False
                     print(f'Connection established with address : {address}')
-
                     data = str(connection.recv(1024).decode('utf-8'))
                     command, jwt = data.split(',') # command,jwt
-
+                    message = 'Application not found'
+                    
                     if 'open' in command:
-                        if 'browser' in command:
-                            webbrowser.open("www.google.com")                   
-                            connection.sendall(f'browser has been opened'.encode('utf-8'))
-                            found = True
-
-                        elif 'blackboard learn' in command:
-                            connection.sendall(f'blackboard learn has been opened'.encode('utf-8'))
-                            application_instance['blackboard'] = blackboard(jwt)
-                            found = True
+                        if 'blackboard learn' in command:
+                            threading.Thread(target=blackboard, daemon=True, args=[jwt, application_instance]).start()
+                            message = 'blackboard learn has been opened'
 
                         elif 'microsoft teams' in command:
-                            connection.sendall(f'microsoft teams has been opened'.encode('utf-8'))
                             application_instance['teams'] = subprocess.Popen([application_location['teams']])
-                            found = True
-                            
+                            message = 'microsoft teams has been opened'
+
                     elif 'close' in command:
                         if 'blackboard learn' in command:
                             if application_instance['blackboard'] is None:
-                                connection.sendall(f'blackboard learn is not open'.encode('utf-8'))
+                                message = 'blackboard learn is not open'
                             else:
                                 application_instance['blackboard'].close()
-                                connection.sendall(f'blackboard has been closed'.encode('utf-8'))
-                            found = True
+                                message = 'blackboard has been closed'
+
                         elif 'microsoft teams' in command:
                             if application_instance['teams'] is None:
-                                connection.sendall(f'microsoft teams is not open'.encode('utf-8'))
+                                message = 'microsoft teams learn is not open'
                             else:
                                 application_instance['teams'].kill()
                                 application_instance['teams'] = None
-                                connection.sendall(f'microsoft teams has been closed'.encode('utf-8'))
-                            found = True
+                                message = 'microsoft teams has been closed'
 
-                    if not found:
-                        connection.sendall('Application not found'.encode('utf-8'))
-
+                    connection.sendall(message.encode('utf-8'))
         except Exception as e:
-            pass
+            continue
 
 if __name__ == '__main__':
     while True:

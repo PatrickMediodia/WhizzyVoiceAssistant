@@ -20,7 +20,7 @@ options.add_experimental_option('detach', True)
 options.add_experimental_option("useAutomationExtension", False)
 options.add_experimental_option("excludeSwitches",["enable-automation"])
 
-def blackboard(jwt):
+def blackboard(jwt,application_instance):
     #get account details from database
     account_details = get_bbl_account_credentials(jwt)
 
@@ -29,7 +29,7 @@ def blackboard(jwt):
         service=Service(ChromeDriverManager(path ="./Terminal/drivers").install()),
         options=options
     )
-
+    
     #open Brwoser
     driver.get('https://mcl.blackboard.com/')
     driver.maximize_window()
@@ -47,5 +47,5 @@ def blackboard(jwt):
     #click login button
     login_button = driver.find_element(By.ID, 'entry-login')
     login_button.click()
-
-    return driver
+    
+    application_instance['blackboard'] = driver
