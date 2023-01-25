@@ -27,7 +27,10 @@ def authenticate(username, password):
         return account_object
     except:
         return None
-    
+
+def get_jwt():
+    return jwt
+
 def get_user_data(trigger_word):
     end_point = url + 'users/me?'
     end_point += 'populate[0]=courses'
@@ -105,3 +108,17 @@ def set_device_connectivity(device_id, connected):
     device_status_response = json.loads(response.text)
 
     return device_status_response['data']
+
+def get_local_account_credentials():
+    end_point = url + f'users/me'
+    end_point += '?populate=local'
+    
+    headers = {
+        'Authorization': 'Bearer ' + jwt,
+        'Content-Type': 'application/json'
+    }
+
+    response = requests.request("GET", end_point, headers=headers)
+    response_json = json.loads(response.text)
+    
+    return response_json['local']

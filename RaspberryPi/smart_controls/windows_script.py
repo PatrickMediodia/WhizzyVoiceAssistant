@@ -9,25 +9,25 @@ DOMAIN = '192.168.0.101'
 USERNAME = 'Pat'
 PASSWORD = 'Admin1234@'
 
-def login_terminal(username, password, domain):
+def login_terminal(username, password):
     print('\nTrying to connect to terminal ......\n')
     times_tried = 0
     
     while True:
         try:
             #run in 5 second intervals until successful
-            time.sleep(5)
+            time.sleep(3)
             #use credentials of admin account
             sess = winrm.Session(DOMAIN, auth=(USERNAME, PASSWORD), transport='ntlm')
-
+            
             #trigger batch script that changes registry on terminal
-            result = sess.run_cmd(f'cd / && cd Users/Pat/Documents/WhizzyVoiceAssistant/Terminal/windows && login_script.bat {username} {password} {domain}')
+            result = sess.run_cmd(f'cd / && cd Users/Pat/Documents/WhizzyVoiceAssistant/Terminal/windows && login_script.bat {username} {password}')
             print('\nCredentials changed\n')
             break
         
         except Exception as e:
             times_tried +=1
-            if times_tried == 3:
+            if times_tried == 5:
                 print('Cannot connect to terminal')
                 times_tried = 0
                 
@@ -38,7 +38,7 @@ def shutdown_terminal():
     while True:
         try:
             #run in 5 second intervals until successful
-            time.sleep(5)
+            time.sleep(3)
             
             #use credentials of admin account
             sess = winrm.Session(DOMAIN, auth=(USERNAME, PASSWORD), transport='ntlm')
@@ -50,7 +50,7 @@ def shutdown_terminal():
         
         except Exception as e:
             times_tried +=1
-            if times_tried == 3:
+            if times_tried == 5:
                 print('Cannot connect to terminal')
                 times_tried = 0
                 

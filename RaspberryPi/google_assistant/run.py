@@ -25,8 +25,6 @@ except (SystemError, ImportError):
     import browser_helpers
 
 #import avatar
-import sys
-sys.path.append('/home/whizzy/env/WhizzyVoiceAssistant/RaspberryPi')
 from whizzy_avatar import change_avatar_state
 
 ASSISTANT_API_ENDPOINT = 'embeddedassistant.googleapis.com'

@@ -2,10 +2,11 @@ import time
 import threading
 from PyP100 import PyP100
 from text_to_speech import gtts_speak
+from smart_controls.credentials import decrypt
 from smart_controls.windows_script import login_terminal
 from smart_controls.client import client, application_map
 from smart_controls.windows_script import shutdown_terminal, check_terminal_status
-from API_requests import get_room_device_data, set_device_status, set_device_connectivity
+from API_requests import get_room_device_data, set_device_status, set_device_connectivity, get_local_account_credentials
 
 #TABO credentails
 username = 'whizzyassistant@gmail.com'
@@ -52,13 +53,11 @@ def initialize_devices():
                 attributes['connected'] = True
                 
                 #turn PC on at startup
-                '''
                 if startup and attributes['name'] == 'computer':
                     startup = False #ignore on next iteration
                     print('Triggered on startup')
                     threading.Thread(target=open_terminal, daemon=True, args=[id]).start()
                     continue
-                '''
                 
                 #reflect the current state based on db
                 if attributes['status'] == True:
@@ -113,8 +112,15 @@ def open_terminal(id):
     set_device_status(id, 'true')
     gtts_speak(f'Computer turned on')
     
-    #login to windows, local credentials, connect to API
-    login_terminal('Pat', 'Admin1234@', 'DESKTOP-0K06L79')
+    #get data from API
+    account_credentials = get_local_account_credentials()
+    
+    #use decrypt function
+    decrypted_password = decrypt(account_credentials['password'])
+    decrypted_password = decrypted_password.decode("utf-8", "ignore")
+        
+    #login to windows
+    login_terminal(account_credentials['email'], decrypted_password)
     
 def close_terminal(id):
     shutdown_terminal()
