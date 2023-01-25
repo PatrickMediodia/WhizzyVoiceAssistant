@@ -1,20 +1,21 @@
+import os
 import json
+import base64
 import requests
-
-import base64 
 from Crypto.Cipher import AES
+from dotenv import load_dotenv
 from Crypto.Util.Padding import unpad
 
-#CBC with Fix IV
-key = '+>UdZCdK.f7b!H+7' #16 char for AES128
-iv =  'R7Rav`v){KUf:G{2'.encode('utf-8') #16 char for AES128, FIX IV
+load_dotenv()
+
+url = os.getenv('URL')
+key = os.getenv('AES_KEY').encode('utf-8')
+iv = os.getenv('AES_IV').encode('utf-8')
 
 def decrypt(enc):
     enc = base64.b64decode(enc)
-    cipher = AES.new(key.encode('utf-8'), AES.MODE_CBC, iv)
+    cipher = AES.new(key, AES.MODE_CBC, iv)
     return unpad(cipher.decrypt(enc),16)
-
-url = "https://api.jhonlloydclarion.online/api/"
 
 def get_bbl_account_credentials(jwt):
     end_point = url + 'users/me'

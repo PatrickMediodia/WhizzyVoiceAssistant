@@ -5,11 +5,10 @@ pip install webdriver-manager
 
 from selenium import webdriver
 from selenium.webdriver.common.by import By
+from credentials import get_bbl_account_credentials
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.chrome.options import Options
 from webdriver_manager.chrome import ChromeDriverManager
-
-from credentials import get_bbl_account_credentials
 
 options = Options()
 
@@ -20,7 +19,7 @@ options.add_experimental_option('detach', True)
 options.add_experimental_option("useAutomationExtension", False)
 options.add_experimental_option("excludeSwitches",["enable-automation"])
 
-def blackboard(jwt,application_instance):
+def blackboard(jwt, application_instance):
     #get account details from database
     account_details = get_bbl_account_credentials(jwt)
 

@@ -1,11 +1,15 @@
+import os
 import socket
 import threading
 import subprocess
-from applications.web import blackboard
+from web import blackboard
+from dotenv import load_dotenv
+
+load_dotenv()
 
 #static IP address and port
-HOST = '192.168.0.101'
-PORT = 65432
+HOST = os.getenv('HOST')
+PORT = int(os.getenv('PORT'))
 
 application_location = {
     'teams' : 'C:\\Users\\Pat\\AppData\\Local\\Microsoft\\Teams\\current\\Teams.exe',
