@@ -1,4 +1,5 @@
 #Main Imports
+import os
 import time
 import threading
 from ALSA_handler import noalsaerr
@@ -30,10 +31,10 @@ mode_map = {
 }
 
 #temporary credentials
-USERNAME = 'faculty1'
-PASSWORD = '123456'
+USERNAME = os.environ.get('FACULTY_USERNAME')
+PASSWORD = os.environ.get('FACULTY_PASSWORD')
 
-current_mode = modes[2]
+current_mode = modes[1]
 
 def change_mode(current_mode, command):
     if 'switch' in command or 'change' in command:
@@ -87,6 +88,6 @@ def main():
                 #send command to current mode
                 else:
                     mode_map[current_mode](command)
-                    
+
 if __name__ == '__main__':
     main()

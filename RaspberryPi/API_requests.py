@@ -1,9 +1,10 @@
+import os
 import json
 import requests
 from models.account import Account
 from models.userData import UserData
 
-url = "https://api.jhonlloydclarion.online/api/"
+url = os.environ.get('URL')
 jwt = None
 
 def authenticate(username, password):

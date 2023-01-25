@@ -1,13 +1,10 @@
+import os
 import socket
-
-import sys
-sys.path.append('/home/whizzy/env/WhizzyVoiceAssistant/RaspberryPi')
-
 from API_requests import get_jwt
 
 #match details with server
-HOST = '192.168.0.101'
-PORT = 65432
+HOST = os.environ.get('HOST')
+PORT = int(os.environ.get('PORT'))
 
 application_map = {
     'microsoft teams' : ['microsoft teams', 'ms teams', 'teams'],

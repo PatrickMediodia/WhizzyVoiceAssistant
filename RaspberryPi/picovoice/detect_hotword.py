@@ -1,3 +1,4 @@
+import os
 import struct
 import pyaudio
 import pvporcupine
@@ -9,7 +10,7 @@ def detect_hotword():
 
     try:
         porcupine = pvporcupine.create(
-            access_key = '0wabvV6OPA1C6pGvDlM2e8e7NmR11B4uOh58tILLO7a5euM9LsE9Kg==',
+            access_key = os.environ.get('PORCUPINE_ACCESS_KEY'),
             keyword_paths = ['picovoice/HeyWhizzyPi.ppn']
         )
 

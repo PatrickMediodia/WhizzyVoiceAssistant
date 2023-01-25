@@ -1,13 +1,14 @@
-import winrm
-import time
-
 '''
 set wi-fi connection to private
 '''
 
-DOMAIN = '192.168.0.101'
-USERNAME = 'Pat'
-PASSWORD = 'Admin1234@'
+import os
+import time
+import winrm
+
+DOMAIN = os.environ.get('WINDOWS_DOMAIN')
+USERNAME = os.environ.get('WINDOWS_USERNAME')
+PASSWORD = os.environ.get('WINDOWS_PASSWORD')
 
 def login_terminal(username, password):
     print('\nTrying to connect to terminal ......\n')
@@ -63,11 +64,3 @@ def check_terminal_status():
     
     except Exception as e:
         return
-    
-#shutdown_terminal()
-
-#Admin
-#login_terminal('Pat', 'Admin1234@', 'DESKTOP-0K06L79')
-            
-#Whizzy
-#login_terminal('Whizzy', 'Admin1234@', 'DESKTOP-0K06L79')

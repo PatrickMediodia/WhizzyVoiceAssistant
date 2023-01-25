@@ -1,3 +1,4 @@
+import os
 import time
 import threading
 from PyP100 import PyP100
@@ -9,11 +10,11 @@ from smart_controls.windows_script import shutdown_terminal, check_terminal_stat
 from API_requests import get_room_device_data, set_device_status, set_device_connectivity, get_local_account_credentials
 
 #TABO credentails
-username = 'whizzyassistant@gmail.com'
-password = 'Admin1234@'
+username = os.environ.get('TABO_USERNAME')
+password = os.environ.get('TABO_PASSWORD')
 
 #room details
-room_number = 'R200'
+room_number = os.environ.get('ROOM_NUMBER')
 room_device_data = None
 
 #{id : PyP100 Object} relation
@@ -54,10 +55,12 @@ def initialize_devices():
                 
                 #turn PC on at startup
                 if startup and attributes['name'] == 'computer':
+                    '''
                     startup = False #ignore on next iteration
                     print('Triggered on startup')
                     threading.Thread(target=open_terminal, daemon=True, args=[id]).start()
                     continue
+                    '''
                 
                 #reflect the current state based on db
                 if attributes['status'] == True:
