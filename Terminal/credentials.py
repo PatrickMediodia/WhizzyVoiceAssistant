@@ -17,7 +17,7 @@ def decrypt(enc):
     cipher = AES.new(key, AES.MODE_CBC, iv)
     return unpad(cipher.decrypt(enc),16)
 
-def get_bbl_account_credentials(jwt):
+def get_bbl_account_credentials(jwt, account_details):
     end_point = url + 'users/me'
     end_point += '?populate=bbl'
 
@@ -29,10 +29,11 @@ def get_bbl_account_credentials(jwt):
     #get account credentials
     response = requests.request("GET", end_point, headers=headers)
     response_json = json.loads(response.text)
-    response_json = response_json['bbl']
 
     #decrypt pasword
-    decrypted = decrypt(response_json['password'])
-    response_json['password'] = decrypted.decode("utf-8", "ignore")
+    decrypted = decrypt(response_json['bbl']['password'])
 
-    return response_json
+    #set account details
+    account_details['email'] = response_json['bbl']['email']
+    account_details['password'] = decrypted.decode("utf-8", "ignore")
+
