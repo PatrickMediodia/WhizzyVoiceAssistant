@@ -4,7 +4,7 @@
       "Command not found",
       "I cannot handle that request",
       "I am not sure what to do with that command",
-      "I cannot handle that request,maybe try another mode?"
+      "I cannot handle that request, maybe try another mode?"
    ],
    "startDialog":[
       "Ok let's start",
