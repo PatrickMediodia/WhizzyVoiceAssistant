@@ -35,6 +35,10 @@ def initialize_devices():
         #API call
         room_device_data = get_room_device_data(room_number)
         
+        if room_device_data is None:
+            print('Room device data cannot be fetched.')
+            continue
+        
         #iterate through devices
         for device in room_device_data:
             #deserialize json data
@@ -43,35 +47,39 @@ def initialize_devices():
 
             try:
                 #check if id has PyP100 object in dictionary
-                if device_id_to_object_map.get(id) == None:
+                if device_id_to_object_map.get(id) is None:
                     initiated_device = PyP100.P100(attributes['ip_address'], username, password)
                     initiated_device.handshake()
                     initiated_device.login()
                     device_id_to_object_map[id] = initiated_device
-                
+                    
                 #set to connected
-                set_device_connectivity(id, True)
-                attributes['connected'] = True
+                if not attributes['connected']:
+                    set_device_connectivity(id, True)
+                    attributes['connected'] = True
                 
                 #turn PC on at startup
                 if startup and attributes['name'] == 'computer':
+                    pass
                     '''
                     startup = False #ignore on next iteration
                     print('Triggered on startup')
                     threading.Thread(target=open_terminal, daemon=True, args=[id]).start()
                     continue
                     '''
-                
+                    
                 #reflect the current state based on db
-                if attributes['status'] == True:
+                if attributes['status']:
                     device_id_to_object_map[id].turnOn()
                 else:
                     device_id_to_object_map[id].turnOff()
                 
             except:
-                set_device_connectivity(id, False)
-                attributes['connected'] = False
-                
+                if attributes['connected']:
+                    set_device_connectivity(id, False)
+                    attributes['connected'] = False
+                    device_id_to_object_map[id] = None
+                    
 def device_status(device_dict):
     attributes = device_dict['attributes']
     status = ''
@@ -134,7 +142,8 @@ def close_terminal(id):
         pass
     time.sleep(1)
     
-    set_device_status(id, 'false') #set status to false
+    #set status to false
+    set_device_status(id, 'false') 
     
 def start_smart_controls(command):
     #check command for controlling devices
