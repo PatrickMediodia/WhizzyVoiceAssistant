@@ -2,7 +2,9 @@
    "notFound":[
       "Sorry, I cannot process that request",
       "Command not found",
-      "Cannot handle that request"
+      "I cannot handle that request",
+      "I am not sure what to do with that command",
+      "I cannot handle that request,maybe try another mode?"
    ],
    "startDialog":[
       "Ok let's start",
@@ -11,6 +13,19 @@
    ],
    "unknownValueError":[
       "Sorry, I did not get that",
-      "I did not understand, can you repeat that?"
+      "I did not understand, can you repeat that?",
+      "Sorry, I did not catch your command",
+      "Do you mind repeating that?"
+   ],
+   "incorrectAnswer":[
+      "Sadly, that is not correct",
+      "Incorrect answer, try again",
+      "Wrong answer, good try"
+   ],
+   "noLesson": [
+      "No lesson selected, please load a lesson",
+      "Please select a lesson first",
+      "Load a lesson to proceed",
+      "Load a lesson to start the interactive discussion"
    ]
 }

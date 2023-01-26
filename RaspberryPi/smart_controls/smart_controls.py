@@ -2,8 +2,8 @@ import os
 import time
 import threading
 from PyP100 import PyP100
-from text_to_speech import gtts_speak
 from smart_controls.credentials import decrypt
+from text_to_speech import gtts_speak, get_response
 from smart_controls.windows_script import login_terminal
 from smart_controls.client import client, application_map
 from smart_controls.windows_script import shutdown_terminal, check_terminal_status
@@ -128,10 +128,9 @@ def open_terminal(id):
     
     #use decrypt function
     decrypted_password = decrypt(account_credentials['password'])
-    decrypted_password = decrypted_password.decode("utf-8", "ignore")
-        
+    
     #login to windows
-    login_terminal(account_credentials['email'], decrypted_password)
+    login_terminal(account_credentials['email'], decrypted_password.decode("utf-8", "ignore"))
     
 def close_terminal(id):
     shutdown_terminal()
@@ -179,4 +178,4 @@ def start_smart_controls(command):
             
     #script will return to main if keyword found
     #speak if not returned
-    gtts_speak('Command not found')
+    gtts_speak(get_response('notFound'))

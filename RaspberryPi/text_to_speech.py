@@ -4,6 +4,11 @@ import random
 from gtts import gTTS
 from whizzy_avatar import change_avatar_state
 
+#load responses from response.json
+responses = None
+with open('responses.json') as f:
+    responses = json.load(f)
+    
 def gtts_speak(audio_string):
     tts = gTTS(text=audio_string, lang='en', tld='com')
     tts.save("audio/speech.mp3")
@@ -18,13 +23,10 @@ def gtts_speak(audio_string):
     change_avatar_state(False)
     
     os.remove("audio/speech.mp3")
-
-def response(type):
-    with open('./RaspberryPi/responses.json') as f:
-        responses = json.load(f)
-        try:
-            return random.choice(responses[type])
-        except: 
-            return 'Dialog not found'
-            
-#usage print(response('notFound'))
+    
+#usage print(get_response('notFound'))
+def get_response(type):
+    try:
+        return random.choice(responses[type])
+    except: 
+        return 'Dialog not found'

@@ -21,9 +21,9 @@ Handling Questions and Trivias
 7. Teacher can exit Whizzy question mode by saying "Exit" + "question" or "trivia"
 """
 import time
-from text_to_speech import gtts_speak
 from API_requests import get_user_data
 from speech_to_text import speech_to_text
+from text_to_speech import gtts_speak, get_response
 from picovoice.detect_hotword import detect_hotword
 from whizzy_avatar import set_mode_text, set_lesson_text
 
@@ -41,15 +41,12 @@ def load_lesson_data():
     global lesson_data
     
     gtts_speak('What is the lesson that you want?')
-    
-    
     requested_course = speech_to_text()
     
     if requested_course == '':
         return
     
     user_data = get_user_data(requested_course)
-    
     found = False
     
     #find lesson
@@ -69,7 +66,7 @@ def load_lesson_data():
         gtts_speak('No lesson data found')
 
 def load_trivias(trivias):
-    gtts_speak('Ok lets start')
+    gtts_speak(get_response('startDialog'))
     
     current_index = 0
     dialog = trivias[current_index].response
@@ -81,7 +78,7 @@ def load_trivias(trivias):
     
         if detect_hotword():
             command = speech_to_text()
-                
+            
             #previous question
             if 'previous trivia' in command:
                 if current_index > 0:
@@ -107,10 +104,10 @@ def load_trivias(trivias):
                 return
                 
             else:
-                dialog = 'Sorry I cannot process that request'
+                dialog = get_response('notFound')
                 
 def load_questions(questions):
-    gtts_speak('Ok lets start')
+    gtts_speak(get_response('startDialog'))
     
     current_index = 0
     dialog = questions[current_index].question
@@ -123,7 +120,7 @@ def load_questions(questions):
             
         if detect_hotword():
             command = speech_to_text()
-                
+            
             #previous question
             if 'previous question' in command:
                 if current_index > 0:
@@ -153,21 +150,21 @@ def load_questions(questions):
                 if questions[current_index].answer in command:
                     dialog = questions[current_index].response
                 else:
-                    dialog = 'Incorrect answer'
+                    dialog = get_response('incorrectAnswer')
                         
             #exit questioning mode
             elif 'exit' in command:
                 return
-                
+            
             else:
-                dialog = 'Sorry I cannot process that request'
+                dialog = get_response('notFound')
                 
 def start_interactive_discussion(command):
     if 'load lesson' in command:
         load_lesson_data()
     
     elif lesson_data is None:
-        gtts_speak('No lesson selected, please load a lesson')
+        gtts_speak(get_response('noLesson'))
         set_lesson_text('Please load a lesson')
         return
     
@@ -201,7 +198,7 @@ def start_interactive_discussion(command):
             dialog = lesson_data.conclusion
 
         else:
-            dialog = 'Sorry, I cannot process that request'
+            dialog = get_response('notFound')
             
         #tell user if dialog is blank
         if dialog == '':
@@ -211,4 +208,4 @@ def start_interactive_discussion(command):
         set_mode_text('Interactive Discussion')
         
     else:
-        gtts_speak('Sorry, I cannot process that request')
+        gtts_speak(get_response('notFound'))

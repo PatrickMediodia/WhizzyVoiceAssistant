@@ -1,7 +1,7 @@
 import os
 import threading
 import speech_recognition as sr
-from text_to_speech import gtts_speak
+from text_to_speech import gtts_speak, get_response
 
 def speech_to_text():
     listener = sr.Recognizer()
@@ -21,7 +21,7 @@ def speech_to_text():
             command = command.lower()
             print(f'Command: {command}')
         except sr.UnknownValueError as e:
-            gtts_speak('Sorry, I did not get that')
+            gtts_speak(get_response('unknownValueError'))
             print(e)
         except sr.RequestError as e:
             gtts_speak('Sorry, my speech service is down')
