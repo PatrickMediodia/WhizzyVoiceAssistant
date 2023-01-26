@@ -1,4 +1,5 @@
 import os
+import threading
 import speech_recognition as sr
 from text_to_speech import gtts_speak
 
@@ -7,13 +8,12 @@ def speech_to_text():
     command = ""
     
     with sr.Microphone() as source:
-        listener.adjust_for_ambient_noise(source, duration=0.5)
-        listener.energy_threshold = 300
-        #listener.dynamic_energy_threshold = True
-        
+        #play sound to indicate start talking
         print('Listening to command ...')
-        os.system("mpg123 audio/ding_sound_2.mp3 >/dev/null 2>&1")
+        os.system("mpg123 audio/ding_sound.mp3 >/dev/null 2>&1")
         
+        #automatically sets the energy threshold
+        listener.adjust_for_ambient_noise(source, duration=0.5)
         voice_data = listener.listen(source)
         
         try:
