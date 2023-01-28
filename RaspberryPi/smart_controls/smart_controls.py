@@ -2,8 +2,9 @@ import os
 import time
 import threading
 from PyP100 import PyP100
+from whizzy_avatar import whizzy_speak
 from smart_controls.credentials import decrypt
-from text_to_speech import gtts_speak, get_response
+from text_to_speech import get_response
 from smart_controls.windows_script import login_terminal
 from smart_controls.client import client, application_map
 from smart_controls.windows_script import shutdown_terminal, check_terminal_status
@@ -89,13 +90,13 @@ def device_status(device_dict):
     elif attributes['status'] == False:
         status = 'off'
         
-    gtts_speak(f'{attributes["name"]} is currently {status}')
+    whizzy_speak(f'{attributes["name"]} is currently {status}')
 
 def turn_on_device(device_dict):
     attributes = device_dict['attributes']
 
     if attributes['status'] == True:
-        gtts_speak(f'{attributes["name"]} is already on')
+        whizzy_speak(f'{attributes["name"]} is already on')
         return
     
     elif attributes['name'] == 'computer':
@@ -103,13 +104,13 @@ def turn_on_device(device_dict):
         return
     
     set_device_status(device_dict['id'], 'true')
-    gtts_speak(f'{attributes["name"]} turned on')
+    whizzy_speak(f'{attributes["name"]} turned on')
 
 def turn_off_device(device_dict):
     attributes = device_dict['attributes']
 
     if attributes['status'] == False:
-        gtts_speak(f'{attributes["name"]} is already off')
+        whizzy_speak(f'{attributes["name"]} is already off')
         return
     
     elif attributes['name'] == 'computer':
@@ -117,11 +118,11 @@ def turn_off_device(device_dict):
         return
     
     set_device_status(device_dict['id'], 'false')
-    gtts_speak(f'{attributes["name"]} turned off')
+    whizzy_speak(f'{attributes["name"]} turned off')
 
 def open_terminal(id):
     set_device_status(id, 'true')
-    gtts_speak(f'Computer turned on')
+    whizzy_speak(f'Computer turned on')
     
     #get data from API
     account_credentials = get_local_account_credentials()
@@ -134,7 +135,7 @@ def open_terminal(id):
     
 def close_terminal(id):
     shutdown_terminal()
-    gtts_speak(f'Computer turned off')
+    whizzy_speak(f'Computer turned off')
     
     #wait until computer shutsdown
     while(check_terminal_status()):
@@ -151,7 +152,7 @@ def start_smart_controls(command):
 
         if attributes['name'] in command:
             if attributes['connected'] == False:
-                gtts_speak(f'{attributes["name"]} is not connected')
+                whizzy_speak(f'{attributes["name"]} is not connected')
                 return
             elif 'status' in command:
                 device_status(device)
@@ -172,10 +173,10 @@ def start_smart_controls(command):
                 
                 #resend request and get response
                 server_response = client(request_to_send)
-                gtts_speak(server_response)
+                whizzy_speak(server_response)
                 
                 return
             
     #script will return to main if keyword found
     #speak if not returned
-    gtts_speak(get_response('notFound'))
+    whizzy_speak(get_response('notFound'))

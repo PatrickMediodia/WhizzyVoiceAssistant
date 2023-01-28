@@ -1,8 +1,8 @@
 import os
 import threading
 import speech_recognition as sr
-from whizzy_avatar import set_mic_state
-from text_to_speech import gtts_speak, get_response
+from text_to_speech import get_response
+from whizzy_avatar import set_mic_state, whizzy_speak
 
 def speech_to_text():
     listener = sr.Recognizer()
@@ -26,10 +26,10 @@ def speech_to_text():
             command = command.lower()
             print(f'Command: {command}')
         except sr.UnknownValueError as e:
-            gtts_speak(get_response('unknownValueError'))
+            whizzy_speak(get_response('unknownValueError'))
             print(e)
         except sr.RequestError as e:
-            gtts_speak('Sorry, my speech service is down')
+            whizzy_speak('Sorry, my speech service is down')
             print(e)
             
     return command

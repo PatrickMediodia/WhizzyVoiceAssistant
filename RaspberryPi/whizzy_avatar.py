@@ -1,7 +1,9 @@
-from __future__ import print_function
 import os
-import pygame
 import time
+import pygame
+import threading
+from textwrap import wrap
+from text_to_speech import gtts_speak
 
 talking = False
 screen = None
@@ -11,8 +13,11 @@ small = False
 
 white = (255, 255, 255)
 yellow = (255, 255, 0)
+width, height = 400, 70
 
 mode_text = ''
+subtitle_list = []
+subtitle_phrase = ''
 lesson_text = 'Lesson: Please load a lesson'
 
 class imageHandler:
@@ -89,10 +94,25 @@ def face():
         
         pygame.display.update(A, B, x, y)
         
-# displays text
-def display_text():
-    width, height = 400, 70
+def subtitle():
+    global subtitle_phrase, subtitle_list
     
+    while True:
+        if len(subtitle_list) == 0:
+            change_avatar_state(False)
+        else:
+            change_avatar_state(True)
+            
+            for phrase in subtitle_list:
+                subtitle_phrase = phrase
+                gtts_speak(phrase)
+                
+            subtitle_phrase = ''
+            subtitle_list = []
+            change_avatar_state(False)
+            
+# displays text
+def display_text():    
     #display current mode
     font = pygame.font.Font('avatar/comicsans.TTF', 35, bold= True)
     mode_text_render = font.render(mode_text, True, white)
@@ -112,8 +132,20 @@ def display_text():
         screen.blit(lesson_text_render, (x_2+23, y_2+12, width, height))  # text
         
     mic()
+    display_subtitle()
     pygame.display.flip()
+
+def display_subtitle():
+    font = pygame.font.Font('avatar/comicsans.TTF', 35, bold= True)
     
+    if subtitle_phrase != '':
+        subtitle_text_render = font.render(subtitle_phrase, True, white)
+        text_width = subtitle_text_render.get_width()
+        
+        available_space = 1920 - text_width
+        x_value = available_space / 2    
+        screen.blit(subtitle_text_render, (x_value, 1020, width, height))
+        
 def mic():
     global small
     coordinate = (150, 1080-125)
@@ -124,7 +156,7 @@ def mic():
         small = False
         
     elif mic_flag is True and small is False:
-        pygame.draw.circle(screen, yellow, coordinate, 90, 100)
+        pygame.draw.circle(screen, yellow, coordinate, 95, 100)
         small = True
         
     else:
@@ -134,12 +166,17 @@ def mic():
     mic_img = pygame.image.load('avatar/mic.bmp').convert_alpha()
     mic_img = pygame.transform.scale(mic_img, (64, 109.5))
     screen.blit(mic_img, (120, 902))
-
+    
+def whizzy_speak(text):
+    global subtitle_list
+    
+    list_of_phrases = wrap(text,80)
+    subtitle_list = list_of_phrases
+    
 def set_mic_state(mic_state):
     global mic_flag
     mic_flag = mic_state
-
-#pass new avatar talking state
+    
 def change_avatar_state(avatar_state):
     global talking
     talking = avatar_state
@@ -162,5 +199,6 @@ def initialize_avatar():
     screen = pygame.display.set_mode((0,0),pygame.FULLSCREEN)  # allows fullscreen
     handler = imageHandler()
     
-    display()         
-    face()
+    display()
+    threading.Thread(target=face, daemon=True).start()
+    subtitle()

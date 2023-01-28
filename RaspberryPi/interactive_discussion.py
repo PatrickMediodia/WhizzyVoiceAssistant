@@ -23,9 +23,9 @@ Handling Questions and Trivias
 import time
 from API_requests import get_user_data
 from speech_to_text import speech_to_text
-from text_to_speech import gtts_speak, get_response
+from text_to_speech import get_response
 from picovoice.detect_hotword import detect_hotword
-from whizzy_avatar import set_mode_text, set_lesson_text
+from whizzy_avatar import set_mode_text, set_lesson_text, whizzy_speak
 
 lesson_data = None
 
@@ -39,8 +39,10 @@ interactive_discussion_modes = {
 
 def load_lesson_data():
     global lesson_data
+    set_mode_text('Interactive Discussion - Load Lesson')
     
-    gtts_speak('What is the lesson that you want?')
+    whizzy_speak('What is the lesson that you want?')
+    time.sleep(3)
     requested_course = speech_to_text()
     
     if requested_course == '':
@@ -58,15 +60,19 @@ def load_lesson_data():
                     found = True
                     
                     print('Found lesson from trigger word')
-                    gtts_speak(f'Lesson has been loaded')
+                    whizzy_speak(f'Lesson has been loaded')
+                    
                     set_lesson_text(f'{lesson_data.name}')
+                    set_mode_text('Interactive Discussion')
+                    
                     break
                 
     if not found:
-        gtts_speak('No lesson data found')
-
+        whizzy_speak('No lesson data found')
+        set_mode_text('Interactive Discussion')
+        
 def load_trivias(trivias):
-    gtts_speak(get_response('startDialog'))
+    whizzy_speak(get_response('startDialog'))
     
     current_index = 0
     dialog = trivias[current_index].response
@@ -74,7 +80,7 @@ def load_trivias(trivias):
     #repeat until next or previous trivia command
     while True:
         set_mode_text(f'Interactive Discussion - Trivia - {current_index+1}/{len(trivias)}')   
-        gtts_speak(dialog)
+        whizzy_speak(dialog)
     
         if detect_hotword():
             command = speech_to_text()
@@ -107,7 +113,7 @@ def load_trivias(trivias):
                 dialog = get_response('notFound')
                 
 def load_questions(questions):
-    gtts_speak(get_response('startDialog'))
+    whizzy_speak(get_response('startDialog'))
     
     current_index = 0
     dialog = questions[current_index].question
@@ -116,7 +122,7 @@ def load_questions(questions):
     #repeat until next or previous question command
     while True:
         set_mode_text(f'Interactive Discussion - Questions - {current_index+1}/{len(questions)}') #change text
-        gtts_speak(dialog)
+        whizzy_speak(dialog)
             
         if detect_hotword():
             command = speech_to_text()
@@ -164,12 +170,12 @@ def start_interactive_discussion(command):
         load_lesson_data()
     
     elif lesson_data is None:
-        gtts_speak(get_response('noLesson'))
+        whizzy_speak(get_response('noLesson'))
         set_lesson_text('Please load a lesson')
         return
     
     elif 'current lesson' in command:
-        gtts_speak(f'The current lesson is {lesson_data.name}')
+        whizzy_speak(f'The current lesson is {lesson_data.name}')
         
     elif 'start' in command:
         dialog = ''
@@ -204,8 +210,8 @@ def start_interactive_discussion(command):
         if dialog == '':
             dialog = f'No dialog set for that part of the discussion'
         
-        gtts_speak(dialog)
+        whizzy_speak(dialog)
         set_mode_text('Interactive Discussion')
         
     else:
-        gtts_speak(get_response('notFound'))
+        whizzy_speak(get_response('notFound'))
