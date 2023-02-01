@@ -10,6 +10,7 @@ screen = None
 handler = None
 mic_flag = False
 small = False
+faceThread = None
 
 white = (255, 255, 255)
 yellow = (255, 255, 0)
@@ -62,20 +63,19 @@ def display():
     handler.loadFromFile("avatar/8.bmp", "8")
 
 def face():
+    global talking
+    
     A = 0
     B = 0
     x = 1920
     y = 1080
 
     count = 1
-    global talking
     while True:
         pygame.event.get()
         if talking == False:
             handler.render(screen, "1", (A, B), True, (x, y))
-
             display_text()
-            
             time.sleep(0.3)
 
         elif talking == True:
@@ -84,33 +84,15 @@ def face():
             img = str(count)
             
             handler.render(screen, img, (A, B), True, (x, y))
-
             display_text()
-            
             time.sleep(0.3)
+            
             count += 1
             if count == 8:
                 count = 2
         
         pygame.display.update(A, B, x, y)
         
-def subtitle():
-    global subtitle_phrase, subtitle_list
-    
-    while True:
-        if len(subtitle_list) == 0:
-            change_avatar_state(False)
-        else:
-            change_avatar_state(True)
-            
-            for phrase in subtitle_list:
-                subtitle_phrase = phrase
-                gtts_speak(phrase)
-                
-            subtitle_phrase = ''
-            subtitle_list = []
-            change_avatar_state(False)
-            
 # displays text
 def display_text():    
     #display current mode
@@ -135,6 +117,21 @@ def display_text():
     display_subtitle()
     pygame.display.flip()
 
+def subtitle():
+    global subtitle_phrase, subtitle_list, talking
+    
+    while True:
+        if len(subtitle_list) != 0:
+            change_avatar_state(True)
+            
+            for phrase in subtitle_list:
+                subtitle_phrase = phrase
+                gtts_speak(phrase)
+                
+            subtitle_phrase = ''
+            subtitle_list = []
+            change_avatar_state(False)
+            
 def display_subtitle():
     font = pygame.font.Font('avatar/comicsans.TTF', 35, bold= True)
     
@@ -166,7 +163,7 @@ def mic():
     mic_img = pygame.image.load('avatar/mic.bmp').convert_alpha()
     mic_img = pygame.transform.scale(mic_img, (64, 109.5))
     screen.blit(mic_img, (120, 902))
-    
+
 def whizzy_speak(text):
     global subtitle_list
     
@@ -180,7 +177,7 @@ def set_mic_state(mic_state):
 def change_avatar_state(avatar_state):
     global talking
     talking = avatar_state
-
+    
 def set_mode_text(text):
     global mode_text
     mode_text = f'Mode: {text.title()}'
@@ -190,7 +187,7 @@ def set_lesson_text(text):
     lesson_text = f'Lesson: {text}'
     
 def initialize_avatar():
-    global screen, handler
+    global screen, handler, talking
     
     #initialize display
     pygame.display.init()  # Initiates the display pygame
@@ -201,4 +198,4 @@ def initialize_avatar():
     
     display()
     threading.Thread(target=face, daemon=True).start()
-    subtitle()
+    threading.Thread(target=subtitle, daemon=True).start()

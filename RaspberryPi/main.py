@@ -8,11 +8,11 @@ from speech_to_text import speech_to_text
 from picovoice.detect_hotword import detect_hotword
 from whizzy_avatar import initialize_avatar, set_mode_text, whizzy_speak
 
-#Web Searching
-from web_searching import start_google_assistant
-
 #Interactive Discussion
 from interactive_discussion import start_interactive_discussion
+
+#Web Searching
+from google_assistant.google_assistant import start_google_assistant
 
 #Smart Controls
 from smart_controls.smart_controls import initialize_devices, start_smart_controls
@@ -50,7 +50,7 @@ def main():
         gtts_speak('Incorrect credentials')
         print('Incorrect credentials')
         return
-
+    
     #start after authentication
     #new thread for avatar
     threading.Thread(target=initialize_avatar, daemon=True).start()
@@ -87,6 +87,6 @@ def main():
                 #send command to current mode
                 else:
                     mode_map[current_mode](command)
-
+                    
 if __name__ == '__main__':
     main()

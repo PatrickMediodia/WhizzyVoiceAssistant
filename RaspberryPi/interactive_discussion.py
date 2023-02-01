@@ -106,7 +106,7 @@ def load_trivias(trivias):
                 dialog = trivias[current_index].response
                     
             #exit trivia mode
-            elif 'exit' in command:
+            elif 'exit trivia' in command:
                 return
                 
             else:
@@ -117,8 +117,7 @@ def load_questions(questions):
     
     current_index = 0
     dialog = questions[current_index].question
-        
-        
+         
     #repeat until next or previous question command
     while True:
         set_mode_text(f'Interactive Discussion - Questions - {current_index+1}/{len(questions)}') #change text
@@ -159,7 +158,7 @@ def load_questions(questions):
                     dialog = get_response('incorrectAnswer')
                         
             #exit questioning mode
-            elif 'exit' in command:
+            elif 'exit questioning' in command:
                 return
             
             else:

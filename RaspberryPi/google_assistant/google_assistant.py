@@ -24,8 +24,8 @@ except (SystemError, ImportError):
     import audio_helpers
     import browser_helpers
 
-#import avatar
-from whizzy_avatar import whizzy_speak, change_avatar_state, no_google_assistant_transcript
+import simpleaudio
+from whizzy_avatar import whizzy_speak, change_avatar_state #import avatar
 
 ASSISTANT_API_ENDPOINT = 'embeddedassistant.googleapis.com'
 DEFAULT_GRPC_DEADLINE = 60 * 3 + 5
@@ -139,7 +139,7 @@ class GoogleAssistant(object):
         
         return text_response, html_response
 
-def main(command):
+def start_google_assistant(command):
     credentials = os.path.join(click.get_app_dir('google-oauthlib-tool'), 'credentials.json')
     device_model_id = os.environ.get('DEVICE_MODEL_ID')
     device_id = os.environ.get('DEVICE_ID')
@@ -172,20 +172,17 @@ def main(command):
         if display and response_html:
             system_browser = browser_helpers.system_browser
             system_browser.display(response_html)
-        
-        import time
-        from pygame import mixer
-        
+            
         if response_text:
             print(f'Transcript of response: {response_text}')
             whizzy_speak(response_text)
         else:
-            mixer.init()
-            mixer.music.load("audio/out.wav")
             change_avatar_state(True)
-            mixer.music.play()
-            change_avatar_state(False)
             
-            #no_google_assistant_transcript()
+            wav_sound = simpleaudio.WaveObject.from_wave_file('audio/out.wav')
+            play = wav_sound.play()
+            play.wait_done()
+            
+            change_avatar_state(False)
             
         os.remove("audio/out.wav")
