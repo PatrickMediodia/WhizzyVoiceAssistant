@@ -21,149 +21,152 @@ room_device_data = None
 #{id : PyP100 Object} relation
 device_id_to_object_map = {}
 
-#FLAG variable
-startup = True
-
 def initialize_devices():
-    global startup
     global room_device_data
+    
+    room_device_data = get_room_device_data(room_number)
+        
+    if room_device_data is None:
+        print('Room device data cannot be fetched.')
+        return
+    
+    for device_data in room_device_data:    
+        initialize_device(device_data)
+        
+    print(room_device_data)
+    print(device_id_to_object_map)
+    
+def initialize_device(device_data):
     global device_id_to_object_map
     
-    while True:
-        #refresh data every second
-        time.sleep(1)
-
-        #API call
-        room_device_data = get_room_device_data(room_number)
-        
-        if room_device_data is None:
-            print('Room device data cannot be fetched.')
-            continue
-        
-        #iterate through devices
-        for device in room_device_data:
-            #deserialize json data
-            attributes = device['attributes']
-            id = device['id']
-
-            try:
-                #check if id has PyP100 object in dictionary
-                if device_id_to_object_map.get(id) is None:
-                    initiated_device = PyP100.P100(attributes['ip_address'], username, password)
-                    initiated_device.handshake()
-                    initiated_device.login()
-                    device_id_to_object_map[id] = initiated_device
-                    
-                #set to connected
-                if not attributes['connected']:
-                    set_device_connectivity(id, True)
-                    attributes['connected'] = True
+    attributes = device_data['attributes']
+    id = device_data['id']
+    
+    print(f'Initializing {attributes["name"]}')
+    
+    try:
+        initiated_device = PyP100.P100(attributes['ip_address'], username, password)
+        initiated_device.handshake()
+        initiated_device.login()
+        device_id_to_object_map[id] = initiated_device
+            
+        set_device_connectivity(id, True)
+        attributes['connected'] = True
+            
+        #reflect the current state based on db
+        if attributes['status']:
+            device_id_to_object_map[id].turnOn()
+        else:
+            device_id_to_object_map[id].turnOff()
                 
-                #turn PC on at startup
-                if startup and attributes['name'] == 'computer':
-                    pass
-                    '''
-                    startup = False #ignore on next iteration
-                    print('Triggered on startup')
-                    threading.Thread(target=open_terminal, daemon=True, args=[id]).start()
-                    continue
-                    '''
-                    
-                #reflect the current state based on db
-                if attributes['status']:
-                    device_id_to_object_map[id].turnOn()
-                else:
-                    device_id_to_object_map[id].turnOff()
-                
-            except:
-                if attributes['connected']:
-                    set_device_connectivity(id, False)
-                    attributes['connected'] = False
-                    device_id_to_object_map[id] = None
-                    
+    except:
+        set_device_connectivity(id, False)
+        attributes['connected'] = False
+        device_id_to_object_map[id] = None
+        
+def retry_initializing_device(thread_name, device_data):
+    running_threads = threading.enumerate()
+    
+    #check if thread for initialization is already started
+    for thread in running_threads:
+        if thread.name == thread_name:
+            print(f'Already trying to initialize {thread_name}')
+            break
+    else:
+        new_thread = threading.Thread(target=initialize_device, args=[device_data], daemon=True)
+        new_thread.name = thread_name
+        new_thread.start()
+        
+    whizzy_speak(f'{thread_name} is not connected')
+    
+def refresh_room_device_data():
+    global room_device_data
+    
+    room_device_data = get_room_device_data(room_number)
+
+def get_device_status(id, name):
+    global device_id_to_object_map
+    
+    #check if already in object map
+    if device_id_to_object_map.get(id) is None:
+        whizzy_speak(f'{name} is not connected')
+        return None
+    
+    #try to get device status
+    try:
+        return device_id_to_object_map[id].getDeviceInfo()['result']['device_on']
+    
+    except:
+        set_device_connectivity(id, False)
+        device_id_to_object_map[id] = None
+        
+        whizzy_speak(f'{name} is not connected')
+        return None
+    
 def device_status(device_dict):
     attributes = device_dict['attributes']
-    status = ''
+    id = device_dict['id']
     
-    if attributes['status'] == True:
-        status = 'on'
-    elif attributes['status'] == False:
-        status = 'off'
+    device_status = get_device_status(id, attributes["name"])
+    if device_status is True:
+        whizzy_speak(f'{attributes["name"]} is currently on')
+    elif device_status is False:
+        whizzy_speak(f'{attributes["name"]} is currently off')
         
-    whizzy_speak(f'{attributes["name"]} is currently {status}')
-
 def turn_on_device(device_dict):
     attributes = device_dict['attributes']
-
-    if attributes['status'] == True:
+    id = device_dict['id']
+    
+    device_status = get_device_status(id, attributes["name"])
+    
+    if device_status is True:
         whizzy_speak(f'{attributes["name"]} is already on')
         return
     
-    elif attributes['name'] == 'computer':
-        threading.Thread(target=open_terminal, daemon=True, args=[device_dict['id']]).start()
-        return
+    elif device_status is False:
+        set_device_status(device_dict['id'], 'true')
+        device_id_to_object_map[id].turnOn()
+        whizzy_speak(f'{attributes["name"]} turned on')
     
-    set_device_status(device_dict['id'], 'true')
-    whizzy_speak(f'{attributes["name"]} turned on')
-
-def turn_off_device(device_dict):
+def turn_off_device(device_dict): 
     attributes = device_dict['attributes']
-
-    if attributes['status'] == False:
+    id = device_dict['id']
+    
+    device_status = get_device_status(id, attributes["name"])
+    
+    if device_status is False:
         whizzy_speak(f'{attributes["name"]} is already off')
         return
     
-    elif attributes['name'] == 'computer':
-        threading.Thread(target=close_terminal, daemon=True, args=[device_dict['id']]).start()
-        return
-    
-    set_device_status(device_dict['id'], 'false')
-    whizzy_speak(f'{attributes["name"]} turned off')
-
-def open_terminal(id):
-    set_device_status(id, 'true')
-    whizzy_speak(f'Computer turned on')
-    
-    #get data from API
-    account_credentials = get_local_account_credentials()
-    
-    #use decrypt function
-    decrypted_password = decrypt(account_credentials['password'])
-    
-    #login to windows
-    login_terminal(account_credentials['email'], decrypted_password.decode("utf-8", "ignore"))
-    
-def close_terminal(id):
-    shutdown_terminal()
-    whizzy_speak(f'Computer turned off')
-    
-    #wait until computer shutsdown
-    while(check_terminal_status()):
-        pass
-    time.sleep(1)
-    
-    #set status to false
-    set_device_status(id, 'false') 
-    
+    elif device_status is True:
+        set_device_status(device_dict['id'], 'false')
+        device_id_to_object_map[id].turnOff()
+        whizzy_speak(f'{attributes["name"]} turned off')
+        
 def start_smart_controls(command):
+    refresh_room_device_data()
+    
     #check command for controlling devices
-    for device in room_device_data:
-        attributes = device['attributes']
-
+    for device_data in room_device_data:
+        attributes = device_data['attributes']
+        
         if attributes['name'] in command:
             if attributes['connected'] == False:
-                whizzy_speak(f'{attributes["name"]} is not connected')
-                return
-            elif 'status' in command:
-                device_status(device)
-                return
-            elif 'on' in command:
-                turn_on_device(device)
-                return
-            elif 'off' in command:
-                turn_off_device(device)
+                retry_initializing_device(attributes['name'], device_data)
                 return
             
+            if 'status' in command:
+                device_status(device_data)
+                return
+            
+            elif 'on' in command:
+                turn_on_device(device_data)
+                return
+            
+            elif 'off' in command:
+                turn_off_device(device_data)
+                return
+    
     #check command for opening/closing applications
     for application, synonyms in application_map.items():
         for synonym in synonyms:

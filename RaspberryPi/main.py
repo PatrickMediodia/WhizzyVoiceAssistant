@@ -33,7 +33,7 @@ mode_map = {
 USERNAME = os.environ.get('FACULTY_USERNAME')
 PASSWORD = os.environ.get('FACULTY_PASSWORD')
 
-current_mode = modes[0]
+current_mode = modes[1]
 
 def change_mode(current_mode, command):
     if 'switch' in command or 'change' in command:
@@ -52,16 +52,20 @@ def main():
         return
     
     #start after authentication
+    #initializing devices in the classroom
+    print('Initializing devices ......\n')
+    initialize_devices()
+    
     #new thread for avatar
-    threading.Thread(target=initialize_avatar, daemon=True).start()
+    initialize_avatar_thread = threading.Thread(target=initialize_avatar, daemon=True)
+    initialize_avatar_thread.name = 'Initialize avatar'
+    initialize_avatar_thread.start()
+    
     set_mode_text(current_mode)
     
     #initial speech of Whizzy
     time.sleep(5)
     whizzy_speak('Hello I am Whizzy, your personal assistant')
-    
-    #initializing devices in the classroon
-    threading.Thread(target=initialize_devices, daemon=True).start()
     
     with noalsaerr():
         while True:

@@ -169,6 +169,7 @@ def whizzy_speak(text):
     list_of_phrases = wrap(text,90)
     subtitle_list = list_of_phrases
     
+    # wait until dialog is finished
     while len(subtitle_list) != 0:
         continue
     
@@ -202,5 +203,9 @@ def initialize_avatar():
     handler = imageHandler()
     
     display()
-    threading.Thread(target=face, daemon=True).start()
+    
+    show_face_thread = threading.Thread(target=face, daemon=True)
+    show_face_thread.name = 'Show face'
+    show_face_thread.start()
+    
     subtitle()
