@@ -23,7 +23,6 @@ device_id_to_object_map = {}
 
 def initialize_devices():
     global room_device_data
-    
     room_device_data = get_room_device_data(room_number)
         
     if room_device_data is None:
@@ -39,10 +38,9 @@ def initialize_devices():
 def initialize_device(device_data):
     global device_id_to_object_map
     
+    print(f'Initializing {attributes["name"]}')
     attributes = device_data['attributes']
     id = device_data['id']
-    
-    print(f'Initializing {attributes["name"]}')
     
     try:
         initiated_device = PyP100.P100(attributes['ip_address'], username, password)
@@ -81,7 +79,6 @@ def retry_initializing_device(thread_name, device_data):
     
 def refresh_room_device_data():
     global room_device_data
-    
     room_device_data = get_room_device_data(room_number)
 
 def get_device_status(id, name):
@@ -95,11 +92,9 @@ def get_device_status(id, name):
     #try to get device status
     try:
         return device_id_to_object_map[id].getDeviceInfo()['result']['device_on']
-    
     except:
         set_device_connectivity(id, False)
         device_id_to_object_map[id] = None
-        
         whizzy_speak(f'{name} is not connected')
         return None
     
@@ -118,11 +113,9 @@ def turn_on_device(device_dict):
     id = device_dict['id']
     
     device_status = get_device_status(id, attributes["name"])
-    
     if device_status is True:
         whizzy_speak(f'{attributes["name"]} is already on')
         return
-    
     elif device_status is False:
         set_device_status(device_dict['id'], 'true')
         device_id_to_object_map[id].turnOn()
@@ -133,11 +126,9 @@ def turn_off_device(device_dict):
     id = device_dict['id']
     
     device_status = get_device_status(id, attributes["name"])
-    
     if device_status is False:
         whizzy_speak(f'{attributes["name"]} is already off')
         return
-    
     elif device_status is True:
         set_device_status(device_dict['id'], 'false')
         device_id_to_object_map[id].turnOff()
@@ -149,20 +140,16 @@ def start_smart_controls(command):
     #check command for controlling devices
     for device_data in room_device_data:
         attributes = device_data['attributes']
-        
         if attributes['name'] in command:
             if attributes['connected'] == False:
                 retry_initializing_device(attributes['name'], device_data)
                 return
-            
             if 'status' in command:
                 device_status(device_data)
                 return
-            
             elif 'on' in command:
                 turn_on_device(device_data)
                 return
-            
             elif 'off' in command:
                 turn_off_device(device_data)
                 return
