@@ -10,7 +10,6 @@ screen = None
 handler = None
 mic_flag = False
 small = False
-faceThread = None
 
 white = (255, 255, 255)
 yellow = (255, 255, 0)
@@ -187,7 +186,7 @@ def set_lesson_text(text):
     lesson_text = f'Lesson: {text}'
     
 def initialize_avatar():
-    global screen, handler, talking
+    global screen, handler
     
     #initialize display
     pygame.display.init()  # Initiates the display pygame
