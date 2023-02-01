@@ -25,13 +25,13 @@ except (SystemError, ImportError):
     import browser_helpers
 
 #import avatar
-from whizzy_avatar import change_avatar_state
+from whizzy_avatar import whizzy_speak, change_avatar_state
 
 ASSISTANT_API_ENDPOINT = 'embeddedassistant.googleapis.com'
 DEFAULT_GRPC_DEADLINE = 60 * 3 + 5
 PLAYING = embedded_assistant_pb2.ScreenOutConfig.PLAYING
 
-class GoogleAssistant(object):
+class GoogleAssistant(object):  
     def __init__(self, language_code, device_model_id, device_id,
                  display, channel, deadline_sec):
         self.language_code = language_code
@@ -76,6 +76,10 @@ class GoogleAssistant(object):
             assistant_helpers.log_assist_request_without_audio(req)
             yield req
         
+        output_audio_file = 'audio/out.wav'
+        audio_sample_rate = audio_helpers.DEFAULT_AUDIO_SAMPLE_RATE
+        audio_sample_width = audio_helpers.DEFAULT_AUDIO_SAMPLE_WIDTH
+        
         #configured conversation stream
         audio_device = None
         audio_source = audio_device = (
@@ -86,21 +90,30 @@ class GoogleAssistant(object):
                 flush_size=audio_helpers.DEFAULT_AUDIO_DEVICE_FLUSH_SIZE
             )
         )
-        audio_sink = audio_device = (
-        audio_device or audio_helpers.SoundDeviceStream(
-                sample_rate=audio_helpers.DEFAULT_AUDIO_SAMPLE_RATE,
-                sample_width=audio_helpers.DEFAULT_AUDIO_SAMPLE_WIDTH,
-                block_size=audio_helpers.DEFAULT_AUDIO_DEVICE_BLOCK_SIZE,
-                flush_size=audio_helpers.DEFAULT_AUDIO_DEVICE_FLUSH_SIZE
+      
+        if output_audio_file:
+            audio_sink = audio_helpers.WaveSink(
+                open(output_audio_file, 'wb'),
+                sample_rate=audio_sample_rate,
+                sample_width=audio_sample_width
             )
-        )
+        else:
+            audio_sink = audio_device = (
+                audio_device or audio_helpers.SoundDeviceStream(
+                    sample_rate=audio_sample_rate,
+                    sample_width=audio_sample_width,
+                    block_size=audio_block_size,
+                    flush_size=audio_flush_size
+                )
+            )
+        
         conversation_stream = audio_helpers.ConversationStream(
             source=audio_source,
             sink=audio_sink,
             iter_size=audio_helpers.DEFAULT_AUDIO_ITER_SIZE,
             sample_width=audio_helpers.DEFAULT_AUDIO_SAMPLE_WIDTH,
         )
-    
+        
         text_response = None
         html_response = None
         for resp in self.assistant.Assist(iter_assist_requests(),
@@ -113,18 +126,24 @@ class GoogleAssistant(object):
                 self.conversation_state = conversation_state
             if resp.dialog_state_out.supplemental_display_text:
                 text_response = resp.dialog_state_out.supplemental_display_text
-                
+                '''
+                print(f'Transcript of response: {text_response}')
+                whizzy_speak(text_response)
+                conversation_stream.stop_recording()
+                conversation_stream.stop_playback()
+                break
+                '''
+            
             #added sound output
             if len(resp.audio_out.audio_data) > 0:
                 if not conversation_stream.playing:
                     conversation_stream.stop_recording()
-                    change_avatar_state(True) #start avatar talking
                     conversation_stream.start_playback()
                     print('Playing assistant response.....')
                 conversation_stream.write(resp.audio_out.audio_data)
                 
         conversation_stream.stop_playback()
-        change_avatar_state(False) #stop avatar talking
+        conversation_stream.close()
         
         return text_response, html_response
 
@@ -150,12 +169,25 @@ def main(command, device_model_id, device_id):
 
     grpc_channel = google.auth.transport.grpc.secure_authorized_channel(
         credentials, http_request, api_endpoint)
-
+    
+    from pygame import mixer
+    
     with GoogleAssistant(lang, device_model_id, device_id, display,
                              grpc_channel, grpc_deadline) as assistant:
         response_text, response_html = assistant.assist(text_query=command)
         if display and response_html:
             system_browser = browser_helpers.system_browser
             system_browser.display(response_html)
+        
         if response_text:
             print(f'Transcript of response: {response_text}')
+            whizzy_speak(response_text)
+            
+        else:
+            #play audio
+            mixer.init()
+            mixer.music.load("audio/out.wav")
+            #change_avatar_state(True) #start avatar talking
+            mixer.music.play()
+            #change_avatar_state(False) #stop avatar talking
+            os.remove("audio/out.wav")

@@ -170,7 +170,7 @@ def mic():
 def whizzy_speak(text):
     global subtitle_list
     
-    list_of_phrases = wrap(text,80)
+    list_of_phrases = wrap(text,90)
     subtitle_list = list_of_phrases
     
 def set_mic_state(mic_state):

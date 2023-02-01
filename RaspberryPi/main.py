@@ -33,7 +33,7 @@ mode_map = {
 USERNAME = os.environ.get('FACULTY_USERNAME')
 PASSWORD = os.environ.get('FACULTY_PASSWORD')
 
-current_mode = modes[1]
+current_mode = modes[0]
 
 def change_mode(current_mode, command):
     if 'switch' in command or 'change' in command:
@@ -60,8 +60,6 @@ def main():
     time.sleep(5)
     whizzy_speak('Hello I am Whizzy, your personal assistant')
     
-    #whizzy_speak('this is an example of a super long string that needs to be cut in order to have subtitles but I am not sure if this is going to work. Hello, test test test this is another test')
-
     #initializing devices in the classroon
     threading.Thread(target=initialize_devices, daemon=True).start()
     
