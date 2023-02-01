@@ -32,16 +32,13 @@ def initialize_devices():
     for device_data in room_device_data:    
         initialize_device(device_data)
         
-    print(room_device_data)
-    print(device_id_to_object_map)
-    
 def initialize_device(device_data):
     global device_id_to_object_map
     
-    print(f'Initializing {attributes["name"]}')
     attributes = device_data['attributes']
     id = device_data['id']
-    
+    print(f'Initializing {attributes["name"]}')
+
     try:
         initiated_device = PyP100.P100(attributes['ip_address'], username, password)
         initiated_device.handshake()
@@ -140,6 +137,7 @@ def start_smart_controls(command):
     #check command for controlling devices
     for device_data in room_device_data:
         attributes = device_data['attributes']
+        
         if attributes['name'] in command:
             if attributes['connected'] == False:
                 retry_initializing_device(attributes['name'], device_data)

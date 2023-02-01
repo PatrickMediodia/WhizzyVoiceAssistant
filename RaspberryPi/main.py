@@ -6,7 +6,7 @@ from ALSA_handler import noalsaerr
 from API_requests import authenticate
 from speech_to_text import speech_to_text
 from picovoice.detect_hotword import detect_hotword
-from whizzy_avatar import initialize_avatar, set_mode_text, whizzy_speak, get_avatar_state
+from whizzy_avatar import initialize_avatar, set_mode_text, whizzy_speak
 
 #Interactive Discussion
 from interactive_discussion import start_interactive_discussion
@@ -65,7 +65,7 @@ def main():
     
     #initial speech of Whizzy
     time.sleep(5)
-    whizzy_speak('Hello I am Whizzy, your personal assistant')
+    whizzy_speak('Hello I am Whizzy, your classroom assistant')
     
     with noalsaerr():
         while True:

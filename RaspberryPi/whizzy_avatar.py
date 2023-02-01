@@ -124,7 +124,7 @@ def subtitle():
             set_avatar_state(True)
             
             for phrase in subtitle_list:
-                subtitle_phrase = phrase
+                subtitle_phrase = phrase.capitalize()
                 gtts_speak(phrase)
                 
             subtitle_phrase = ''
@@ -181,9 +181,6 @@ def set_avatar_state(avatar_state):
     global talking
     talking = avatar_state
     
-def get_avatar_state():
-    return talking
-
 def set_mode_text(text):
     global mode_text
     mode_text = f'Mode: {text.title()}'
