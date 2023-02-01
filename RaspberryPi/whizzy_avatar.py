@@ -197,4 +197,4 @@ def initialize_avatar():
     
     display()
     threading.Thread(target=face, daemon=True).start()
-    threading.Thread(target=subtitle, daemon=True).start()
+    subtitle()

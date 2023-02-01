@@ -1,8 +1,8 @@
 import os
-import logging
 import json
-
 import click
+import logging
+import simpleaudio
 import sounddevice as sd
 import google.oauth2.credentials
 import google.auth.transport.grpc
@@ -23,9 +23,9 @@ except (SystemError, ImportError):
     import assistant_helpers
     import audio_helpers
     import browser_helpers
-
-import simpleaudio
-from whizzy_avatar import whizzy_speak, change_avatar_state #import avatar
+    
+#import avatar
+from whizzy_avatar import whizzy_speak, change_avatar_state
 
 ASSISTANT_API_ENDPOINT = 'embeddedassistant.googleapis.com'
 DEFAULT_GRPC_DEADLINE = 60 * 3 + 5
@@ -75,12 +75,10 @@ class GoogleAssistant(object):
             req = embedded_assistant_pb2.AssistRequest(config=config)
             assistant_helpers.log_assist_request_without_audio(req)
             yield req
-        
-        output_audio_file = 'audio/out.wav'
+            
         audio_sample_rate = audio_helpers.DEFAULT_AUDIO_SAMPLE_RATE
         audio_sample_width = audio_helpers.DEFAULT_AUDIO_SAMPLE_WIDTH
         
-        #configured conversation stream
         audio_device = None
         audio_source = audio_device = (
             audio_device or audio_helpers.SoundDeviceStream(
@@ -90,7 +88,8 @@ class GoogleAssistant(object):
                 flush_size=audio_helpers.DEFAULT_AUDIO_DEVICE_FLUSH_SIZE
             )
         )
-      
+          
+        output_audio_file = None
         if output_audio_file:
             audio_sink = audio_helpers.WaveSink(
                 open(output_audio_file, 'wb'),
@@ -116,6 +115,9 @@ class GoogleAssistant(object):
         
         text_response = None
         html_response = None
+        hasTranscript = False
+        response_audio_data = []
+        
         for resp in self.assistant.Assist(iter_assist_requests(),
                                           self.deadline):
             assistant_helpers.log_assist_response_without_audio(resp)
@@ -124,21 +126,30 @@ class GoogleAssistant(object):
             if resp.dialog_state_out.conversation_state:
                 conversation_state = resp.dialog_state_out.conversation_state
                 self.conversation_state = conversation_state
+            if len(resp.audio_out.audio_data) > 0:
+                response_audio_data.append(resp.audio_out.audio_data)
             if resp.dialog_state_out.supplemental_display_text:
                 text_response = resp.dialog_state_out.supplemental_display_text
-            #added sound output
-            if len(resp.audio_out.audio_data) > 0:
+                print(f'Transcript of response: {text_response}')
+                whizzy_speak(text_response)
+                hasTranscript = True
+                break
+            
+        #play audio if there is no transcript
+        if hasTranscript is False:
+            for value in response_audio_data:
                 if not conversation_stream.playing:
                     conversation_stream.stop_recording()
+                    change_avatar_state(True)
                     conversation_stream.start_playback()
                     print('Playing assistant response.....')
-                conversation_stream.write(resp.audio_out.audio_data)
-                
-        conversation_stream.stop_playback()
+                conversation_stream.write(value)
+            
+            conversation_stream.stop_playback()
+            change_avatar_state(False)
+            
         conversation_stream.close()
         
-        return text_response, html_response
-
 def start_google_assistant(command):
     credentials = os.path.join(click.get_app_dir('google-oauthlib-tool'), 'credentials.json')
     device_model_id = os.environ.get('DEVICE_MODEL_ID')
@@ -168,21 +179,4 @@ def start_google_assistant(command):
     
     with GoogleAssistant(lang, device_model_id, device_id, display,
                              grpc_channel, grpc_deadline) as assistant:
-        response_text, response_html = assistant.assist(text_query=command)
-        if display and response_html:
-            system_browser = browser_helpers.system_browser
-            system_browser.display(response_html)
-            
-        if response_text:
-            print(f'Transcript of response: {response_text}')
-            whizzy_speak(response_text)
-        else:
-            change_avatar_state(True)
-            
-            wav_sound = simpleaudio.WaveObject.from_wave_file('audio/out.wav')
-            play = wav_sound.play()
-            play.wait_done()
-            
-            change_avatar_state(False)
-            
-        os.remove("audio/out.wav")
+        assistant.assist(text_query=command)
