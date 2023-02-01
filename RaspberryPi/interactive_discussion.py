@@ -42,7 +42,7 @@ def load_lesson_data():
     set_mode_text('Interactive Discussion - Load Lesson')
     
     whizzy_speak('What is the lesson that you want?')
-    time.sleep(3)
+    time.sleep(1)
     requested_course = speech_to_text()
     
     if requested_course == '':
@@ -68,7 +68,7 @@ def load_lesson_data():
                     break
                 
     if not found:
-        whizzy_speak('No lesson data found')
+        whizzy_speak(get_response('lessonDataNotFound'))
         set_mode_text('Interactive Discussion')
         
 def load_trivias(trivias):

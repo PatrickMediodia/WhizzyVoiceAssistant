@@ -6,7 +6,7 @@ from ALSA_handler import noalsaerr
 from API_requests import authenticate
 from speech_to_text import speech_to_text
 from picovoice.detect_hotword import detect_hotword
-from whizzy_avatar import initialize_avatar, set_mode_text, whizzy_speak
+from whizzy_avatar import initialize_avatar, set_mode_text, whizzy_speak, get_avatar_state
 
 #Interactive Discussion
 from interactive_discussion import start_interactive_discussion
@@ -65,7 +65,7 @@ def main():
     
     with noalsaerr():
         while True:
-            print(f'Current mode: {current_mode}')
+            print(f'\nCurrent mode: {current_mode}')
             if detect_hotword():
                 command = speech_to_text()
                 

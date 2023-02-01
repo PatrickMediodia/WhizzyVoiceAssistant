@@ -27,5 +27,11 @@
       "Please select a lesson first",
       "Load a lesson to proceed",
       "Load a lesson to start the interactive discussion"
+   ],
+   "lessonDataNotFound": [
+      "No lesson data found",
+      "I cannot find a lesson with that trigger word",
+      "I was not able to get any lesson data from that trigger word",
+      "I did not find anything, try again?"
    ]
 }

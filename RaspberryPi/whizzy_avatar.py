@@ -121,7 +121,7 @@ def subtitle():
     
     while True:
         if len(subtitle_list) != 0:
-            change_avatar_state(True)
+            set_avatar_state(True)
             
             for phrase in subtitle_list:
                 subtitle_phrase = phrase
@@ -129,7 +129,7 @@ def subtitle():
                 
             subtitle_phrase = ''
             subtitle_list = []
-            change_avatar_state(False)
+            set_avatar_state(False)
             
 def display_subtitle():
     font = pygame.font.Font('avatar/comicsans.TTF', 35, bold= True)
@@ -169,14 +169,20 @@ def whizzy_speak(text):
     list_of_phrases = wrap(text,90)
     subtitle_list = list_of_phrases
     
+    while len(subtitle_list) != 0:
+        continue
+    
 def set_mic_state(mic_state):
     global mic_flag
     mic_flag = mic_state
     
-def change_avatar_state(avatar_state):
+def set_avatar_state(avatar_state):
     global talking
     talking = avatar_state
     
+def get_avatar_state():
+    return talking
+
 def set_mode_text(text):
     global mode_text
     mode_text = f'Mode: {text.title()}'
