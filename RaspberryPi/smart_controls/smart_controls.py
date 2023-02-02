@@ -3,8 +3,8 @@ import time
 import threading
 from PyP100 import PyP100
 from whizzy_avatar import whizzy_speak
-from smart_controls.credentials import decrypt
 from text_to_speech import get_response
+from smart_controls.credentials import decrypt
 from smart_controls.windows_script import login_terminal
 from smart_controls.client import client, application_map
 from smart_controls.windows_script import shutdown_terminal, check_terminal_status
@@ -73,7 +73,21 @@ def initialize_device(device_data):
         set_device_connectivity(id, False)
         attributes['connected'] = False
         device_id_to_object_map[id] = None
-        
+
+def turn_off_devices():
+    global device_id_to_object_map
+    
+    for device_dict in room_device_data:
+        attributes = device_dict['attributes']
+        id = device_dict['id']
+    
+        if attributes['name'] == 'computer' and attributes['status'] == True:
+            close_terminal(id)
+        else:
+            if device_id_to_object_map.get(id) is not None:
+                set_device_status(device_dict['id'], 'false')
+                device_id_to_object_map[id].turnOff()
+                
 def retry_initializing_device(thread_name, device_data):
     running_threads = threading.enumerate()
     

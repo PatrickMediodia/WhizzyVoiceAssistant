@@ -33,5 +33,17 @@
       "I cannot find a lesson with that trigger word",
       "I was not able to get any lesson data from that trigger word",
       "I did not find anything, try again?"
+   ],
+   "exit": [
+      "Exiting, have a nice day",
+      "Goodbye, be safe",
+      "Shutting down, thank you",
+      "Goodbye, see you next time"
+   ],
+   "entrance": [
+      "Hello I am Whizzy, your classroom assistant",
+      "Welcome, let's get started",
+      "Good day, are you ready to learn?",
+      "Hello, getting things ready for you"
    ]
 }

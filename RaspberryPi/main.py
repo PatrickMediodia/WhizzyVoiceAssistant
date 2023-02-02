@@ -4,6 +4,7 @@ import time
 import threading
 from ALSA_handler import noalsaerr
 from API_requests import authenticate
+from text_to_speech import get_response
 from speech_to_text import speech_to_text
 from picovoice.detect_hotword import detect_hotword
 from whizzy_avatar import initialize_avatar, set_mode_text, whizzy_speak
@@ -15,7 +16,7 @@ from interactive_discussion import start_interactive_discussion
 from google_assistant.google_assistant import start_google_assistant
 
 #Smart Controls
-from smart_controls.smart_controls import initialize_devices, start_smart_controls
+from smart_controls.smart_controls import initialize_devices, start_smart_controls, turn_off_devices
 
 modes = (
     'web searching',
@@ -44,6 +45,7 @@ def change_mode(current_mode, command):
 
 def main():
     global current_mode
+    
     account = authenticate(USERNAME, PASSWORD)
     
     if account == None:
@@ -64,7 +66,7 @@ def main():
     
     #initial speech of Whizzy
     time.sleep(5)
-    whizzy_speak('Hello I am Whizzy, your classroom assistant')
+    whizzy_speak(get_response('entrance'))
     
     with noalsaerr():
         while True:
@@ -86,8 +88,14 @@ def main():
                     whizzy_speak(f'Switched to {new_mode}')
                 
                 #to get the current mode of Whizzy
-                elif "current" and "mode" in command:
-                    whizzy_speak(f"Currently I am in the {current_mode} mode")
+                elif 'current' and 'mode' in command:
+                    whizzy_speak(f'Currently I am in the {current_mode} mode')
+                
+                #exit message and turn off devices
+                elif command == 'exit':
+                    whizzy_speak(get_response('exit'))
+                    turn_off_devices()
+                    break
                 
                 #send command to current mode
                 else:
