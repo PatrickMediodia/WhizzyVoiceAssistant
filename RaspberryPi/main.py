@@ -47,7 +47,6 @@ def main():
     account = authenticate(USERNAME, PASSWORD)
     
     if account == None:
-        gtts_speak('Incorrect credentials')
         print('Incorrect credentials')
         return
     

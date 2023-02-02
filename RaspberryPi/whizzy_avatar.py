@@ -148,7 +148,7 @@ def display_subtitle():
         screen.blit(subtitle_text_render, (x_value, 1020, width, height))
         
 def whizzy_speak(text):
-    global subtitle_phrase, talking
+    global subtitle_phrase
     
     list_of_phrases = wrap(text.capitalize(),90)
     subtitle_list = list_of_phrases
