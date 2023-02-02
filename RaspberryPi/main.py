@@ -70,6 +70,8 @@ def main():
     with noalsaerr():
         while True:
             print(f'\nCurrent mode: {current_mode}')
+            print(threading.enumerate())
+            
             if detect_hotword():
                 command = speech_to_text()
                 
