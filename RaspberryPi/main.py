@@ -3,10 +3,10 @@ import os
 import time
 import threading
 from ALSA_handler import noalsaerr
-from API_requests import authenticate
 from text_to_speech import get_response
 from speech_to_text import speech_to_text
 from picovoice.detect_hotword import detect_hotword
+from API_requests import get_logged_in, logout_user
 from whizzy_avatar import initialize_avatar, set_mode_text, whizzy_speak
 
 #Interactive Discussion
@@ -36,6 +36,8 @@ PASSWORD = os.environ.get('FACULTY_PASSWORD')
 
 current_mode = modes[1]
 
+new_login = True
+
 def change_mode(current_mode, command):
     if 'switch' in command or 'change' in command:
         for mode in modes:
@@ -44,17 +46,18 @@ def change_mode(current_mode, command):
     return current_mode
 
 def main():
-    global current_mode
+    global current_mode, new_login
     
-    account = authenticate(USERNAME, PASSWORD)
-    
-    if account == None:
-        print('Incorrect credentials')
+    #check if logged into classroom
+    if not get_logged_in():
+        if new_login:
+            print('\nWaiting for login .....\n')
+            new_login = False
         return
     
     #start after authentication
     #initializing devices in the classroom
-    print('Initializing devices ......\n')
+    print('\nInitializing devices ......\n')
     initialize_devices()
     
     #new thread for avatar
@@ -95,6 +98,10 @@ def main():
                 elif command == 'exit':
                     whizzy_speak(get_response('exit'))
                     turn_off_devices()
+                    logout_user()
+                    
+                    print('\nLogged out')
+                    new_login = True
                     break
                 
                 #send command to current mode
@@ -102,4 +109,6 @@ def main():
                     mode_map[current_mode](command)
                     
 if __name__ == '__main__':
-    main()
+    while True:
+        time.sleep(3)
+        main()

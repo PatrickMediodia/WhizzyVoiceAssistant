@@ -4,36 +4,62 @@ import requests
 from models.account import Account
 from models.userData import UserData
 
+room_number = os.environ.get('ROOM_NUMBER')
+token = os.environ.get('BEARER_TOKEN')
 url = os.environ.get('URL')
-jwt = None
 
-def authenticate(username, password):
-    global jwt
+user_id = None
+room_logged_in_id = None
+
+def get_logged_in():
+    global user_id, room_logged_in_id
     
-    end_point = url + 'auth/local'
+    end_point = url + 'users?'
+    end_point += 'populate=room_logged_in'
+    end_point += f'&filters[room_logged_in][room][$eq]={room_number}'
+    end_point += '&filters[room_logged_in][status][$eq]=True'
+    
+    headers = { 'Authorization': 'Bearer ' + token }
+    
+    response = requests.request("GET", end_point, headers=headers)
+    logged_in_user = json.loads(response.text)
+    
+    #check if a user is logged in
+    if len(logged_in_user) > 0:
+        #store user id
+        for user in logged_in_user:
+            print(f'Logged in: {user["full_name"]}')
+            user_id = user['id']
+            room_logged_in_id = user['room_logged_in']['id']
+        return True
+    
+    return False
 
-    headers = { 'Content-Type': 'application/json' }
+def logout_user():
+    global user_id, room_logged_in_id
+    
+    end_point = url + f'users/{user_id}'
+    
+    headers = {
+        'Authorization': 'Bearer ' + token,
+        'Content-Type': 'application/json'
+    }
     
     payload = json.dumps({
-      "identifier": username,
-      "password": password
-    })
+        "room_logged_in" : {
+            "id" : room_logged_in_id,
+            "room": None,
+            "status": False
+            }
+        })
     
-    response = requests.request("POST", end_point, headers=headers, data=payload)
+    response = requests.request("PUT", end_point, headers=headers, data=payload)
     
-    try:
-        account_dict = json.loads(response.text)
-        account_object = Account(**account_dict)
-        jwt = account_object.jwt    
-        return account_object
-    except:
-        return None
+    user_id = None
+    room_logged_in_id = None
 
-def get_jwt():
-    return jwt
-
-def get_user_data(trigger_word):
-    end_point = url + 'users/me?'
+def get_user_data():
+    end_point = url + f'users/{user_id}?'
     end_point += 'populate[0]=courses'
     end_point += '&populate[1]=courses.modules'
     end_point += '&populate[2]=courses.modules.lessons'
@@ -41,7 +67,7 @@ def get_user_data(trigger_word):
     end_point += '&populate[3]=courses.modules.lessons.questions'
     end_point += '&fields=id,username,email'
     
-    headers = { 'Authorization': 'Bearer ' + jwt }
+    headers = { 'Authorization': 'Bearer ' + token }
     
     response = requests.request("GET", end_point, headers=headers)
     user_data_dict = json.loads(response.text)
@@ -49,12 +75,12 @@ def get_user_data(trigger_word):
 
     return user_data_object
 
-def get_room_device_data(room_number):
+def get_room_device_data():
     end_point = url + 'rooms?'
     end_point += 'populate=devices'
     end_point += f'&filters[name][$eq]={room_number}'
     
-    headers = { 'Authorization': 'Bearer ' + jwt }
+    headers = { 'Authorization': 'Bearer ' + token }
     
     response = requests.request("GET", end_point, headers=headers)
     room_device_data = json.loads(response.text)
@@ -67,7 +93,7 @@ def get_room_device_data(room_number):
 def get_device_status(device_id):
     end_point = url + f'devices/{device_id}'
 
-    headers = { 'Authorization': 'Bearer ' + jwt }
+    headers = { 'Authorization': 'Bearer ' + token }
 
     response = requests.request("GET", end_point, headers=headers)
     device_status = json.loads(response.text)
@@ -75,13 +101,10 @@ def get_device_status(device_id):
     return device_status['data']
 
 def set_device_status(device_id, status):
-    if jwt == None:
-        return 'Please authenticate'
-
     end_point = url + f'devices/{device_id}'
 
     headers = {
-        'Authorization': 'Bearer ' + jwt,
+        'Authorization': 'Bearer ' + token,
         'Content-Type': 'application/json'
     }
 
@@ -93,13 +116,10 @@ def set_device_status(device_id, status):
     return device_status_response['data']
 
 def set_device_connectivity(device_id, connected):
-    if jwt == None:
-        return 'Please authenticate'
-
     end_point = url + f'devices/{device_id}'
 
     headers = {
-        'Authorization': 'Bearer ' + jwt,
+        'Authorization': 'Bearer ' + token,
         'Content-Type': 'application/json'
     }
 
@@ -111,11 +131,11 @@ def set_device_connectivity(device_id, connected):
     return device_status_response['data']
 
 def get_local_account_credentials():
-    end_point = url + f'users/me'
+    end_point = url + f'users/{user_id}'
     end_point += '?populate=local'
     
     headers = {
-        'Authorization': 'Bearer ' + jwt,
+        'Authorization': 'Bearer ' + token,
         'Content-Type': 'application/json'
     }
 

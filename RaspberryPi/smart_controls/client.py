@@ -1,10 +1,10 @@
 import os
 import socket
-from API_requests import get_jwt
 
 #match details with server
 HOST = os.environ.get('HOST')
 PORT = int(os.environ.get('PORT'))
+TOKEN = os.environ.get('BEARER_TOKEN')
 
 application_map = {
     'microsoft teams' : ['microsoft teams', 'ms teams', 'teams'],
@@ -21,7 +21,7 @@ def client(application):
             
             #send message
             #message,jwt format
-            application += f',{get_jwt()}'
+            application += f',{TOKEN}'
             message = application.encode('utf-8')
             s.sendall(message)
             

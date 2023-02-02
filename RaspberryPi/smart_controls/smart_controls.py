@@ -15,7 +15,6 @@ username = os.environ.get('TABO_USERNAME')
 password = os.environ.get('TABO_PASSWORD')
 
 #room details
-room_number = os.environ.get('ROOM_NUMBER')
 room_device_data = None
 
 #{id : PyP100 Object} relation
@@ -23,8 +22,8 @@ device_id_to_object_map = {}
 
 def initialize_devices():
     global room_device_data
-    room_device_data = get_room_device_data(room_number)
-        
+    room_device_data = get_room_device_data()
+    
     if room_device_data is None:
         print('Room device data cannot be fetched.')
         return
@@ -60,7 +59,7 @@ def initialize_device(device_data):
         #turn on light at startup
         if attributes['name'] == 'light':
             device_id_to_object_map[id].turnOn()
-            set_device_status(id, 'true')
+            set_device_status(id, True)
             return
         
         #reflect the current state based on db
@@ -85,7 +84,7 @@ def turn_off_devices():
             close_terminal(id)
         else:
             if device_id_to_object_map.get(id) is not None:
-                set_device_status(device_dict['id'], 'false')
+                set_device_status(device_dict['id'], False)
                 device_id_to_object_map[id].turnOff()
                 
 def retry_initializing_device(thread_name, device_data):
@@ -105,7 +104,7 @@ def retry_initializing_device(thread_name, device_data):
     
 def refresh_room_device_data():
     global room_device_data
-    room_device_data = get_room_device_data(room_number)
+    room_device_data = get_room_device_data()
     
 def get_device_status(id, name):
     global device_id_to_object_map
@@ -153,7 +152,7 @@ def turn_on_device(device_dict):
         return
     
     elif device_status is False:
-        set_device_status(device_dict['id'], 'true')
+        set_device_status(device_dict['id'], True)
         device_id_to_object_map[id].turnOn()
         whizzy_speak(f'{attributes["name"]} turned on')
     
@@ -173,7 +172,7 @@ def turn_off_device(device_dict):
         return
     
     elif device_status is True:
-        set_device_status(device_dict['id'], 'false')
+        set_device_status(device_dict['id'], False)
         device_id_to_object_map[id].turnOff()
         whizzy_speak(f'{attributes["name"]} turned off')
 
@@ -181,7 +180,7 @@ def open_terminal(id):
     print('Triggered on computer')
     whizzy_speak(f'Computer turned on')
     
-    set_device_status(id, 'true')
+    set_device_status(id, True)
     device_id_to_object_map[id].turnOn()
     
     #get data from API
@@ -208,7 +207,7 @@ def close_terminal(id):
     time.sleep(1)
     
     #set status to false
-    set_device_status(id, 'false')
+    set_device_status(id, False)
     device_id_to_object_map[id].turnOff()
     
 def start_smart_controls(command):

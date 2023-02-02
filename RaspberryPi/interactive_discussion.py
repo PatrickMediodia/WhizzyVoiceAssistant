@@ -48,7 +48,7 @@ def load_lesson_data():
     if requested_course == '':
         return
     
-    user_data = get_user_data(requested_course)
+    user_data = get_user_data()
     found = False
     
     #find lesson
