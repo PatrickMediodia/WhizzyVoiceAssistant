@@ -57,6 +57,12 @@ def initialize_device(device_data):
             turn_on_pc_thread.start()
             return
         
+        #turn on light at startup
+        if attributes['name'] == 'light':
+            device_id_to_object_map[id].turnOn()
+            set_device_status(id, 'true')
+            return
+        
         #reflect the current state based on db
         if attributes['status']:
             device_id_to_object_map[id].turnOn()
