@@ -16,7 +16,6 @@ yellow = (255, 255, 0)
 width, height = 400, 70
 
 mode_text = ''
-subtitle_list = []
 subtitle_phrase = ''
 lesson_text = 'Lesson: Please load a lesson'
 
@@ -75,7 +74,7 @@ def face():
         if talking == False:
             handler.render(screen, "1", (A, B), True, (x, y))
             display_text()
-            time.sleep(0.3)
+            time.sleep(1)
 
         elif talking == True:
             if count <= 2:
@@ -116,32 +115,6 @@ def display_text():
     display_subtitle()
     pygame.display.flip()
 
-def subtitle():
-    global subtitle_phrase, subtitle_list, talking
-    
-    while True:
-        if len(subtitle_list) != 0:
-            set_avatar_state(True)
-            
-            for phrase in subtitle_list:
-                subtitle_phrase = phrase.capitalize()
-                gtts_speak(phrase)
-                
-            subtitle_phrase = ''
-            subtitle_list = []
-            set_avatar_state(False)
-            
-def display_subtitle():
-    font = pygame.font.Font('avatar/comicsans.TTF', 35, bold= True)
-    
-    if subtitle_phrase != '':
-        subtitle_text_render = font.render(subtitle_phrase, True, white)
-        text_width = subtitle_text_render.get_width()
-        
-        available_space = 1920 - text_width
-        x_value = available_space / 2    
-        screen.blit(subtitle_text_render, (x_value, 1020, width, height))
-        
 def mic():
     global small
     coordinate = (150, 1080-125)
@@ -162,17 +135,35 @@ def mic():
     mic_img = pygame.image.load('avatar/mic.bmp').convert_alpha()
     mic_img = pygame.transform.scale(mic_img, (64, 109.5))
     screen.blit(mic_img, (120, 902))
-
+    
+def display_subtitle():
+    font = pygame.font.Font('avatar/comicsans.TTF', 35, bold= True)
+    
+    if subtitle_phrase != '':
+        subtitle_text_render = font.render(subtitle_phrase, True, white)
+        text_width = subtitle_text_render.get_width()
+        
+        available_space = 1920 - text_width
+        x_value = available_space / 2    
+        screen.blit(subtitle_text_render, (x_value, 1020, width, height))
+        
 def whizzy_speak(text):
-    global subtitle_list
+    global subtitle_phrase, talking
     
     list_of_phrases = wrap(text,90)
     subtitle_list = list_of_phrases
     
-    # wait until dialog is finished
-    while len(subtitle_list) != 0:
-        continue
-    
+    if len(subtitle_list) != 0:
+        set_avatar_state(True)
+            
+        for phrase in subtitle_list:
+            subtitle_phrase = phrase.capitalize()
+            gtts_speak(phrase)
+                
+        subtitle_phrase = ''
+        subtitle_list = []
+        set_avatar_state(False)
+        
 def set_mic_state(mic_state):
     global mic_flag
     mic_flag = mic_state
@@ -200,9 +191,4 @@ def initialize_avatar():
     handler = imageHandler()
     
     display()
-    
-    show_face_thread = threading.Thread(target=face, daemon=True)
-    show_face_thread.name = 'Show face'
-    show_face_thread.start()
-    
-    subtitle()
+    face()
