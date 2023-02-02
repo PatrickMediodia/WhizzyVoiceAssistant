@@ -52,11 +52,13 @@ def initialize_device(device_data):
     
         #turn PC on at startup
         if attributes['name'] == 'computer':
+            pass
+        '''
             turn_on_pc_thread = threading.Thread(target=open_terminal, daemon=True, args=[id])
             turn_on_pc_thread.name = 'Turn on PC'
             turn_on_pc_thread.start()
             return
-        
+        '''
         #reflect the current state based on db
         if attributes['status']:
             device_id_to_object_map[id].turnOn()
@@ -171,10 +173,12 @@ def open_terminal(id):
     decrypted_password = decrypt(account_credentials['password']).decode("utf-8", "ignore")
     
     #login to windows
+    print('\nTrying to connect to terminal ......\n')
     while(login_terminal(account_credentials['email'], decrypted_password) is False):
         pass
     
 def close_terminal(id):
+    print('\nTrying to shutdown terminal ......\n')
     while(shutdown_terminal() is False):
         pass
     

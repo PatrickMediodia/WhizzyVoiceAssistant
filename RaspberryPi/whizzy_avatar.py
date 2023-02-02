@@ -150,14 +150,14 @@ def display_subtitle():
 def whizzy_speak(text):
     global subtitle_phrase, talking
     
-    list_of_phrases = wrap(text,90)
+    list_of_phrases = wrap(text.capitalize(),90)
     subtitle_list = list_of_phrases
     
     if len(subtitle_list) != 0:
         set_avatar_state(True)
             
         for phrase in subtitle_list:
-            subtitle_phrase = phrase.capitalize()
+            subtitle_phrase = phrase
             gtts_speak(phrase)
                 
         subtitle_phrase = ''

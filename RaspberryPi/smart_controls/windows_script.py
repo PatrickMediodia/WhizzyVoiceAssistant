@@ -11,8 +11,6 @@ USERNAME = os.environ.get('WINDOWS_USERNAME')
 PASSWORD = os.environ.get('WINDOWS_PASSWORD')
 
 def login_terminal(username, password):
-    print('\nTrying to connect to terminal ......\n')
-    
     try:
         time.sleep(1)
         sess = winrm.Session(DOMAIN, auth=(USERNAME, PASSWORD), transport='ntlm')
@@ -25,8 +23,6 @@ def login_terminal(username, password):
         return False
             
 def shutdown_terminal():
-    print('\nTrying to shutdown terminal ......\n')
-    
     try:
         time.sleep(1)
         sess = winrm.Session(DOMAIN, auth=(USERNAME, PASSWORD), transport='ntlm')
