@@ -1,9 +1,14 @@
+'''
+Add server.py to shell:common per user
+This is so that the server.py script will only open on per login of user
+'''
+
 import os
 import socket
 import threading
 import subprocess
-from web import blackboard
 from dotenv import load_dotenv
+from blackboard import open_blackboard
 
 load_dotenv()
 
@@ -40,7 +45,7 @@ def server():
                     
                     if 'open' in command:
                         if 'blackboard learn' in command:
-                            threading.Thread(target=blackboard, daemon=True, args=[jwt, user_id, application_instance]).start()
+                            threading.Thread(target=open_blackboard, daemon=True, args=[jwt, user_id, application_instance]).start()
                             message = 'blackboard learn has been opened'
 
                         elif 'microsoft teams' in command:

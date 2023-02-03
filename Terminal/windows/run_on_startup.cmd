@@ -11,6 +11,8 @@
 ::      action is "Start a program"
 ::      select the program/script
 ::      after creation, click the created task
+::      click on "Change User or Group"
+::      input "Users" so that it will run for all users
 ::      select "Run only when user is logged on"
 ::      check "Run with highest privileges"
 ::      triggers tab -> click trigger -> select "any user"
@@ -25,7 +27,3 @@ reg add "HKEY_LOCAL_MACHINE\Software\Microsoft\Windows NT\CurrentVersion\Winlogo
 :: delete registry entries of credentials
 reg delete "HKEY_LOCAL_MACHINE\Software\Microsoft\Windows NT\CurrentVersion\Winlogon" /v DefaultUserName /f
 reg delete "HKEY_LOCAL_MACHINE\Software\Microsoft\Windows NT\CurrentVersion\Winlogon" /v DefaultPassword /f
-
-:: run python script
-python C:\Users\Pat\Documents\WhizzyVoiceAssistant\Terminal\server.py
-
