@@ -36,6 +36,12 @@ PASSWORD = os.environ.get('FACULTY_PASSWORD')
 
 current_mode = modes[1]
 
+#new thread for avatar
+initialize_avatar_thread = threading.Thread(target=initialize_avatar, daemon=True)
+initialize_avatar_thread.name = 'Initialize avatar'
+initialize_avatar_thread.start()
+
+set_mode_text('Waiting for login')
 new_login = True
 
 def change_mode(current_mode, command):
@@ -55,15 +61,13 @@ def main():
             new_login = False
         return
     
+    set_mode_text('Logged In')
+    whizzy_speak('Logged in, welcome')
+    
     #start after authentication
     #initializing devices in the classroom
     print('\nInitializing devices ......\n')
     initialize_devices()
-    
-    #new thread for avatar
-    initialize_avatar_thread = threading.Thread(target=initialize_avatar, daemon=True)
-    initialize_avatar_thread.name = 'Initialize avatar'
-    initialize_avatar_thread.start()
     
     set_mode_text(current_mode)
     
@@ -95,12 +99,13 @@ def main():
                     whizzy_speak(f'Currently I am in the {current_mode} mode')
                 
                 #exit message and turn off devices
-                elif command == 'exit':
+                elif command == 'logout':
                     whizzy_speak(get_response('exit'))
                     turn_off_devices()
                     logout_user()
                     
                     print('\nLogged out')
+                    set_mode_text('Waiting for login')
                     new_login = True
                     break
                 
