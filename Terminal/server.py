@@ -35,12 +35,12 @@ def server():
                 with connection:
                     print(f'Connection established with address : {address}')
                     data = str(connection.recv(1024).decode('utf-8'))
-                    command, jwt = data.split(',') # command,jwt
+                    command, jwt, user_id = data.split(',') # command,jwt,user_id
                     message = 'Application not found'
                     
                     if 'open' in command:
                         if 'blackboard learn' in command:
-                            threading.Thread(target=blackboard, daemon=True, args=[jwt, application_instance]).start()
+                            threading.Thread(target=blackboard, daemon=True, args=[jwt, user_id, application_instance]).start()
                             message = 'blackboard learn has been opened'
 
                         elif 'microsoft teams' in command:

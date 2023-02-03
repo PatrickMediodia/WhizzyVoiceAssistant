@@ -17,10 +17,10 @@ options.add_experimental_option('detach', True)
 options.add_experimental_option("useAutomationExtension", False)
 options.add_experimental_option("excludeSwitches",["enable-automation"])
 
-def blackboard(jwt, application_instance):
+def blackboard(jwt, user_id, application_instance):
     #get account details from database in another thread
     account_details = {}
-    account_thread = threading.Thread(target=get_bbl_account_credentials, args=[jwt, account_details], daemon=True)
+    account_thread = threading.Thread(target=get_bbl_account_credentials, args=[jwt, user_id, account_details], daemon=True)
     account_thread.start()
 
     #initialize driver object
@@ -37,6 +37,8 @@ def blackboard(jwt, application_instance):
     username_input = driver.find_element(By.ID, 'user_id')
     username_input.send_keys(account_details['email'])
     
+    print(account_details['password'])
+
     password_input = driver.find_element(By.ID, 'password')
     password_input.send_keys(account_details['password'])
 
