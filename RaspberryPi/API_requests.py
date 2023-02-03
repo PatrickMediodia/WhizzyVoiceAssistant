@@ -58,6 +58,9 @@ def logout_user():
     user_id = None
     room_logged_in_id = None
 
+def get_user_id():
+    return user_id
+
 def get_user_data():
     end_point = url + f'users/{user_id}?'
     end_point += 'populate[0]=courses'

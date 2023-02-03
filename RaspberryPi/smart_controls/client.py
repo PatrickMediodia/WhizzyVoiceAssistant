@@ -1,5 +1,6 @@
 import os
 import socket
+from API_requests import get_user_id
 
 #match details with server
 HOST = os.environ.get('HOST')
@@ -21,7 +22,7 @@ def client(application):
             
             #send message
             #message,jwt format
-            application += f',{TOKEN}'
+            application += f',{TOKEN},{get_user_id()}'
             message = application.encode('utf-8')
             s.sendall(message)
             
