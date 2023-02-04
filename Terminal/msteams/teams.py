@@ -17,10 +17,10 @@ f = wmi.WMI()
 def start_teams():
     app = Application(backend='uia').start(
         cmd_line=r'C:\Users\Pat\AppData\Local\Microsoft\Teams\Update.exe --processStart "Teams.exe"')
-    time.sleep(3)
+    time.sleep(5)
 
-    # Use another account or sign up Button
-    pywinauto.mouse.click(button='left', coords=(977, 822))
+    # Get started button
+    pywinauto.mouse.click(button='left', coords=(842, 562))
     time.sleep(5)
 
     # login Credentials -- Email
@@ -28,7 +28,7 @@ def start_teams():
     time.sleep(2)
 
     # Next Button
-    pywinauto.mouse.click(button='left', coords=(1084, 648))
+    pywinauto.mouse.click(button='left', coords=(1083, 627))
     time.sleep(5)
 
     # login Credentials -- Password
@@ -36,11 +36,11 @@ def start_teams():
     time.sleep(2)
 
     # Sign In Button
-    pywinauto.mouse.click(button='left', coords=(1084, 613))
+    pywinauto.mouse.click(button='left', coords=(1081, 590))
     time.sleep(2)
 
     # Text Verification Button
-    pywinauto.mouse.click(button='left', coords=(939, 464))
-    time.sleep(2)
+    #pywinauto.mouse.click(button='left', coords=(950, 440))
+    #time.sleep(2)
 
 start_teams()
