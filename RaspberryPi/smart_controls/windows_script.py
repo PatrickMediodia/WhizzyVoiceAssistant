@@ -15,8 +15,12 @@ def login_terminal(username, password):
         time.sleep(3)
         sess = winrm.Session(DOMAIN, auth=(USERNAME, PASSWORD), transport='ntlm')
         result = sess.run_cmd(f'cd / && cd Users/Public/Documents/WhizzyVoiceAssistant/Terminal/windows && login_script.bat {username} {password}')
-        print('\nCredentials changed\n')
-        return True
+        
+        if 'The operation completed successfully' in result.std_out.decode('utf-8'):
+            print('\nCredentials changed\n')
+            return True
+        else:
+            return False
         
     except Exception as e:
         print('Cannot connect to terminal')
