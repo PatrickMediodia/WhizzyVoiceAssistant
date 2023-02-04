@@ -14,7 +14,7 @@ def login_terminal(username, password):
     try:
         time.sleep(3)
         sess = winrm.Session(DOMAIN, auth=(USERNAME, PASSWORD), transport='ntlm')
-        result = sess.run_cmd(f'cd / && cd Users/Pat/Documents/WhizzyVoiceAssistant/Terminal/windows && login_script.bat {username} {password}')
+        result = sess.run_cmd(f'cd / && cd Users/Public/Documents/WhizzyVoiceAssistant/Terminal/windows && login_script.bat {username} {password}')
         print('\nCredentials changed\n')
         return True
         
@@ -26,7 +26,7 @@ def shutdown_terminal():
     try:
         time.sleep(3)
         sess = winrm.Session(DOMAIN, auth=(USERNAME, PASSWORD), transport='ntlm')
-        result = sess.run_cmd(f'cd / && cd Users/Pat/Documents/WhizzyVoiceAssistant/Terminal/windows && shutdown_script.bat')
+        result = sess.run_cmd(f'cd / && cd Users/Public/Documents/WhizzyVoiceAssistant/Terminal/windows && shutdown_script.bat')
         print('\nTerminal turned off\n')
         return True
     
