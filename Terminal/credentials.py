@@ -37,3 +37,23 @@ def get_bbl_account_credentials(jwt, user_id, account_details):
     account_details['email'] = response_json['bbl']['email']
     account_details['password'] = decrypted.decode("utf-8", "ignore")
 
+def get_teams_account_credentials(jwt, user_id, account_details):
+    end_point = url + f'users/{user_id}'
+    end_point += '?populate=teams'
+
+    headers = {
+        'Authorization': 'Bearer ' + jwt,
+        'Content-Type': 'application/json'
+    }
+
+    #get account credentials
+    response = requests.request("GET", end_point, headers=headers)
+    response_json = json.loads(response.text)
+    
+    #decrypt pasword
+    decrypted = decrypt(response_json['teams']['password'])
+    
+    #set account details
+    account_details['email'] = response_json['teams']['email']
+    account_details['password'] = decrypted.decode("utf-8", "ignore")
+
