@@ -17,8 +17,9 @@ def client(application):
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
         try:
             #connect to server
-            #s.settimeout(1)
+            s.settimeout(5)
             s.connect((HOST, PORT))
+            s.settimeout(None)
             
             #send message
             #message,jwt format
