@@ -1,6 +1,8 @@
-﻿#Stop Teams process 
-taskkill /IM "Teams.exe" /F
-taskkill /IM "Microsoft.AAD.BrokerPlugin.exe" /F
+﻿#From CMD script
+Get-Content "C:\Users\Public\Documents\WhizzyVoiceAssistant\Terminal\msteams\teams_logout.bat"
+cmd.exe /c "C:\Users\Public\Documents\WhizzyVoiceAssistant\Terminal\msteams\teams_logout.bat"
+
+#Stop Teams process 
 Get-Process -ProcessName Teams -ErrorAction SilentlyContinue | Stop-Process -Force 
 Start-Sleep -Seconds 3
 Write-Host "Teams Process Sucessfully Stopped" 
@@ -20,7 +22,7 @@ echo $_
 }
 
 #Remove Credential from Credential manager
-$credential = cmdkey /list | ForEach-Object{if($_ -like "*Target:*" -and $_ -like "*msteams*"){cmdkey /del:($_ -replace " ","" -replace "Target:","")}}
+$credential = cmdkey /list | ForEach-Object{if($_ -like "*Target:*" -and $_ -like "*teams*"){cmdkey /del:($_ -replace " ","" -replace "Target:","")}}
 
 #Remove Reg.Key
 $Regkeypath= "HKCU:\Software\Microsoft\Office\Teams" 
@@ -61,14 +63,9 @@ Get-ChildItem "$TeamsFolders\Cookies" | Remove-Item
 #Lastly delete the storage.json, this corrects some error that MSTeams otherwise would have when logging in again.
 Get-ChildItem "$TeamsFolders\storage.json" | Remove-Item
 
-
 #Try to remove the Link School/Work account if there was one. It can be created if the first time you sign in, the user all
 $LocalPackagesFolder ="$env:LOCALAPPDATA\Packages"
+echo $LocalPackagesFolder
 $AADBrokerFolder = Get-ChildItem -Path $LocalPackagesFolder -Recurse -Include "Microsoft.AAD.BrokerPlugin_*";
 $AADBrokerFolder = $AADBrokerFolder[0];
 Get-ChildItem "$AADBrokerFolder\AC\TokenBroker\Accounts" | Remove-Item -Recurse -Force
-
-
-
-
-

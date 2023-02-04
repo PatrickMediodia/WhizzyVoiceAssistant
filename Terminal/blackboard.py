@@ -13,10 +13,10 @@ options.add_experimental_option('detach', True)
 options.add_experimental_option("useAutomationExtension", False)
 options.add_experimental_option("excludeSwitches",["enable-automation"])
 
-def open_blackboard(jwt, user_id, application_instance):
+def open_blackboard(token, user_id, application_instance):
     #get account details from database in another thread
     account_details = {}
-    account_thread = threading.Thread(target=get_bbl_account_credentials, args=[jwt, user_id, account_details], daemon=True)
+    account_thread = threading.Thread(target=get_bbl_account_credentials, args=[token, user_id, account_details], daemon=True)
     account_thread.start()
 
     #initialize driver object
@@ -27,8 +27,9 @@ def open_blackboard(jwt, user_id, application_instance):
     driver.maximize_window()
     driver.find_element(By.ID, 'agree_button').click() #click on OK in dialog box
 
-    account_thread.join() #wait to get account details
-
+    #wait to get account details
+    account_thread.join() 
+    
     #fill-up the form
     username_input = driver.find_element(By.ID, 'user_id')
     username_input.send_keys(account_details['email'])
