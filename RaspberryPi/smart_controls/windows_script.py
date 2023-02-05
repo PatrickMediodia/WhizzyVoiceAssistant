@@ -41,13 +41,3 @@ def shutdown_terminal():
     except Exception as e:
         print('Cannot connect to terminal')
         return False
-            
-def check_terminal_status():
-    try:
-        time.sleep(1)
-        sess = winrm.Session(DOMAIN, auth=(USERNAME, PASSWORD), transport='ntlm')
-        result = sess.run_cmd(f'ipconfig')
-        return True
-    
-    except Exception as e:
-        return False
