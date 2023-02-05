@@ -31,9 +31,13 @@ def shutdown_terminal():
         time.sleep(3)
         sess = winrm.Session(DOMAIN, auth=(USERNAME, PASSWORD), transport='ntlm')
         result = sess.run_cmd(f'cd / && cd Users/Public/Documents/WhizzyVoiceAssistant/Terminal/windows && shutdown_script.bat')
-        print('\nTerminal turned off\n')
-        return True
-    
+        
+        if 'Computer turned off' in result.std_out.decode('utf-8'):
+            print('\nTerminal turned off\n')
+            return True
+        else:
+            return False
+        
     except Exception as e:
         print('Cannot connect to terminal')
         return False
