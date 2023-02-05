@@ -192,6 +192,11 @@ def open_terminal(id):
         print('\nNo computer credentials provided\n')
         return
     
+    if account_credentials['password'] is None or account_credentials['email'] is None:
+        whizzy_speak(f'Invalid computer credentials provided')
+        print('\nInvalid computer credentials provided\n')
+        return
+    
     #use decrypt function
     decrypted_password = decrypt(account_credentials['password']).decode("utf-8", "ignore")
     
