@@ -201,11 +201,6 @@ def close_terminal(id):
     
     whizzy_speak(f'Computer turned off')
     
-    #wait until computer shutsdown
-    while(check_terminal_status()):
-        pass
-    time.sleep(1)
-    
     #set status to false
     set_device_status(id, False)
     device_id_to_object_map[id].turnOff()
