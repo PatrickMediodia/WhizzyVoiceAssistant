@@ -34,7 +34,7 @@ mode_map = {
 USERNAME = os.environ.get('FACULTY_USERNAME')
 PASSWORD = os.environ.get('FACULTY_PASSWORD')
 
-current_mode = modes[1]
+current_mode = modes[2]
 
 #new thread for avatar
 initialize_avatar_thread = threading.Thread(target=initialize_avatar, daemon=True)

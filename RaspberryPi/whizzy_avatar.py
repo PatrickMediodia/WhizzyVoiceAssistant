@@ -150,6 +150,9 @@ def display_subtitle():
 def whizzy_speak(text):
     global subtitle_phrase
     
+    if text == '' or text == None:
+        text = 'No dialog has been set'
+        
     list_of_phrases = wrap(text.capitalize(),90)
     subtitle_list = list_of_phrases
     
