@@ -5,9 +5,8 @@ from PyP100 import PyP100
 from whizzy_avatar import whizzy_speak
 from text_to_speech import get_response
 from smart_controls.credentials import decrypt
-from smart_controls.windows_script import login_terminal
 from smart_controls.client import client, application_map
-from smart_controls.windows_script import shutdown_terminal, check_terminal_status
+from smart_controls.windows_script import login_terminal, shutdown_terminal
 from API_requests import get_room_device_data, set_device_status, set_device_connectivity, get_local_account_credentials
 
 #TABO credentails
