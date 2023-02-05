@@ -10,6 +10,7 @@ screen = None
 handler = None
 mic_flag = False
 small = False
+show_mic = False
 
 white = (255, 255, 255)
 yellow = (255, 255, 0)
@@ -74,7 +75,7 @@ def face():
         if talking == False:
             handler.render(screen, "1", (A, B), True, (x, y))
             display_text()
-            time.sleep(1)
+            time.sleep(0.5)
 
         elif talking == True:
             if count <= 2:
@@ -83,7 +84,7 @@ def face():
             
             handler.render(screen, img, (A, B), True, (x, y))
             display_text()
-            time.sleep(0.3)
+            time.sleep(0.1)
             
             count += 1
             if count == 8:
@@ -119,23 +120,26 @@ def mic():
     global small
     coordinate = (150, 1080-125)
     
-    #display circle
-    if mic_flag is True and small is True:
-        pygame.draw.circle(screen, yellow, coordinate, 80, 100)
-        small = False
+    #display mic indicator
+    if show_mic is True:
+        #display mic icon
+        mic_img = pygame.image.load('avatar/mic.bmp').convert_alpha()
+        mic_img = pygame.transform.scale(mic_img, (64, 109.5))
         
-    elif mic_flag is True and small is False:
-        pygame.draw.circle(screen, yellow, coordinate, 95, 100)
-        small = True
+        #display circle indicator if mic is getting input
+        if mic_flag is True and small is True:
+            pygame.draw.circle(screen, yellow, coordinate, 80, 100)
+            small = False
+            
+        elif mic_flag is True and small is False:
+            pygame.draw.circle(screen, yellow, coordinate, 95, 100)
+            small = True
+            
+        else:
+            pygame.draw.circle(screen, white, coordinate, 80, 100)
+            
+        screen.blit(mic_img, (120, 902))
         
-    else:
-        pygame.draw.circle(screen, white, coordinate, 80, 100)
-    
-    #display image
-    mic_img = pygame.image.load('avatar/mic.bmp').convert_alpha()
-    mic_img = pygame.transform.scale(mic_img, (64, 109.5))
-    screen.blit(mic_img, (120, 902))
-    
 def display_subtitle():
     font = pygame.font.Font('avatar/comicsans.TTF', 35, bold= True)
     
@@ -150,6 +154,8 @@ def display_subtitle():
 def whizzy_speak(text):
     global subtitle_phrase
     
+    set_show_mic_state(False)
+    
     if text == '' or text == None:
         text = 'No dialog has been set'
         
@@ -157,6 +163,7 @@ def whizzy_speak(text):
     subtitle_list = list_of_phrases
     
     if len(subtitle_list) != 0:
+        #not accepting triggger of input
         set_avatar_state(True)
             
         for phrase in subtitle_list:
@@ -165,8 +172,13 @@ def whizzy_speak(text):
                 
         subtitle_phrase = ''
         subtitle_list = []
+        
         set_avatar_state(False)
         
+def set_show_mic_state(show_mic_state):
+    global show_mic
+    show_mic = show_mic_state
+
 def set_mic_state(mic_state):
     global mic_flag
     mic_flag = mic_state

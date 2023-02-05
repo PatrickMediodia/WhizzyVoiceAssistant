@@ -7,7 +7,7 @@ from text_to_speech import get_response
 from speech_to_text import speech_to_text
 from picovoice.detect_hotword import detect_hotword
 from API_requests import get_logged_in, logout_user
-from whizzy_avatar import initialize_avatar, set_mode_text, whizzy_speak
+from whizzy_avatar import initialize_avatar, set_mode_text, whizzy_speak, set_show_mic_state
 
 #Interactive Discussion
 from interactive_discussion import start_interactive_discussion
@@ -30,11 +30,7 @@ mode_map = {
     'interactive discussion': start_interactive_discussion
 }
 
-#temporary credentials
-USERNAME = os.environ.get('FACULTY_USERNAME')
-PASSWORD = os.environ.get('FACULTY_PASSWORD')
-
-current_mode = modes[2]
+current_mode = modes[0]
 
 #new thread for avatar
 initialize_avatar_thread = threading.Thread(target=initialize_avatar, daemon=True)
@@ -61,25 +57,26 @@ def main():
             new_login = False
         return
     
+    #start after authentication
     set_mode_text('Logged In')
     whizzy_speak('Logged in, welcome')
     
-    #start after authentication
     #initializing devices in the classroom
     print('\nInitializing devices ......\n')
     initialize_devices()
     
-    set_mode_text(current_mode)
-    
     #initial speech of Whizzy
     time.sleep(5)
     whizzy_speak(get_response('entrance'))
+    set_mode_text(current_mode)
     
     with noalsaerr():
         while True:
             print(f'\nCurrent mode: {current_mode}')
             print(threading.enumerate())
             
+            # accepting triggger of input
+            set_show_mic_state(True)
             if detect_hotword():
                 command = speech_to_text()
                 
