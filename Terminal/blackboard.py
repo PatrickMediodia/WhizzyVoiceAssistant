@@ -13,6 +13,9 @@ options.add_experimental_option('detach', True)
 options.add_experimental_option("useAutomationExtension", False)
 options.add_experimental_option("excludeSwitches",["enable-automation"])
 
+#remove cmd messages/logs
+options.add_argument("--log-level=3");
+
 def open_blackboard(token, user_id, application_instance):
     #get account details from database in another thread
     account_details = {}
@@ -30,6 +33,11 @@ def open_blackboard(token, user_id, application_instance):
     #wait to get account details
     account_thread.join() 
     
+    #check if there are credentials
+    if account_details.get('email') is None or account_details.get('password') is None:
+        print('No credentials given')
+        return
+
     #fill-up the form
     username_input = driver.find_element(By.ID, 'user_id')
     username_input.send_keys(account_details['email'])
@@ -41,4 +49,5 @@ def open_blackboard(token, user_id, application_instance):
     login_button = driver.find_element(By.ID, 'entry-login')
     login_button.click()
     
+    #return instance to main
     application_instance['blackboard'] = driver

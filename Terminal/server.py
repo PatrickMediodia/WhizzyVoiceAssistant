@@ -1,6 +1,7 @@
 '''
 Must be ran with admin priviledges
-Add to task scheduler on user login
+Firewall must be disabled
+Add shortcut to shell:common startup
 '''
 
 import os
@@ -67,7 +68,7 @@ def server():
     except Exception as e:
         print(e)
         pass
-
+    
 if __name__ == '__main__':
     print('Trying to start connection ......')
     while True:

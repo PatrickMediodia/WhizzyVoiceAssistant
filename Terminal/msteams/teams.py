@@ -12,9 +12,8 @@ from credentials import get_teams_account_credentials
 
 def open_teams(token, user_id):
     #run powershell script
-    p = subprocess.Popen(r'powershell.exe -ep bypass -File C:\Users\Public\Documents\WhizzyVoiceAssistant\Terminal\msteams\teams_logout.ps1', stdout=sys.stdout)
-    p.communicate()
-
+    close_teams()
+    
     #get account details from database in another thread
     account_details = {}
     account_thread = threading.Thread(target=get_teams_account_credentials, args=[token, user_id, account_details], daemon=True)
@@ -28,8 +27,12 @@ def open_teams(token, user_id):
     time.sleep(5)
 
     #wait to get account details
-    account_thread.join() 
-
+    account_thread.join()
+    
+    if account_details.get('email') is None or account_details.get('password') is None:
+        print('No credentials given')
+        return
+        
     # login Credentials -- Email
     send_keys(account_details['email'])
     time.sleep(2)
