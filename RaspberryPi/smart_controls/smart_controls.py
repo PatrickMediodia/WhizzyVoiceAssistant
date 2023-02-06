@@ -75,6 +75,8 @@ def initialize_device(device_data):
 def turn_off_devices():
     global device_id_to_object_map
     
+    refresh_room_device_data()
+    
     for device_dict in room_device_data:
         attributes = device_dict['attributes']
         id = device_dict['id']
@@ -113,7 +115,7 @@ def get_device_status(id, name):
         whizzy_speak(f'{name} is not connected')
         return None
     
-    #try to get device status
+    #try to get device status, changed timeout in PyP100 library (3 seconds)
     try:
         return device_id_to_object_map[id].getDeviceInfo()['result']['device_on']
     except:
@@ -185,6 +187,16 @@ def open_terminal(id):
     #get data from API
     account_credentials = get_local_account_credentials()
     
+    if account_credentials is None:
+        whizzy_speak(f'No computer credentials provided')
+        print('\nNo computer credentials provided\n')
+        return
+    
+    if account_credentials['password'] is None or account_credentials['email'] is None:
+        whizzy_speak(f'Invalid computer credentials provided')
+        print('\nInvalid computer credentials provided\n')
+        return
+    
     #use decrypt function
     decrypted_password = decrypt(account_credentials['password']).decode("utf-8", "ignore")
     
@@ -207,24 +219,29 @@ def close_terminal(id):
 def start_smart_controls(command):
     refresh_room_device_data()
     
-    #check command for controlling devices
-    for device_data in room_device_data:
-        attributes = device_data['attributes']
+    #account for room_device_data availability   
+    try:
+        #check command for controlling devices
+        for device_data in room_device_data:
+            attributes = device_data['attributes']
+            
+            if attributes['name'] in command:
+                if attributes['connected'] == False:
+                    retry_initializing_device(attributes['name'], device_data)
+                    return
+                if 'status' in command:
+                    device_status(device_data)
+                    return
+                elif 'on' in command:
+                    turn_on_device(device_data)
+                    return
+                elif 'off' in command:
+                    turn_off_device(device_data)
+                    return
+    except Exception as e:
+        print(e)
+        whizzy_speak(f'Room device data cannot be fetched')
         
-        if attributes['name'] in command:
-            if attributes['connected'] == False:
-                retry_initializing_device(attributes['name'], device_data)
-                return
-            if 'status' in command:
-                device_status(device_data)
-                return
-            elif 'on' in command:
-                turn_on_device(device_data)
-                return
-            elif 'off' in command:
-                turn_off_device(device_data)
-                return
-    
     #check command for opening/closing applications
     for application, synonyms in application_map.items():
         for synonym in synonyms:

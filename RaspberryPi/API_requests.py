@@ -87,12 +87,13 @@ def get_room_device_data():
     
     response = requests.request("GET", end_point, headers=headers)
     room_device_data = json.loads(response.text)
-
-    for data in room_device_data['data']:
-        return data['attributes']['devices']['data']
-
-    return None
-
+    
+    try:
+        for data in room_device_data['data']:
+            return data['attributes']['devices']['data']
+    except:
+        return None
+    
 def get_device_status(device_id):
     end_point = url + f'devices/{device_id}'
 

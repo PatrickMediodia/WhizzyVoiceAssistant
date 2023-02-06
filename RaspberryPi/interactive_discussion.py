@@ -51,6 +51,12 @@ def load_lesson_data():
     user_data = get_user_data()
     found = False
     
+    #check if courses are available
+    if len(user_data.courses) < 1:
+        print('\nNo lesson data on this account')
+        whizzy_speak('I was not able to get any lesson data on this account')
+        found = True
+        
     #find lesson
     for course in user_data.courses:
         for module in course.modules:
@@ -126,8 +132,12 @@ def load_questions(questions):
         if detect_hotword():
             command = speech_to_text()
             
+            #checking for none dialogs
+            if 'answer' in command and questions[current_index].answer is None:
+                dialog = 'No answer set for this question'
+                
             #previous question
-            if 'previous question' in command:
+            elif 'previous question' in command:
                 if current_index > 0:
                     current_index -= 1
                     dialog = questions[current_index].question
@@ -206,7 +216,7 @@ def start_interactive_discussion(command):
             dialog = get_response('notFound')
             
         #tell user if dialog is blank
-        if dialog == '':
+        if dialog == '' or dialog == None:
             dialog = f'No dialog set for that part of the discussion'
         
         whizzy_speak(dialog)

@@ -25,7 +25,7 @@ except (SystemError, ImportError):
     import browser_helpers
     
 #import avatar
-from whizzy_avatar import whizzy_speak, set_avatar_state
+from whizzy_avatar import whizzy_speak, set_avatar_state, set_show_mic_state
 
 ASSISTANT_API_ENDPOINT = 'embeddedassistant.googleapis.com'
 DEFAULT_GRPC_DEADLINE = 60 * 3 + 5
@@ -105,7 +105,7 @@ class GoogleAssistant(object):
                     flush_size=audio_flush_size
                 )
             )
-        
+                        
         conversation_stream = audio_helpers.ConversationStream(
             source=audio_source,
             sink=audio_sink,
@@ -139,8 +139,8 @@ class GoogleAssistant(object):
         if hasTranscript is False:
             for value in response_audio_data:
                 if not conversation_stream.playing:
-                    conversation_stream.stop_recording()
                     set_avatar_state(True)
+                    conversation_stream.stop_recording()
                     conversation_stream.start_playback()
                     print('Playing assistant response.....')
                 conversation_stream.write(value)
@@ -179,4 +179,5 @@ def start_google_assistant(command):
     
     with GoogleAssistant(lang, device_model_id, device_id, display,
                              grpc_channel, grpc_deadline) as assistant:
+        set_show_mic_state(False)
         assistant.assist(text_query=command)
