@@ -68,7 +68,7 @@ def server():
     except Exception as e:
         print(e)
         pass
-    
+
 if __name__ == '__main__':
     print('Trying to start connection ......')
     while True:

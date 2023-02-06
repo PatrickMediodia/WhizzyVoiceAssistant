@@ -89,7 +89,7 @@ try {
 	Write-Host "No storage removed."
 }
 
-try{
+try {
 	#Try to remove the Link School/Work account if there was one. It can be created if the first time you sign in, the user all
 	$LocalPackagesFolder ="$env:LOCALAPPDATA\Packages"
 	$AADBrokerFolder = Get-ChildItem -Path $LocalPackagesFolder -ErrorAction Stop -Recurse -Include "Microsoft.AAD.BrokerPlugin_*";
@@ -98,3 +98,9 @@ try{
 } catch{
 	Write-Host "No linked school or work account"
 }
+
+#Handle provider exception error
+if (-not (Get-AppxPackage Microsoft.AAD.BrokerPlugin)) { 
+	Add-AppxPackage -Register "$env:windir\SystemApps\Microsoft.AAD.BrokerPlugin_cw5n1h2txyewy\Appxmanifest.xml" -DisableDevelopmentMode -ForceApplicationShutdown 
+}
+Get-AppxPackage Microsoft.AAD.BrokerPlugin
