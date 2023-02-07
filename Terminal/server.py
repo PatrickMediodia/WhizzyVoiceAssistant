@@ -54,6 +54,7 @@ def server():
                             message = 'blackboard learn is not open'
                         else:
                             application_instance['blackboard'].close()
+                            print('\Closing blackboard .....\n')
                             message = 'blackboard has been closed'
 
                     elif 'microsoft teams' in command:
@@ -70,6 +71,7 @@ def server():
         pass
 
 if __name__ == '__main__':
+    close_teams()
     print('Trying to start connection ......')
     while True:
         server()

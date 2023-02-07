@@ -17,6 +17,8 @@ options.add_experimental_option("excludeSwitches",["enable-automation"])
 options.add_argument("--log-level=3");
 
 def open_blackboard(token, user_id, application_instance):
+    print('\nOpening blackboard .....\n')
+
     #get account details from database in another thread
     account_details = {}
     account_thread = threading.Thread(target=get_bbl_account_credentials, args=[token, user_id, account_details], daemon=True)

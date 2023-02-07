@@ -14,6 +14,8 @@ def open_teams(token, user_id):
     #run powershell script
     close_teams()
     
+    print('\nOpening teams .....\n')
+
     #get account details from database in another thread
     account_details = {}
     account_thread = threading.Thread(target=get_teams_account_credentials, args=[token, user_id, account_details], daemon=True)
@@ -55,7 +57,12 @@ def open_teams(token, user_id):
     time.sleep(2)
     
 def close_teams():
-    #run powershell script
-    p = subprocess.Popen(r'powershell.exe -ep bypass -File C:\Users\Public\Documents\WhizzyVoiceAssistant\Terminal\msteams\teams_logout.ps1', stdout=sys.stdout)
-    p.communicate()
+    print('\nClosing teams instances .....\n')
 
+    #run powershell script
+    p = subprocess.Popen(
+        r'powershell.exe -ep bypass -File C:\Users\Public\Documents\WhizzyVoiceAssistant\Terminal\msteams\teams_logout.ps1',
+        stdout=subprocess.DEVNULL, 
+        stderr=subprocess.STDOUT
+    )
+    p.communicate()

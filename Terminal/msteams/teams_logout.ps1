@@ -4,7 +4,7 @@
 	start on "When I log on"
 	action is "Start a program"
 	Under Program/script put "powershell"
-	Under arguments add - File C:\Users\Public\Documents\WhizzyVoiceAssistant\Terminal\msteams\teams_logout.ps1
+	Under arguments add -File C:\Users\Public\Documents\WhizzyVoiceAssistant\Terminal\msteams\teams_logout.ps1
 	after creation, click the created task
 	click on "Change User or Group"
 	input "Users" so that it will run for all users
@@ -22,6 +22,11 @@ cmd.exe /c "C:\Users\Public\Documents\WhizzyVoiceAssistant\Terminal\msteams\team
 Get-Process -ProcessName Teams -ErrorAction SilentlyContinue | Stop-Process -Force 
 Start-Sleep -Seconds 3
 Write-Host "Teams Process Sucessfully Stopped" 
+
+#Handle provider exception error
+if (-not (Get-AppxPackage Microsoft.AAD.BrokerPlugin)) { 
+	Add-AppxPackage -Register "$env:windir\SystemApps\Microsoft.AAD.BrokerPlugin_cw5n1h2txyewy\Appxmanifest.xml" -DisableDevelopmentMode -ForceApplicationShutdown 
+}
 
 #Clear Team Cache
 try{
@@ -98,9 +103,3 @@ try {
 } catch{
 	Write-Host "No linked school or work account"
 }
-
-#Handle provider exception error
-if (-not (Get-AppxPackage Microsoft.AAD.BrokerPlugin)) { 
-	Add-AppxPackage -Register "$env:windir\SystemApps\Microsoft.AAD.BrokerPlugin_cw5n1h2txyewy\Appxmanifest.xml" -DisableDevelopmentMode -ForceApplicationShutdown 
-}
-Get-AppxPackage Microsoft.AAD.BrokerPlugin
