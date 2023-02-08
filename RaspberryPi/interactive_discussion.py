@@ -26,7 +26,7 @@ from API_requests import get_user_data
 from speech_to_text import speech_to_text
 from text_to_speech import get_response
 from picovoice.detect_hotword import detect_hotword
-from whizzy_avatar import set_mode_text, set_lesson_text, whizzy_speak
+from whizzy_avatar import set_mode_text, set_lesson_text, whizzy_speak, set_show_mic_state
 
 lesson_data = None
 
@@ -88,7 +88,10 @@ def load_trivias(trivias):
     while True:
         set_mode_text(f'Interactive Discussion - Trivia - {current_index+1}/{len(trivias)}')   
         whizzy_speak(dialog)
-    
+        
+        # accepting triggger of input
+        set_show_mic_state(True)
+        
         if detect_hotword():
             command = speech_to_text()
             
@@ -129,7 +132,9 @@ def load_questions(questions):
     while True:
         set_mode_text(f'Interactive Discussion - Questions - {current_index+1}/{len(questions)}') #change text
         whizzy_speak(dialog)
-            
+        
+        set_show_mic_state(True)
+        
         if detect_hotword():
             command = speech_to_text()
             

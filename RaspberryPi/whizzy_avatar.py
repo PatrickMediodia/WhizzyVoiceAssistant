@@ -3,6 +3,7 @@ import time
 import pygame
 import threading
 from textwrap import wrap
+from nltk import tokenize
 from text_to_speech import gtts_speak
 
 talking = False
@@ -158,17 +159,29 @@ def whizzy_speak(text):
     
     if text == '' or text == None:
         text = 'No dialog has been set'
-        
-    list_of_phrases = wrap(text.capitalize(),90)
-    subtitle_list = list_of_phrases
+    
+    #separte text into sentences
+    subtitle_list = tokenize.sent_tokenize(text)
     
     if len(subtitle_list) != 0:
         #not accepting triggger of input
         set_avatar_state(True)
             
-        for phrase in subtitle_list:
-            subtitle_phrase = phrase
-            gtts_speak(phrase)
+        for sentence in subtitle_list:
+            print(len(sentence))
+            
+            #check if sentence is long
+            if len(sentence) > 110:
+                
+                list_of_phrases = wrap(sentence, 110)
+                print(list_of_phrases)
+                
+                for phrase in list_of_phrases:
+                    subtitle_phrase = phrase
+                    gtts_speak(phrase)
+            else:
+                subtitle_phrase = sentence
+                gtts_speak(sentence)
                 
         subtitle_phrase = ''
         subtitle_list = []

@@ -101,7 +101,7 @@ def retry_initializing_device(thread_name, device_data):
         new_thread.name = thread_name
         new_thread.start()
         
-    whizzy_speak(f'{thread_name} is not connected')
+    whizzy_speak(f'{thread_name} is not connected'.capitalize())
     
 def refresh_room_device_data():
     global room_device_data
@@ -112,7 +112,7 @@ def get_device_status(id, name):
     
     #check if already in object map
     if device_id_to_object_map.get(id) is None:
-        whizzy_speak(f'{name} is not connected')
+        whizzy_speak(f'{name} is not connected'.capitalize())
         return None
     
     #try to get device status, changed timeout in PyP100 library (3 seconds)
@@ -121,7 +121,7 @@ def get_device_status(id, name):
     except:
         set_device_connectivity(id, False)
         device_id_to_object_map[id] = None
-        whizzy_speak(f'{name} is not connected')
+        whizzy_speak(f'{name} is not connected'.capitalize())
         return None
     
 def device_status(device_dict):
@@ -131,10 +131,10 @@ def device_status(device_dict):
     device_status = get_device_status(id, attributes["name"])
     
     if device_status is True:
-        whizzy_speak(f'{attributes["name"]} is currently on')
+        whizzy_speak(f'{attributes["name"]} is currently on'.capitalize())
         
     elif device_status is False:
-        whizzy_speak(f'{attributes["name"]} is currently off')
+        whizzy_speak(f'{attributes["name"]} is currently off'.capitalize())
         
 def turn_on_device(device_dict):
     attributes = device_dict['attributes']
@@ -143,7 +143,7 @@ def turn_on_device(device_dict):
     device_status = get_device_status(id, attributes["name"])
     
     if device_status is True:
-        whizzy_speak(f'{attributes["name"]} is already on')
+        whizzy_speak(f'{attributes["name"]} is already on'.capitalize())
 
     #turn PC on at startup
     elif attributes['name'] == 'computer':
@@ -155,7 +155,7 @@ def turn_on_device(device_dict):
     elif device_status is False:
         set_device_status(device_dict['id'], True)
         device_id_to_object_map[id].turnOn()
-        whizzy_speak(f'{attributes["name"]} turned on')
+        whizzy_speak(f'{attributes["name"]} turned on'.capitalize())
     
 def turn_off_device(device_dict): 
     attributes = device_dict['attributes']
@@ -164,7 +164,7 @@ def turn_off_device(device_dict):
     device_status = get_device_status(id, attributes["name"])
     
     if device_status is False:
-        whizzy_speak(f'{attributes["name"]} is already off')
+        whizzy_speak(f'{attributes["name"]} is already off'.capitalize())
         
     elif attributes['name'] == 'computer':
         turn_off_pc_thread = threading.Thread(target=close_terminal, daemon=True, args=[id])
@@ -175,7 +175,7 @@ def turn_off_device(device_dict):
     elif device_status is True:
         set_device_status(device_dict['id'], False)
         device_id_to_object_map[id].turnOff()
-        whizzy_speak(f'{attributes["name"]} turned off')
+        whizzy_speak(f'{attributes["name"]} turned off'.capitalize())
 
 def open_terminal(id):
     print('Triggered on computer')

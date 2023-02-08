@@ -30,7 +30,7 @@ mode_map = {
     'interactive discussion': start_interactive_discussion
 }
 
-current_mode = modes[1]
+current_mode = modes[2]
 
 #new thread for avatar
 initialize_avatar_thread = threading.Thread(target=initialize_avatar, daemon=True)
