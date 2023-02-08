@@ -10,7 +10,6 @@ TOKEN = os.environ.get('BEARER_TOKEN')
 application_map = {
     'microsoft teams' : ['microsoft teams', 'ms teams', 'teams'],
     'blackboard learn' : ['blackboard learn', 'blackboard', 'bbl'],
-    'browser' : ['browser', 'web', 'web browser'],
 }
 
 def client(application):

@@ -72,8 +72,8 @@ def main():
     
     with noalsaerr():
         while True:
+            print(f'\n{threading.enumerate()}')
             print(f'\nCurrent mode: {current_mode}')
-            print(threading.enumerate())
             
             # accepting triggger of input
             set_show_mic_state(True)
@@ -82,6 +82,8 @@ def main():
                 
                 #command is empty, ignore
                 if command == '':
+                    # uncomment if using vosk
+                    #whizzy_speak(get_response('unknownValueError'))
                     continue
                 
                 #change modes

@@ -20,6 +20,7 @@ Handling Questions and Trivias
 6. Teacher can tell Whizzy to move on to the next question wth "Hey Whizzy, next question"
 7. Teacher can exit Whizzy question mode by saying "Exit" + "question" or "trivia"
 """
+
 import time
 from API_requests import get_user_data
 from speech_to_text import speech_to_text
