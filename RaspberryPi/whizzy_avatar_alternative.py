@@ -143,15 +143,35 @@ def mic():
         
 def display_subtitle():
     font = pygame.font.Font('avatar/comicsans.TTF', 35, bold= True)
+    y_value = 1020
     
     if subtitle_phrase != '':
-        subtitle_text_render = font.render(subtitle_phrase, True, white)
-        text_width = subtitle_text_render.get_width()
         
-        available_space = 1920 - text_width
-        x_value = available_space / 2    
-        screen.blit(subtitle_text_render, (x_value, 1020, width, height))
-        
+        #check if sentence is long
+        if len(subtitle_phrase) > 110:
+            list_of_phrases = wrap(subtitle_phrase, 110)
+            print(list_of_phrases)
+            
+            length_of_list = len(list_of_phrases) - 1
+            text_height = 55
+            
+            for phrase in list_of_phrases:
+                subtitle_text_render = font.render(phrase, True, white)
+                text_width = subtitle_text_render.get_width()
+                
+                available_space = 1920 - text_width
+                x_value = available_space / 2    
+                screen.blit(subtitle_text_render, (x_value, y_value - (text_height * length_of_list), width, height))
+                length_of_list -= 1
+                
+        else:   
+            subtitle_text_render = font.render(subtitle_phrase, True, white)
+            text_width = subtitle_text_render.get_width()
+            
+            available_space = 1920 - text_width
+            x_value = available_space / 2    
+            screen.blit(subtitle_text_render, (x_value, y_value, width, height))
+            
 def whizzy_speak(text):
     global subtitle_phrase
     
@@ -167,10 +187,9 @@ def whizzy_speak(text):
         #not accepting triggger of input
         set_avatar_state(True)
             
-        for sentence in subtitle_list:           
-            #check if sentence is long
-            if len(sentence) > 110:
-                list_of_phrases = wrap(sentence, 110)
+        for sentence in subtitle_list:
+            if len(sentence) > 215:
+                list_of_phrases = wrap(sentence, 215)
                 
                 for phrase in list_of_phrases:
                     subtitle_phrase = phrase

@@ -30,7 +30,7 @@ mode_map = {
     'interactive discussion': start_interactive_discussion
 }
 
-current_mode = modes[2]
+current_mode = modes[0]
 
 #new thread for avatar
 initialize_avatar_thread = threading.Thread(target=initialize_avatar, daemon=True)
@@ -58,7 +58,7 @@ def main():
         return
     
     #start after authentication
-    set_mode_text('Logged In')
+    set_mode_text('Logged in')
     whizzy_speak('Logged in, welcome')
     
     #initializing devices in the classroom

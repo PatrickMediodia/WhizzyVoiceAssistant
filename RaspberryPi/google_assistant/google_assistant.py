@@ -31,8 +31,8 @@ ASSISTANT_API_ENDPOINT = 'embeddedassistant.googleapis.com'
 DEFAULT_GRPC_DEADLINE = 60 * 3 + 5
 PLAYING = embedded_assistant_pb2.ScreenOutConfig.PLAYING
 
-def remove_non_ascii(text):
-    return ''.join(i for i in text if ord(i) < 128)
+def remove_non_character(text):
+    return ''.join(filter(lambda x: x.isalpha() or x.isspace(), text))
 
 class GoogleAssistant(object):  
     def __init__(self, language_code, device_model_id, device_id,
@@ -134,7 +134,7 @@ class GoogleAssistant(object):
             if resp.dialog_state_out.supplemental_display_text:
                 text_response = resp.dialog_state_out.supplemental_display_text
                 print(f'Transcript of response: {text_response}')
-                whizzy_speak(remove_non_ascii(text_response))
+                whizzy_speak(text_response)
                 hasTranscript = True
                 break
             
