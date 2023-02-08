@@ -16,7 +16,7 @@ def speech_to_text():
         set_mic_state(True)
         
         #automatically sets the energy threshold
-        listener.adjust_for_ambient_noise(source, duration=0.5)
+        listener.adjust_for_ambient_noise(source, duration=1)
         voice_data = listener.listen(source)
         
         set_mic_state(False)
