@@ -28,7 +28,7 @@ def speech_to_text():
             command = command.lower()
             print(f'Command: {command}')
         except sr.UnknownValueError as e:
-            whizzy_speak('Sorry, my speech service is down')
+            whizzy_speak(get_response('unknownValueError'))
             print(e)
         except sr.RequestError as e:
             whizzy_speak('Sorry, my speech service is down')
