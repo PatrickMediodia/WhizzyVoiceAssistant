@@ -29,7 +29,7 @@ def get_bbl_account_credentials(jwt, user_id, account_details):
     #get account credentials
     response = requests.request("GET", end_point, headers=headers)
     response_json = json.loads(response.text)
-    
+
     try:
         #decrypt pasword
         decrypted = decrypt(response_json['bbl']['password'])
