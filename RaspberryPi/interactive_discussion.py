@@ -161,6 +161,10 @@ def load_questions(questions):
             #current question
             elif 'repeat' in command and 'question' in command:
                 dialog = questions[current_index].question
+    
+            #reveal correct answer
+            elif 'correct' in command and 'answer' in command:
+                dialog = f'The correct answer is {questions[current_index].answer}'
                 
             #students answer
             elif 'answer' in command:
@@ -168,10 +172,7 @@ def load_questions(questions):
                     dialog = questions[current_index].response
                 else:
                     dialog = get_response('incorrectAnswer')
-                    
-            #reveal correct answer
-            elif 'correct' in command and 'answer' in command:
-                dialog = f'The correct answer is {questions[current_index].answer}'
+
                 
             #exit questioning mode
             elif 'exit' in command and 'question' in command:
