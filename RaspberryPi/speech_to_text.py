@@ -14,10 +14,11 @@ def speech_to_text():
         print('Listening to command ...')
         os.system("mpg123 audio/ding_sound.mp3 >/dev/null 2>&1")
         
-        set_mic_state(True)
-        
         #automatically sets the energy threshold
         listener.adjust_for_ambient_noise(source, duration=1)
+        
+        set_mic_state(True)
+                      
         voice_data = listener.listen(source)
         
         set_mic_state(False)
