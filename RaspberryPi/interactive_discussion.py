@@ -96,7 +96,7 @@ def load_trivias(trivias):
             command = speech_to_text()
             
             #previous question
-            if 'previous trivia' in command:
+            if 'previous' in command and 'trivia' in command:
                 if current_index > 0:
                     current_index -= 1
                     dialog = trivias[current_index].response
@@ -104,7 +104,7 @@ def load_trivias(trivias):
                     dialog = 'No previous trivia'
                         
             #next question
-            elif 'next trivia' in command:
+            elif 'next' in command and 'trivia' in command:
                 if current_index < len(trivias) - 1:
                     current_index += 1   
                     dialog = trivias[current_index].response
@@ -112,11 +112,11 @@ def load_trivias(trivias):
                     dialog = 'No next trivia'
                                        
             #current trivia
-            elif 'repeat trivia' in command:
+            elif 'repeat' in command and 'trivia' in command:
                 dialog = trivias[current_index].response
                     
             #exit trivia mode
-            elif 'exit trivia' in command:
+            elif 'exit' in command and 'trivia' in command:
                 return
                 
             else:
@@ -143,7 +143,7 @@ def load_questions(questions):
                 dialog = 'No answer set for this question'
                 
             #previous question
-            elif 'previous question' in command:
+            elif 'previous' in command and 'question' in command:
                 if current_index > 0:
                     current_index -= 1
                     dialog = questions[current_index].question
@@ -151,19 +151,15 @@ def load_questions(questions):
                     dialog = 'No previous question'
                     
             #next question
-            elif 'next question' in command:
+            elif 'next' in command and 'question' in command:
                 if current_index < len(questions) - 1:
                     current_index += 1
                     dialog = questions[current_index].question
                 else:
                     dialog = 'No next question'
                     
-            #reveal correct answer
-            elif 'correct answer' in command:
-                dialog = f'The correct answer is {questions[current_index].answer}'
-
             #current question
-            elif 'repeat question' in command:
+            elif 'repeat' in command and 'question' in command:
                 dialog = questions[current_index].question
                 
             #students answer
@@ -172,9 +168,13 @@ def load_questions(questions):
                     dialog = questions[current_index].response
                 else:
                     dialog = get_response('incorrectAnswer')
-                        
+                    
+            #reveal correct answer
+            elif 'correct' in command and 'answer' in command:
+                dialog = f'The correct answer is {questions[current_index].answer}'
+                
             #exit questioning mode
-            elif 'exit questioning' in command:
+            elif 'exit' in command and 'question' in command:
                 return
             
             else:
