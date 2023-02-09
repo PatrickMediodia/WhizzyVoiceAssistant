@@ -41,29 +41,29 @@ def server():
                 if 'open' in command:
                     if 'blackboard learn' in command:
                         threading.Thread(target=open_blackboard, daemon=True, args=[token, user_id, application_instance]).start()
-                        message = 'blackboard learn has been opened'
+                        message = 'Blackboard Learn has been opened'
 
                     elif 'microsoft teams' in command:
                         threading.Thread(target=open_teams, daemon=True, args=[token, user_id]).start()
                         application_instance['teams'] = 'Open'
-                        message = 'microsoft teams has been opened'
+                        message = 'Microsoft Teams has been opened'
 
                 elif 'close' in command:
                     if 'blackboard learn' in command:
                         if application_instance['blackboard'] is None:
-                            message = 'blackboard learn is not open'
+                            message = 'Blackboard Learn is not open'
                         else:
                             application_instance['blackboard'].close()
-                            print('\Closing blackboard .....\n')
-                            message = 'blackboard has been closed'
+                            print('\nClosing blackboard .....\n')
+                            message = 'Blackboard Learn has been closed'
 
                     elif 'microsoft teams' in command:
                         if application_instance['teams'] is None:
-                            message = 'microsoft teams learn is not open'
+                            message = 'Microsoft Teams is not open'
                         else:
                             close_teams()
                             application_instance['teams'] = None
-                            message = 'microsoft teams has been closed'
+                            message = 'Microsoft Teams has been closed'
 
                 connection.sendall(message.encode('utf-8'))
     except Exception as e:

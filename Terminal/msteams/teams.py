@@ -41,7 +41,7 @@ def open_teams(token, user_id):
 
     # Next Button
     mouse.click(button='left', coords=(1083, 627))
-    time.sleep(5)
+    time.sleep(8)
 
     # login Credentials -- Password
     send_keys(account_details['password'])
@@ -50,7 +50,7 @@ def open_teams(token, user_id):
     # Sign In Button
     mouse.click(button='left', coords=(1080, 592))
     mouse.click(button='left', coords=(1100, 560))
-    time.sleep(5)
+    time.sleep(8)
 
     # Text Verification Button
     mouse.click(button='left', coords=(950, 440))
