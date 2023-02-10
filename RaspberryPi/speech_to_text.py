@@ -19,7 +19,7 @@ def speech_to_text():
         
         set_mic_state(True)
                       
-        voice_data = listener.listen(source)
+        voice_data = listener.listen(source, phrase_time_limit=10)
         
         set_mic_state(False)
         set_show_mic_state(False)
