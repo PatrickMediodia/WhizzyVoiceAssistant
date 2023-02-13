@@ -94,16 +94,20 @@ def load_trivias(trivias):
         
         if detect_hotword():
             command = speech_to_text()
-            
-            #previous question
-            if 'previous' in command and 'trivia' in command:
+
+            #cancel the current command
+            if 'cancel' in command:
+                dialog = get_response('cancel')
+                
+            #previous trivia
+            elif 'previous' in command and 'trivia' in command:
                 if current_index > 0:
                     current_index -= 1
                     dialog = trivias[current_index].response
                 else:
                     dialog = 'No previous trivia'
-                        
-            #next question
+                    
+            #next trivia
             elif 'next' in command and 'trivia' in command:
                 if current_index < len(trivias) - 1:
                     current_index += 1   
@@ -138,8 +142,12 @@ def load_questions(questions):
         if detect_hotword():
             command = speech_to_text()
             
+            #cancel the current command
+            if 'cancel' in command:
+                dialog = get_response('cancel')
+            
             #checking for none dialogs
-            if 'answer' in command and questions[current_index].answer is None:
+            elif 'answer' in command and questions[current_index].answer is None:
                 dialog = 'No answer set for this question'
                 
             #previous question
@@ -173,7 +181,6 @@ def load_questions(questions):
                 else:
                     dialog = get_response('incorrectAnswer')
 
-                
             #exit questioning mode
             elif 'exit' in command and 'question' in command:
                 return
@@ -182,16 +189,23 @@ def load_questions(questions):
                 dialog = get_response('notFound')
                 
 def start_interactive_discussion(command):
-    if 'load lesson' in command:
+    global lesson_data
+    
+    if 'load' in command and 'lesson' in command:
         load_lesson_data()
     
     elif lesson_data is None:
         whizzy_speak(get_response('noLesson'))
-        set_lesson_text('Please load a lesson')
         return
     
-    elif 'current lesson' in command:
+    elif 'current' in command and 'lesson' in command:
         whizzy_speak(f'The current lesson is {lesson_data.name}')
+        
+    elif 'remove' in command and 'lesson' in command:
+        lesson_data = None
+        
+        whizzy_speak(f'The current lesson has been removed')
+        set_lesson_text('Please load a lesson')
         
     elif 'start' in command:
         dialog = ''
