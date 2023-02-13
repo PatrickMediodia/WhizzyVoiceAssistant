@@ -45,5 +45,11 @@
       "Welcome, let's get started",
       "Good day, are you ready to learn?",
       "Hello, I am getting things ready for you"
+   ],
+   "cancel": [
+      "Command has been cancelled",
+      "You have chosen to cancel this command",
+      "The current command has been aborted",
+      "Aborting current operation"
    ]
 }

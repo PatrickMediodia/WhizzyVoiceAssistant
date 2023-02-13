@@ -79,15 +79,19 @@ def main():
         
         if detect_hotword():
             command = speech_to_text()
-                
+            new_mode = change_mode(current_mode, command)
+            
             #command is empty, ignore
             if command == '':
                 #whizzy_speak(get_response('unknownValueError')) (uncomment if using vosk)
                 continue
-                
+            
+            #cancel the current command
+            elif 'cancel' in command:
+                whizzy_speak(get_response('cancel'))
+
             #change modes
-            new_mode = change_mode(current_mode, command)
-            if new_mode != current_mode:
+            elif new_mode != current_mode:
                 current_mode = new_mode
                 set_mode_text(current_mode)
                 whizzy_speak(f'Switched to {new_mode}')
@@ -98,7 +102,9 @@ def main():
                 
             #exit message and turn off devices
             elif command == 'logout':
+                set_show_mic_state(False)
                 whizzy_speak(get_response('exit'))
+                
                 turn_off_devices()
                 logout_user()
                     
