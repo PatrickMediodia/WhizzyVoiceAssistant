@@ -7,7 +7,7 @@ def speech_to_text():
     set_show_mic_state(True)
     
     listener = sr.Recognizer()
-    command = ""
+    command = ''
     
     with sr.Microphone() as source:
         #play sound to indicate start talking
@@ -19,7 +19,7 @@ def speech_to_text():
         
         set_mic_state(True)
                       
-        voice_data = listener.listen(source, phrase_time_limit=10)
+        voice_data = listener.listen(source, timeout=10, phrase_time_limit=8)
         
         set_mic_state(False)
         set_show_mic_state(False)
@@ -33,6 +33,12 @@ def speech_to_text():
             print(e)
         except sr.RequestError as e:
             whizzy_speak('Sorry, my speech service is down')
+            print(e)
+        except sr.WaitTimeoutError as e:
+            whizzy_speak('There seems to be a problem with my internet connection')
+            print(e)
+        except Exception as e:
+            whizzy_speak('There seems to be a problem with my speech recognition')
             print(e)
             
     return command
