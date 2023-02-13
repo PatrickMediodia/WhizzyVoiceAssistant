@@ -14,17 +14,14 @@ def speech_to_text():
         print('Listening to command ...')
         os.system("mpg123 audio/ding_sound.mp3 >/dev/null 2>&1")
         
-        #automatically sets the energy threshold
-        listener.adjust_for_ambient_noise(source, duration=1)
-        
-        set_mic_state(True)
-                      
-        voice_data = listener.listen(source, timeout=10, phrase_time_limit=8)
-        
-        set_mic_state(False)
-        set_show_mic_state(False)
-        
         try:
+            #automatically sets the energy threshold
+            listener.adjust_for_ambient_noise(source, duration=1)
+            
+            set_mic_state(True)
+                          
+            voice_data = listener.listen(source, timeout=10, phrase_time_limit=8)
+            
             command = listener.recognize_google(voice_data)
             command = command.lower()
             print(f'Command: {command}')
@@ -35,12 +32,15 @@ def speech_to_text():
             whizzy_speak('Sorry, my speech service is down')
             print(e)
         except sr.WaitTimeoutError as e:
-            whizzy_speak('There seems to be a problem with my internet connection')
+            whizzy_speak(get_response('unknownValueError'))
             print(e)
         except Exception as e:
             whizzy_speak('There seems to be a problem with my speech recognition')
             print(e)
-            
+        
+        set_mic_state(False)
+        set_show_mic_state(False)
+        
     return command
 
 '''

@@ -40,13 +40,33 @@ initialize_avatar_thread.start()
 set_mode_text('Waiting for login')
 new_login = True
 
-def change_mode(current_mode, command):
+def change_mode(command):
+    global current_mode
+    
     if 'switch' in command or 'change' in command:
         for mode in modes:
-            if mode in command and current_mode != mode:
-                return mode
-    return current_mode
+            if mode in command:
+                if current_mode != mode:
+                    current_mode = mode
+                    set_mode_text(mode)
+                    whizzy_speak(f'Switched to {mode}')
+                    return True
+                
+                elif current_mode == mode:
+                    whizzy_speak(f'Already in {current_mode} mode')
+                    return True
+    return False
 
+def logout():
+    set_show_mic_state(False)
+    whizzy_speak(get_response('exit'))
+                
+    turn_off_devices()
+    logout_user()
+                    
+    print('\nLogged out')
+    set_mode_text('Waiting for login')
+    
 def main():
     global current_mode, new_login
     
@@ -79,7 +99,6 @@ def main():
         
         if detect_hotword():
             command = speech_to_text()
-            new_mode = change_mode(current_mode, command)
             
             #command is empty, ignore
             if command == '':
@@ -91,28 +110,19 @@ def main():
                 whizzy_speak(get_response('cancel'))
 
             #change modes
-            elif new_mode != current_mode:
-                current_mode = new_mode
-                set_mode_text(current_mode)
-                whizzy_speak(f'Switched to {new_mode}')
-                
+            elif change_mode(command) == True:
+                continue
+            
             #to get the current mode of Whizzy
             elif 'current' and 'mode' in command:
                 whizzy_speak(f'Currently I am in the {current_mode} mode')
                 
             #exit message and turn off devices
             elif command == 'logout':
-                set_show_mic_state(False)
-                whizzy_speak(get_response('exit'))
-                
-                turn_off_devices()
-                logout_user()
-                    
-                print('\nLogged out')
-                set_mode_text('Waiting for login')
+                logout()
                 new_login = True
                 break
-                
+            
             #send command to current mode
             else:
                 mode_map[current_mode](command)

@@ -4,11 +4,12 @@ import speech_recognition as sr
 device_index = None
 
 def speech_to_text():
-    mic = sr.Microphone(device_index=device_index)
     listener = sr.Recognizer()
+    mic = sr.Microphone(device_index=device_index)
     command = ""
     
     with mic as source:
+    #with mic as source:
         print(f'Device index: {device_index}')
         #play sound to indicate start talking
         print('Listening to command ...')
@@ -35,20 +36,39 @@ def speech_to_text():
 def use_secondary_mic():
     global device_index
     
-    device_index = 1
+    mic_name = 'USB Audio Device'
+    
+    for index, mic in enumerate(sr.Microphone.list_microphone_names()):
+        if mic_name in mic:
+            device_index = index
+            break
+    else:
+        device_index = None
+        print('Mic not found')
 
 def use_primary_mic():
     global device_index
     
-    device_index = 2
+    mic_name = 'USB Composite Device'
     
-#use_primary_mic()
-#print('Getting input from primary mic ......')
-#speech_to_text()
+    for index, mic in enumerate(sr.Microphone.list_microphone_names()):
+        if mic_name in mic:
+            device_index = index
+            break
+    else:
+        device_index = None
+        print('Mic not found')
+'''
+use_primary_mic()
+print('Getting input from primary mic ......')
+speech_to_text()
 
-#import time
-#time.sleep(5)
-print(sr.Microphone.list_microphone_names())
+import time
+time.sleep(5)
+print()
+'''
+
+#use_primary_mic()
 use_secondary_mic()
 print('Getting input from secondary mic ......')
 speech_to_text()
