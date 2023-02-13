@@ -16,13 +16,18 @@ def get_response(type):
         return 'Dialog not found'
     
 def gtts_speak(audio_string):
-    tts = gTTS(text=audio_string, lang='en', tld='com')
-    tts.save("audio/speech.mp3")
-    
-    #play audio
-    os.system("mpg123 audio/speech.mp3 >/dev/null 2>&1")
-    os.remove("audio/speech.mp3")
-    
+    try:
+        tts = gTTS(text=audio_string, lang='en', tld='com')
+        tts.save("audio/speech.mp3")
+        
+        #play audio
+        os.system("mpg123 audio/speech.mp3 >/dev/null 2>&1")
+        os.remove("audio/speech.mp3")
+    except AssertionError as e:
+        print(e)
+    except Exception as e:
+        print(e)
+        
 '''
 import pyttsx3
 
