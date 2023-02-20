@@ -22,6 +22,7 @@ Handling Questions and Trivias
 """
 
 import time
+from num2words import num2words
 from API_requests import get_user_data
 from text_to_speech import get_response
 from picovoice.detect_hotword import detect_hotword
@@ -118,6 +119,15 @@ def load_trivias(trivias):
             #current trivia
             elif 'repeat' in command and 'trivia' in command:
                 dialog = trivias[current_index].response
+            
+            #move to another trivia
+            elif get_command('switch', command) and 'trivia' in command:
+                for number in range(1, len(trivias)+1):
+                    #check if number in number or word form is in command
+                    if str(number) in command or num2words(number) in command:
+                        current_index = number - 1
+                        dialog = trivias[current_index].response
+                        break
                     
             #exit trivia mode
             elif 'exit' in command and 'trivia' in command:
@@ -165,6 +175,15 @@ def load_questions(questions):
                     dialog = questions[current_index].question
                 else:
                     dialog = 'No next question'
+
+            #move to another question
+            elif get_command('switch', command) and 'question' in command:
+                for number in range(1, len(questions)+1):
+                    #check if number in number or word form is in command
+                    if str(number) in command or num2words(number) in command:
+                        current_index = number - 1
+                        dialog = questions[current_index].question
+                        break
                     
             #current question
             elif 'repeat' in command and 'question' in command:
