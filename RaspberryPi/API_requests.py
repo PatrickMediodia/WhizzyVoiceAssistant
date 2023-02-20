@@ -9,10 +9,11 @@ token = os.environ.get('BEARER_TOKEN')
 url = os.environ.get('URL')
 
 user_id = None
+user_name = None
 room_logged_in_id = None
 
 def get_logged_in():
-    global user_id, room_logged_in_id
+    global user_id, user_name, room_logged_in_id
     
     end_point = url + 'users?'
     end_point += 'populate=room_logged_in'
@@ -30,6 +31,7 @@ def get_logged_in():
         for user in logged_in_user:
             print(f'Logged in: {user["full_name"]}')
             user_id = user['id']
+            user_name = user["full_name"]
             room_logged_in_id = user['room_logged_in']['id']
         return True
     
@@ -147,3 +149,24 @@ def get_local_account_credentials():
     response_json = json.loads(response.text)
     
     return response_json['local']
+
+def classroom_log(date, time_in, time_out):
+    end_point = url + 'logs'
+    
+    payload = json.dumps({
+      "data": {
+        "name": user_name,
+        "room": room_number,
+        "date": date,
+        "time_in": time_in,
+        "time_out": time_out
+      }
+    })
+    
+    headers = {
+        'Authorization': 'Bearer ' + token,
+        'Content-Type': 'application/json'
+    }
+    
+    response = requests.request("POST", end_point, headers=headers, data=payload)
+    print(response, date, time_in, time_out)

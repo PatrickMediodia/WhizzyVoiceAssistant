@@ -1,12 +1,13 @@
 #Main Imports
 import os
 import time
+import datetime
 import threading
 from ALSA_handler import noalsaerr
 from text_to_speech import get_response
 from picovoice.detect_hotword import detect_hotword
-from API_requests import get_logged_in, logout_user
 from speech_to_text import speech_to_text, get_command
+from API_requests import get_logged_in, logout_user, classroom_log
 from whizzy_avatar import initialize_avatar, set_mode_text, whizzy_speak, set_show_mic_state
 
 #Interactive Discussion
@@ -38,37 +39,58 @@ initialize_avatar_thread.name = 'Initialize avatar'
 initialize_avatar_thread.start()
 
 set_mode_text('Waiting for login')
+
 new_login = True
+start_time = None
+date = None
 
 def change_mode(command):
     global current_mode
     
-    if get_command('switch', command):
-        for mode in modes:
-            if mode in command:
-                if current_mode != mode:
-                    current_mode = mode
-                    set_mode_text(mode)
-                    whizzy_speak(f'Switched to {mode}')
-                    return True
+    if get_command('switch', command) is False:
+        return False
+    
+    for mode in modes:
+        if mode in command:
+            if current_mode != mode:
+                current_mode = mode
+                set_mode_text(mode)
+                whizzy_speak(f'Switched to {mode}')
+                return True
                 
-                elif current_mode == mode:
-                    whizzy_speak(f'Already in {current_mode} mode')
-                    return True
+            elif current_mode == mode:
+                whizzy_speak(f'Already in {current_mode} mode')
+                return True
+            
     return False
 
 def logout():
+    global current_mode, new_login, date, start_time
+    
+    #whizzy speaks
     whizzy_speak(get_response('exit'))
     
+    #turn off devices
     turn_off_devices()
     logout_user()
+    
+    #get logout time and record log
+    end_time = datetime.datetime.now().strftime("%H:%M:%S.%f")
+    end_time = end_time[:-3]
+    classroom_log(date, start_time, end_time)
+    
+    #reset values
+    current_mode = modes[1]                
+    new_login = True
+    date = None
+    start_time = None
     
     print('\nLogged out')
     set_show_mic_state(False)
     set_mode_text('Waiting for login')
     
 def main():
-    global current_mode, new_login
+    global current_mode, new_login, date, start_time
     
     #check if logged into classroom
     if not get_logged_in():
@@ -77,6 +99,11 @@ def main():
             new_login = False
         return
     
+    #get date and time of login
+    date = datetime.datetime.now().strftime("%Y-%m-%d")
+    start_time = datetime.datetime.now().strftime("%H:%M:%S.%f")
+    start_time = start_time[:-3]
+
     #start after authentication
     set_mode_text('Logged in')
     whizzy_speak('Logged in, welcome')
@@ -119,11 +146,7 @@ def main():
                 
             #exit message and turn off devices
             elif command == 'logout':
-                logout()
-                
-                current_mode = modes[1]
-                new_login = True
-                
+                logout()                
                 break
             
             #send command to current mode
