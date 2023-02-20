@@ -1,4 +1,16 @@
 {
+    "web searching": [
+        "web searching",
+        "search"
+    ],
+    "smart control": [
+        "smart control",
+        "control"
+    ],
+    "interactive discussion": [
+        "interactive discussion",
+        "discussion"
+    ],
     "open": [
         "open",
         "launch",
@@ -28,17 +40,5 @@
         "launch",
         "initiate",
         "commence"
-    ],
-    "web searching": [
-        "web searching",
-        "search"
-    ],
-    "smart control": [
-        "smart control",
-        "control"
-    ],
-    "interactive discussion": [
-        "interactive discussion",
-        "discussion"
     ]
 }

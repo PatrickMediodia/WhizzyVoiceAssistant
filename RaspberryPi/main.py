@@ -51,7 +51,8 @@ def change_mode(command):
         return False
     
     for mode in modes:
-        if mode in command:
+        #get synonyms from command dictionary
+        if get_command(mode, command):
             if current_mode != mode:
                 current_mode = mode
                 set_mode_text(mode)
