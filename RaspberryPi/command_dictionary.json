@@ -1,4 +1,16 @@
 {
+    "web searching": [
+        "web searching",
+        "search"
+    ],
+    "smart control": [
+        "smart control",
+        "control"
+    ],
+    "interactive discussion": [
+        "interactive discussion",
+        "discussion"
+    ],
     "open": [
         "open",
         "launch",
@@ -11,7 +23,8 @@
     "switch": [
         "switch",
         "change",
-        "go to"
+        "go",
+        "move"
     ],
     "on": [
         "on",
