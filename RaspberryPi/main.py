@@ -4,9 +4,9 @@ import time
 import threading
 from ALSA_handler import noalsaerr
 from text_to_speech import get_response
-from speech_to_text import speech_to_text
 from picovoice.detect_hotword import detect_hotword
 from API_requests import get_logged_in, logout_user
+from speech_to_text import speech_to_text, get_command
 from whizzy_avatar import initialize_avatar, set_mode_text, whizzy_speak, set_show_mic_state
 
 #Interactive Discussion
@@ -43,7 +43,7 @@ new_login = True
 def change_mode(command):
     global current_mode
     
-    if 'switch' in command or 'change' in command:
+    if get_command('switch', command):
         for mode in modes:
             if mode in command:
                 if current_mode != mode:
@@ -58,13 +58,13 @@ def change_mode(command):
     return False
 
 def logout():
-    set_show_mic_state(False)
     whizzy_speak(get_response('exit'))
-                
+    
     turn_off_devices()
     logout_user()
-                    
+    
     print('\nLogged out')
+    set_show_mic_state(False)
     set_mode_text('Waiting for login')
     
 def main():
@@ -120,7 +120,10 @@ def main():
             #exit message and turn off devices
             elif command == 'logout':
                 logout()
+                
+                current_mode = modes[1]
                 new_login = True
+                
                 break
             
             #send command to current mode

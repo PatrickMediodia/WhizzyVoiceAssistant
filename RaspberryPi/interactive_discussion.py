@@ -23,9 +23,9 @@ Handling Questions and Trivias
 
 import time
 from API_requests import get_user_data
-from speech_to_text import speech_to_text
 from text_to_speech import get_response
 from picovoice.detect_hotword import detect_hotword
+from speech_to_text import speech_to_text, get_command
 from whizzy_avatar import set_mode_text, set_lesson_text, whizzy_speak, set_show_mic_state
 
 lesson_data = None
@@ -157,7 +157,7 @@ def load_questions(questions):
                     dialog = questions[current_index].question
                 else:
                     dialog = 'No previous question'
-                    
+                    commence
             #next question
             elif 'next' in command and 'question' in command:
                 if current_index < len(questions) - 1:
@@ -180,7 +180,7 @@ def load_questions(questions):
                     dialog = questions[current_index].response
                 else:
                     dialog = get_response('incorrectAnswer')
-
+                    
             #exit questioning mode
             elif 'exit' in command and 'question' in command:
                 return
@@ -207,7 +207,7 @@ def start_interactive_discussion(command):
         whizzy_speak(f'The current lesson has been removed')
         set_lesson_text('Please load a lesson')
         
-    elif 'start' in command:
+    elif get_command('start', command):
         dialog = ''
         
         #check which part of the discussion is being selected

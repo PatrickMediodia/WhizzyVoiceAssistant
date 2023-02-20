@@ -4,6 +4,7 @@ import threading
 from PyP100 import PyP100
 from text_to_speech import get_response
 from smart_controls.credentials import decrypt
+from speech_to_text import get_command, replace_command
 from smart_controls.client import client, application_map
 from whizzy_avatar import whizzy_speak, set_show_mic_state
 from smart_controls.windows_script import login_terminal, shutdown_terminal
@@ -242,29 +243,34 @@ def start_smart_controls(command):
                 if 'status' in command:
                     device_status(device_data)
                     return
-                elif 'on' in command:
+                elif get_command('on', command):
                     turn_on_device(device_data)
                     return
-                elif 'off' in command:
+                elif get_command('off', command):
                     turn_off_device(device_data)
                     return
     except Exception as e:
         print(e)
         whizzy_speak(f'Room device data cannot be fetched')
+    
+    #check command for opening/closing applications  
+    if get_command('open', command) or get_command('close', command):
+        #check for synonyms
+        command = replace_command('open', command)
+        command = replace_command('close', command)
         
-    #check command for opening/closing applications
-    for application, synonyms in application_map.items():
-        for synonym in synonyms:
-            if synonym in command:
-                #replace synonym with something the receiver can understand
-                request_to_send = command.replace(synonym, application)
+        for application, synonyms in application_map.items():
+            for synonym in synonyms:
+                if synonym in command:
+                    #replace synonym with something the receiver can understand
+                    request_to_send = command.replace(synonym, application)
+                        
+                    #resend request and get response
+                    server_response = client(request_to_send)
+                    whizzy_speak(server_response)
+                        
+                    return
                 
-                #resend request and get response
-                server_response = client(request_to_send)
-                whizzy_speak(server_response)
-                
-                return
-            
     #script will return to main if keyword found
     #speak if not returned
     whizzy_speak(get_response('notFound'))

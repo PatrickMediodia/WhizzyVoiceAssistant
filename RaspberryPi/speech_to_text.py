@@ -1,7 +1,33 @@
 import os
+import json
 import speech_recognition as sr
 from text_to_speech import get_response
 from whizzy_avatar import set_mic_state, whizzy_speak, set_show_mic_state
+
+#load word synonyms from command_dictionary.json
+command_dictionary = None
+with open('command_dictionary.json') as f:
+    command_dictionary = json.load(f)
+    
+def get_command(type, command):
+    try:
+        synonyms = command_dictionary[type]
+        for synonym in synonyms:
+            if synonym in command:
+                return True
+        return False
+    except: 
+        return False
+    
+def replace_command(type, command):
+    synonyms = command_dictionary[type]
+    new_command = command
+    
+    for synonym in synonyms:
+        if synonym in command:
+            new_command = command.replace(synonym, type)
+            
+    return new_command
 
 def speech_to_text():
     set_show_mic_state(True)

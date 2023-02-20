@@ -1,0 +1,31 @@
+{
+    "open": [
+        "open",
+        "launch",
+        "sign in"
+    ],
+    "close": [
+        "close",
+        "sign out"
+    ],
+    "switch": [
+        "switch",
+        "change",
+        "go to"
+    ],
+    "on": [
+        "on",
+        "open"
+    ],
+    "off": [
+        "off",
+        "close"
+    ],
+    "start": [
+        "start",
+        "begin",
+        "launch",
+        "initiate",
+        "commence"
+    ]
+}
