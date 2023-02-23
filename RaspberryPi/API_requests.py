@@ -170,3 +170,23 @@ def classroom_log(date, time_in, time_out):
     
     response = requests.request("POST", end_point, headers=headers, data=payload)
     print(response, date, time_in, time_out)
+
+url = 'https://api.jhonlloydclarion.online/api/'
+token = 'c4e2d7ae80175496dd9ed92feb2433c52050cf995c7ee17d513fb7c6f60aea3ab18019f7f772c3f47f26482c00e73ba54e4f1f15bc5e705bd1c36e543daea8b7327c215b70ea0e105f060e4e8e2e5e69a61dc89ab7cce1a643c8fbc2be2bbf66d51ede4b4d670b3bce2f4ac4e165c8bcf613ce7bfa2548c8cb5a8b187f4f42ae'
+user_id = 1
+
+def get_user_modes():
+    end_point = url + f'users/{user_id}?populate[0]=modes'
+    
+    headers = {
+        'Authorization': 'Bearer ' + token,
+        'Content-Type': 'application/json'
+    }
+    
+    try:
+        response = requests.request("GET", end_point, headers=headers)
+        response_json = json.loads(response.text)
+        return response_json['modes']
+    
+    except:
+        return None
