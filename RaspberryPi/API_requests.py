@@ -170,3 +170,19 @@ def classroom_log(date, time_in, time_out):
     
     response = requests.request("POST", end_point, headers=headers, data=payload)
     print(response, date, time_in, time_out)
+    
+def get_user_modes():
+    end_point = url + f'users/{user_id}?populate[0]=modes'
+    
+    headers = {
+        'Authorization': 'Bearer ' + token,
+        'Content-Type': 'application/json'
+    }
+    
+    try:
+        response = requests.request("GET", end_point, headers=headers)
+        response_json = json.loads(response.text)
+        return response_json['modes']
+    
+    except:
+        return None
