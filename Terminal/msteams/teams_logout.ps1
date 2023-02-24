@@ -27,6 +27,7 @@ Write-Host "Teams Process Sucessfully Stopped"
 if (-not (Get-AppxPackage Microsoft.AAD.BrokerPlugin)) { 
 	Add-AppxPackage -Register "$env:windir\SystemApps\Microsoft.AAD.BrokerPlugin_cw5n1h2txyewy\Appxmanifest.xml" -DisableDevelopmentMode -ForceApplicationShutdown 
 }
+Get-AppxPackage Microsoft.AAD.BrokerPlugin
 
 #Clear Team Cache
 try{
@@ -103,3 +104,4 @@ try {
 } catch{
 	Write-Host "No linked school or work account"
 }
+

@@ -68,7 +68,6 @@ def server():
                 connection.sendall(message.encode('utf-8'))
     except Exception as e:
         print(e)
-        pass
 
 if __name__ == '__main__':
     close_teams()
