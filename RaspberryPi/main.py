@@ -57,6 +57,11 @@ def change_mode(command):
         if get_command(mode, command):
             #get modes from database
             available_modes = get_user_modes()
+            
+            if available_modes is None:
+                whizzy_speak('No available modes, please enable a mode')
+                return True
+            
             is_available = available_modes[mode]
             
             if current_mode is not None:
@@ -71,7 +76,7 @@ def change_mode(command):
                 set_mode_text(mode_object['keyword'])
                 whizzy_speak(f'Switched to {mode_object["keyword"]}')
                 
-                #initialize devices when smart control is turned on
+                #initialize devices when smart control is turned'No available modes, please enable a mode' on
                 if mode == 'smart_controls' and devices_initialized is False:
                     initialize_devices()
                     devices_initialized = True
