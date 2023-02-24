@@ -53,7 +53,7 @@ def server():
                             message = 'Microsoft Teams has been opened'
                         else:
                             message = 'Microsoft Teams is already open'
-
+                            
                 elif 'close' in command:
                     if 'blackboard learn' in command:
                         if application_instance['blackboard'] is None:
