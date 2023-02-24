@@ -24,6 +24,8 @@ def initialize_devices():
     global room_device_data
     room_device_data = get_room_device_data()
     
+    print('\nInitializing devices ......\n')
+    
     if room_device_data is None:
         print('Room device data cannot be fetched.')
         return

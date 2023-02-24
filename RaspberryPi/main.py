@@ -47,42 +47,46 @@ def get_time():
     return time[:-3]
 
 def change_mode(command):
-    global current_mode, available_modes
+    global current_mode, devices_initialized
     
     if get_command('switch', command) is False:
         return False
     
-    available_modes = get_user_modes()
-    
     for mode, mode_object in modes.items():
-        
         #get synonyms from command dictionary
         if get_command(mode, command):
+            #get modes from database
+            available_modes = get_user_modes()
+            is_available = available_modes[mode]
             
-            #check if different from current mode
-            if current_mode['keyword'] != mode_object['keyword']:
+            if current_mode is not None:
+                #check if same as current mode
+                if current_mode['keyword'] == mode_object['keyword']:
+                    whizzy_speak(f'Already in {current_mode["keyword"]} mode')
+                    return True
                 
-                #new mode is enabled
-                if available_modes[mode] is True:
-                    current_mode = mode_object
-                    set_mode_text(mode_object['keyword'])
-                    whizzy_speak(f'Switched to {mode_object["keyword"]}')
+            #new mode is enabled
+            if is_available is True:
+                current_mode = mode_object
+                set_mode_text(mode_object['keyword'])
+                whizzy_speak(f'Switched to {mode_object["keyword"]}')
                 
-                #new mode is disabled
-                elif available_modes[mode] is False:
-                    whizzy_speak(f'{mode_object["keyword"].capitalize()} is disabled')
+                #initialize devices when smart control is turned on
+                if mode == 'smart_controls' and devices_initialized is False:
+                    initialize_devices()
+                    devices_initialized = True
                     
-            #check if same as current mode
-            elif current_mode['keyword'] == mode_object['keyword']:
-                whizzy_speak(f'Already in {current_mode["keyword"]} mode')
-
+            #new mode is disabled
+            elif is_available is False:
+                whizzy_speak(f'{mode_object["keyword"].capitalize()} is disabled')
+                
             return True
         
     return False
 
 def login():
-    global current_mode, date, start_time, available_modes, devices_initialized
-
+    global current_mode, date, start_time, devices_initialized
+    
     #get date and time of login
     date = datetime.datetime.now().strftime("%Y-%m-%d")
     start_time = get_time()
@@ -91,7 +95,9 @@ def login():
     set_mode_text('Logged in')
     whizzy_speak('Logged in, welcome')
     
+    #get modes from database
     available_modes = get_user_modes()
+    
     if available_modes is None:
         whizzy_speak('No available modes, please enable a mode')
         set_mode_text('No available modes')
@@ -99,11 +105,10 @@ def login():
         return
     
     elif available_modes['smart_controls'] is True:
-        #initializing devices in the classroom
-        print('\nInitializing devices ......\n')
-        initialize_devices()
-        
         current_mode = modes['smart_controls']
+        
+        #initializing devices in the classroom
+        initialize_devices()
         devices_initialized = True
         
     elif available_modes['web_searching'] is True:
@@ -124,7 +129,7 @@ def login():
     set_mode_text(current_mode['keyword'])
     
 def logout():
-    global current_mode, new_login, date, start_time, end_time, available_modes, devices_initialized
+    global current_mode, new_login, devices_initialized
     
     #whizzy speaks
     whizzy_speak(get_response('exit'))
@@ -138,13 +143,8 @@ def logout():
     classroom_log(date, start_time, end_time)
     
     #reset values
-    date = None
-    start_time = None
-    end_time = None
-    current_mode = None
-    available_modes = None
-    
     new_login = True
+    current_mode = None 
     devices_initialized = False
     
     print('\nLogged out')
@@ -165,9 +165,10 @@ def main():
     
     while True:
         print(f'\n{threading.enumerate()}')
-        print(f'\nCurrent mode: {current_mode["keyword"]}')
+        if current_mode is not None:
+            print(f'\nCurrent mode: {current_mode["keyword"]}')
             
-        # accepting triggger of input
+        #accepting triggger of input
         set_show_mic_state(True)
         
         #waiting for hotword
@@ -188,8 +189,8 @@ def main():
                 continue
             
             #to get the current mode of Whizzy
-            elif 'current' and 'mode' in command:
-                whizzy_speak(f'Currently I am in the {current_mode} mode')
+            elif 'current' and 'mode' in command and current_mode is not None:
+                whizzy_speak(f'Currently I am in the {current_mode["keyword"]} mode')
                 
             #exit message and turn off devices
             elif command == 'logout':
