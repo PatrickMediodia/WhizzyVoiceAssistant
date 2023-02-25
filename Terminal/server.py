@@ -40,20 +40,28 @@ def server():
                     
                 if 'open' in command:
                     if 'blackboard learn' in command:
-                        threading.Thread(target=open_blackboard, daemon=True, args=[token, user_id, application_instance]).start()
-                        message = 'Blackboard Learn has been opened'
+                        if application_instance['blackboard'] is None:
+                            threading.Thread(target=open_blackboard, daemon=True, args=[token, user_id, application_instance]).start()
+                            message = 'Blackboard Learn has been opened'
+                        else:
+                            message = 'Blackboard Learn is already open'
 
                     elif 'microsoft teams' in command:
-                        threading.Thread(target=open_teams, daemon=True, args=[token, user_id]).start()
-                        application_instance['teams'] = 'Open'
-                        message = 'Microsoft Teams has been opened'
-
+                        if application_instance['teams'] is None:
+                            threading.Thread(target=open_teams, daemon=True, args=[token, user_id]).start()
+                            application_instance['teams'] = 'teams'
+                            message = 'Microsoft Teams has been opened'
+                        else:
+                            message = 'Microsoft Teams is already open'
+                            
                 elif 'close' in command:
                     if 'blackboard learn' in command:
                         if application_instance['blackboard'] is None:
                             message = 'Blackboard Learn is not open'
                         else:
                             application_instance['blackboard'].close()
+                            application_instance['blackboard'] = None
+
                             print('\nClosing blackboard .....\n')
                             message = 'Blackboard Learn has been closed'
 
@@ -62,13 +70,13 @@ def server():
                             message = 'Microsoft Teams is not open'
                         else:
                             close_teams()
+                            
                             application_instance['teams'] = None
                             message = 'Microsoft Teams has been closed'
 
                 connection.sendall(message.encode('utf-8'))
     except Exception as e:
         print(e)
-        pass
 
 if __name__ == '__main__':
     close_teams()

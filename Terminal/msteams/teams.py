@@ -41,7 +41,7 @@ def open_teams(token, user_id):
 
     # Next Button
     mouse.click(button='left', coords=(1083, 627))
-    time.sleep(8)
+    time.sleep(10)
 
     # login Credentials -- Password
     send_keys(account_details['password'])
