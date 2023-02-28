@@ -173,19 +173,12 @@ def whizzy_speak(text):
             if len(sentence) > 110:
                 list_of_phrases = wrap(sentence, 110)
                 
-                thread = None
                 for phrase in list_of_phrases:
-                    data = google_text_to_speech(phrase)
-                    if thread is not None:
-                        thread.join()
-                    thread = threading.Thread(target=gtts_speak, args=[data], daemon=True)
-                    thread.start()
                     subtitle_phrase = phrase
-                thread.join()
+                    gtts_speak(phrase)
             else:
-                data = google_text_to_speech(sentence)
                 subtitle_phrase = sentence
-                gtts_speak(data)
+                gtts_speak(sentence)
                 
         subtitle_phrase = ''
         subtitle_list = []

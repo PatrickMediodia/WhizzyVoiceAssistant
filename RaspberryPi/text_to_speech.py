@@ -1,23 +1,51 @@
 import os
 import json
 import random
-import base64
-import pygame
-from gtts import gTTS
-import io
+from google.cloud import texttospeech
+
+os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = 'google_text_to_speech_credentials.json'
 
 #load responses from response.json
 responses = None
 with open('responses.json') as f:
     responses = json.load(f)
 
+print(responses)
+
 #usage print(get_response('notFound'))
 def get_response(type):
     try:
         return random.choice(responses[type])
-    except: 
+    except Exception as e:
+        print(e)
         return 'Dialog not found'
+        
+def gtts_speak(text):
+    client = texttospeech.TextToSpeechClient()
+    input_text = texttospeech.SynthesisInput(text=text)
+    
+    voice = texttospeech.VoiceSelectionParams(
+        language_code="en-US",
+        name="en-US-Neural2-J",
+        ssml_gender=texttospeech.SsmlVoiceGender.MALE,
+    )
 
+    audio_config = texttospeech.AudioConfig(
+        audio_encoding=texttospeech.AudioEncoding.MP3
+    )
+
+    response = client.synthesize_speech(
+        request={"input": input_text, "voice": voice, "audio_config": audio_config}
+    )
+    
+    # The response's audio_content is binary.
+    with open("audio/speech.mp3", "wb") as out:
+        out.write(response.audio_content)
+        
+    #play audio
+    os.system("mpg123 audio/speech.mp3 >/dev/null 2>&1")
+    os.remove("audio/speech.mp3")
+    
 '''
 #google text to speech (online)
 def gtts_speak(audio_string):
@@ -64,31 +92,3 @@ def gtts_speak(audio_string):
     os.system("mpg123 audio/output.wav >/dev/null 2>&1")
     os.remove("audio/output.wav")
 '''
-
-def gtts_speak(audio_content):
-  encoded = base64.b64decode(audio_content)
-
-  pygame.mixer.init()
-  sound_file = io.BytesIO(encoded)
-  sound = pygame.mixer.Sound(sound_file)
-  ch = sound.play()
-  while ch.get_busy():
-      pygame.time.wait(100)
-
-'''
-list_of_sentences = [
-   'Paragraphs are the building blocks of papers.',
-   'Many students define paragraphs in terms of length: a paragraph is a group of at least five sentences, a paragraph is half a page long, etc.',
-   'In reality, though, the unity and coherence of ideas among sentences is what constitutes a paragraph.'
-   'A paragraph is defined as “a group of sentences or a single sentence that forms a unit"',
-   'Length and appearance do not determine whether a section in a paper is a paragraph.'
-]
-
-thread = None
-for sentence in list_of_sentences:
-   data = api_call(sentence)
-   if thread is not None:
-      thread.join()
-   thread = threading.Thread(target=speak, args=[data], daemon=True)
-   thread.start()
-thread.join'''
