@@ -1,7 +1,10 @@
 import os
 import json
 import random
+import base64
+import pygame
 from gtts import gTTS
+import io
 
 #load responses from response.json
 responses = None
@@ -15,10 +18,11 @@ def get_response(type):
     except: 
         return 'Dialog not found'
 
+'''
 #google text to speech (online)
 def gtts_speak(audio_string):
     try:
-        tts = gTTS(text=audio_string, lang='en', tld='com')
+        tts = gTTS(text=audio_string, lang='en', tld='com', slow=False)
         tts.save("audio/speech.mp3")
         
         #play audio
@@ -28,7 +32,8 @@ def gtts_speak(audio_string):
         print(e)
     except Exception as e:
         print(e)
-        
+'''
+
 '''
 #festival, sound ok offline but is slow
 def gtts_speak(audio_string):
@@ -59,3 +64,31 @@ def gtts_speak(audio_string):
     os.system("mpg123 audio/output.wav >/dev/null 2>&1")
     os.remove("audio/output.wav")
 '''
+
+def gtts_speak(audio_content):
+  encoded = base64.b64decode(audio_content)
+
+  pygame.mixer.init()
+  sound_file = io.BytesIO(encoded)
+  sound = pygame.mixer.Sound(sound_file)
+  ch = sound.play()
+  while ch.get_busy():
+      pygame.time.wait(100)
+
+'''
+list_of_sentences = [
+   'Paragraphs are the building blocks of papers.',
+   'Many students define paragraphs in terms of length: a paragraph is a group of at least five sentences, a paragraph is half a page long, etc.',
+   'In reality, though, the unity and coherence of ideas among sentences is what constitutes a paragraph.'
+   'A paragraph is defined as “a group of sentences or a single sentence that forms a unit"',
+   'Length and appearance do not determine whether a section in a paper is a paragraph.'
+]
+
+thread = None
+for sentence in list_of_sentences:
+   data = api_call(sentence)
+   if thread is not None:
+      thread.join()
+   thread = threading.Thread(target=speak, args=[data], daemon=True)
+   thread.start()
+thread.join'''

@@ -5,6 +5,7 @@ import threading
 from textwrap import wrap
 from nltk import tokenize
 from text_to_speech import gtts_speak
+from API_requests import google_text_to_speech
 
 talking = False
 screen = None
@@ -172,12 +173,19 @@ def whizzy_speak(text):
             if len(sentence) > 110:
                 list_of_phrases = wrap(sentence, 110)
                 
+                thread = None
                 for phrase in list_of_phrases:
+                    data = google_text_to_speech(phrase)
+                    if thread is not None:
+                        thread.join()
+                    thread = threading.Thread(target=gtts_speak, args=[data], daemon=True)
+                    thread.start()
                     subtitle_phrase = phrase
-                    gtts_speak(phrase)
+                thread.join()
             else:
+                data = google_text_to_speech(sentence)
                 subtitle_phrase = sentence
-                gtts_speak(sentence)
+                gtts_speak(data)
                 
         subtitle_phrase = ''
         subtitle_list = []

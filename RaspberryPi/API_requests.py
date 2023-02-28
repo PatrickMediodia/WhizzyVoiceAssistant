@@ -186,3 +186,33 @@ def get_user_modes():
     
     except:
         return None
+
+def google_text_to_speech(audio_string):
+  url = "https://cxl-services.appspot.com/proxy?url=https://texttospeech.googleapis.com/v1beta1/text:synthesize&token=03AFY_a8W2idSU9q25ihUyjtA9cxh3JYM_Ys3RS50qP4udI25YkX9SRGHZaQ4KEPvbndnN3EVPDmfbkSHOLl3FG1Hnb0SLR9JxzZO1e9vtBBIsKf3hjeUuT056JvHce8S8MLyn2JS-IzgvvwGSBx5ieQBB4xz4RBhGo4X0Fg2yzFdGHvRYTHWfAi9qj1MRmio6UQrRWOo68yhbuAjkWRjm88eFx-T2zeeKEreKt0ME5dIO7bY-k8EA8oUyj-mAAF8bOMeCVQ8oB9tDfvmXNNfBtysbvhD9Xukldyfe2-ltc2UkHhHqwW4itqgTuTO-tyatMB5SKfK4ZYJJDrZG6tHoJy9-1JlIvR5ZskAerQygoemw0SFTUKfDjUZyJCLJdF3U90L8mvV1M8UV0jXxWYL154uxjc5DgnNgM1dASGvvKIYRVwmyNVll1Xqzpj1mSMSOKEoMUm8bXbzWYAv0dSvtz4MeG876HObdpa_wiuqldQoWbjkNbafHS059KqJh392Idf1lV9g7WpSKwxysj3EFykBn8Bua54TZbA"
+
+  payload = json.dumps({
+    "audioConfig": {
+      "audioEncoding": "LINEAR16",
+      "effectsProfileId": [
+        "small-bluetooth-speaker-class-device"
+      ],
+      "pitch": 0,
+      "speakingRate": 1
+    },
+    "input": {
+      "text": audio_string,
+    },
+    "voice": {
+      "languageCode": "en-US",
+      "name": "en-US-Neural2-J"
+    }
+  })
+
+  headers = {
+    'Content-Type': 'application/json'
+  }
+
+  response = requests.request("POST", url, headers=headers, data=payload)
+  response_json = json.loads(response.text)
+
+  return response_json['audioContent']
