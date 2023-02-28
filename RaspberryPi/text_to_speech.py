@@ -10,8 +10,6 @@ responses = None
 with open('responses.json') as f:
     responses = json.load(f)
 
-print(responses)
-
 #usage print(get_response('notFound'))
 def get_response(type):
     try:
@@ -20,7 +18,7 @@ def get_response(type):
         print(e)
         return 'Dialog not found'
         
-def gtts_speak(text):
+def gtts_speak(text, index):
     client = texttospeech.TextToSpeechClient()
     input_text = texttospeech.SynthesisInput(text=text)
     
@@ -39,13 +37,9 @@ def gtts_speak(text):
     )
     
     # The response's audio_content is binary.
-    with open("audio/speech.mp3", "wb") as out:
+    with open(f"audio/speech{index}.mp3", "wb") as out:
         out.write(response.audio_content)
         
-    #play audio
-    os.system("mpg123 audio/speech.mp3 >/dev/null 2>&1")
-    os.remove("audio/speech.mp3")
-    
 '''
 #google text to speech (online)
 def gtts_speak(audio_string):

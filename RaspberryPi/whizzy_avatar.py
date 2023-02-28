@@ -152,6 +152,10 @@ def display_subtitle():
         available_space = 1920 - text_width
         x_value = available_space / 2    
         screen.blit(subtitle_text_render, (x_value, 1020, width, height))
+
+def create_speech_files(list_of_phrases):
+    for index, phrase in enumerate(list_of_phrases):
+        gtts_speak(phrase, index)
         
 def whizzy_speak(text):
     global subtitle_phrase
@@ -168,17 +172,30 @@ def whizzy_speak(text):
         #not accepting triggger of input
         set_avatar_state(True)
             
-        for sentence in subtitle_list:           
+        for index, sentence in enumerate(subtitle_list):           
             #check if sentence is long
             if len(sentence) > 110:
                 list_of_phrases = wrap(sentence, 110)
                 
-                for phrase in list_of_phrases:
+                #create mp3 files
+                threading.Thread(target=create_speech_files, args=[list_of_phrases], daemon=True).start()
+                
+                for index, phrase in enumerate(list_of_phrases):
+                    #wait for file to be created
+                    while os.path.isfile(f'audio/speech{index}.mp3') is False:
+                        continue
+                        
+                    #play audio
                     subtitle_phrase = phrase
-                    gtts_speak(phrase)
+                    os.system(f"mpg123 audio/speech{index}.mp3 >/dev/null 2>&1")
+                    os.remove(f"audio/speech{index}.mp3")
             else:
                 subtitle_phrase = sentence
-                gtts_speak(sentence)
+                gtts_speak(sentence,1)
+                
+                #play audio
+                os.system("mpg123 audio/speech1.mp3 >/dev/null 2>&1")
+                os.remove("audio/speech1.mp3")
                 
         subtitle_phrase = ''
         subtitle_list = []
