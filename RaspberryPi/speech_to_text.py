@@ -69,6 +69,23 @@ def speech_to_text():
         
     return command
 
+def wav_to_text():
+    r = sr.Recognizer()
+    
+    with sr.AudioFile('audio/ga_response.wav') as source:
+        audio = r.record(source)
+        
+        try:
+            s = r.recognize_google(audio)
+            os.remove("audio/ga_response.wav")
+            
+            print("Text: "+s)
+            return s
+            
+        except Exception as e:
+            print("Exception: "+str(e))
+            return 'Error converting from wav to text'
+        
 '''
 import os
 import json

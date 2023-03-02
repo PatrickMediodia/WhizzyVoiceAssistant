@@ -26,6 +26,7 @@ except (SystemError, ImportError):
     
 #import avatar
 from whizzy_avatar import whizzy_speak, set_avatar_state, set_show_mic_state
+from speech_to_text import wav_to_text
 
 ASSISTANT_API_ENDPOINT = 'embeddedassistant.googleapis.com'
 DEFAULT_GRPC_DEADLINE = 60 * 3 + 5
@@ -92,7 +93,7 @@ class GoogleAssistant(object):
             )
         )
           
-        output_audio_file = None
+        output_audio_file = 'audio/ga_response.wav'
         if output_audio_file:
             audio_sink = audio_helpers.WaveSink(
                 open(output_audio_file, 'wb'),
@@ -141,15 +142,20 @@ class GoogleAssistant(object):
         #play audio if there is no transcript
         if hasTranscript is False:
             for value in response_audio_data:
+                #put audio data into wav file
                 if not conversation_stream.playing:
                     set_avatar_state(True)
                     conversation_stream.stop_recording()
                     conversation_stream.start_playback()
                     print('Playing assistant response.....')
                 conversation_stream.write(value)
-            
+                
             conversation_stream.stop_playback()
             set_avatar_state(False)
+            
+            #get text from wav file
+            text_response = wav_to_text()
+            whizzy_speak(text_response)
             
         conversation_stream.close()
 
