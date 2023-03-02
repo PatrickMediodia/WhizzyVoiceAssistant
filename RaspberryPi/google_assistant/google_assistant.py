@@ -142,8 +142,8 @@ class GoogleAssistant(object):
             
         #play audio if there is no transcript
         if hasTranscript is False:
-            #check if 
-            date_list = ['day', 'date']
+            #check if asking for date or time
+            date_list = ['day', 'date', 'time', 'year']
             for word in date_list:
                 if word in text_query:
                     #record response from google assistant

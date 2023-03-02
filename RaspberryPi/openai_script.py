@@ -4,13 +4,15 @@ import openai
 openai.api_key = os.environ.get('OPENAI_API_KEY')
 
 def run_command_openai(prompt):
-    completion = openai.Completion.create(
-        engine='text-davinci-003',
-        prompt=prompt,
-        max_tokens=100,
-        n=1,
-        stop=None,
-        temperature=0.5,
+    completion = openai.ChatCompletion.create(
+      model="gpt-3.5-turbo",
+      messages=[
+            {"role": "user", "content": prompt},
+        ]
     )
     
-    return completion.choices[0].text
+    text_response = completion['choices'][0]['message']['content'].strip()
+    print(text_response)
+    return text_response
+
+
