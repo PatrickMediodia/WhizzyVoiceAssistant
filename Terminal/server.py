@@ -25,7 +25,7 @@ application_instance = {
 def server():
     global application_instance
     
-    try: 
+    try:
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
             s.bind((HOST, PORT))
             print("Server has started, waiting for client to connect")
@@ -69,8 +69,7 @@ def server():
                         if application_instance['teams'] is None:
                             message = 'Microsoft Teams is not open'
                         else:
-                            close_teams()
-                            
+                            threading.Thread(target=close_teams, daemon=True).start()
                             application_instance['teams'] = None
                             message = 'Microsoft Teams has been closed'
 

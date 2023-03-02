@@ -21,43 +21,40 @@ cmd.exe /c "C:\Users\Public\Documents\WhizzyVoiceAssistant\Terminal\msteams\team
 #Stop Teams process 
 Get-Process -ProcessName Teams -ErrorAction SilentlyContinue | Stop-Process -Force 
 Start-Sleep -Seconds 3
-Write-Host "Teams Process Sucessfully Stopped" 
-
-#Handle provider exception error
-if (-not (Get-AppxPackage Microsoft.AAD.BrokerPlugin)) { 
-	Add-AppxPackage -Register "$env:windir\SystemApps\Microsoft.AAD.BrokerPlugin_cw5n1h2txyewy\Appxmanifest.xml" -DisableDevelopmentMode -ForceApplicationShutdown 
-}
-Get-AppxPackage Microsoft.AAD.BrokerPlugin
+Write-Host "Teams Process Sucessfully Stopped"
 
 #Clear Team Cache
 try{
-	Get-ChildItem -Path $env:APPDATA\"Microsoft\teams\blob_storage" | Remove-Item -Recurse -ErrorAction SilentlyContinue
-	Get-ChildItem -Path $env:APPDATA\"Microsoft\teams\databases" | Remove-Item -Recurse -ErrorAction SilentlyContinue
-	Get-ChildItem -Path $env:APPDATA\"Microsoft\teams\cache" | Remove-Item -Recurse -ErrorAction SilentlyContinue
-	Get-ChildItem -Path $env:APPDATA\"Microsoft\teams\gpucache" | Remove-Item -Recurse -ErrorAction SilentlyContinue
-	Get-ChildItem -Path $env:APPDATA\"Microsoft\teams\Indexeddb" | Remove-Item -Recurse -ErrorAction SilentlyContinue
-	Get-ChildItem -Path $env:APPDATA\"Microsoft\teams\Local Storage" | Remove-Item -Recurse -ErrorAction SilentlyContinue
-	Get-ChildItem -Path $env:APPDATA\"Microsoft\teams\tmp" | Remove-Item -Recurse -ErrorAction SilentlyContinue
+	Get-ChildItem -Path $env:APPDATA\"Microsoft\Teams\blob_storage" | Remove-Item -Recurse -ErrorAction SilentlyContinue
+	Get-ChildItem -Path $env:APPDATA\"Microsoft\Teams\databases" | Remove-Item -Recurse -ErrorAction SilentlyContinue
+	Get-ChildItem -Path $env:APPDATA\"Microsoft\Teams\Cache" | Remove-Item -Recurse -ErrorAction SilentlyContinue
+	Get-ChildItem -Path $env:APPDATA\"Microsoft\Teams\GPUCache" | Remove-Item -Recurse -ErrorAction SilentlyContinue
+	Get-ChildItem -Path $env:APPDATA\"Microsoft\Teams\IndexedDB" | Remove-Item -Recurse -ErrorAction SilentlyContinue
+	Get-ChildItem -Path $env:APPDATA\"Microsoft\Teams\Local Storage" | Remove-Item -Recurse -ErrorAction SilentlyContinue
+	Get-ChildItem -Path $env:APPDATA\"Microsoft\Teams\tmp" | Remove-Item -Recurse -ErrorAction SilentlyContinue
 	Write-Host "Teams Cache Cleaned" 
 }catch{
-	echo $_ 
+	Write-Host $_ 
 }
 
 #Remove Credential from Credential manager
 $credential = cmdkey /list | ForEach-Object{if($_ -like "*Target:*" -and $_ -like "*teams*"){cmdkey /del:($_ -replace " ","" -replace "Target:","")}}
 
 #Remove Reg.Key
-$Regkeypath= "HKCU:\Software\Microsoft\Office\Teams" 
+$Regkeypath= "HKCU:\SOFTWARE\Microsoft\Office\Teams" 
 $value = (Get-ItemProperty $Regkeypath).HomeUserUpn -eq $null
 If ($value -eq $False) 
 { 
-  Remove-ItemProperty -Path "HKCU:\Software\Microsoft\Office\Teams" -Name "HomeUserUpn"
+  Remove-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Office\Teams" -Name "HomeUserUpn"
   Write-Host "The registry value Sucessfully removed" 
 } 
 Else { Write-Host "The registry value does not exist"}
 
-#Get Desktop-config.json
 $TeamsFolders = "$env:APPDATA\Microsoft\teams"
+
+#Clears value in desktop.json file, being delete in .bat file
+<#
+#Get Desktop-config.json
 try{
 	$SourceDesktopConfigFile = "$TeamsFolders\desktop-config.json"
 	$desktopConfig = (Get-Content -Path $SourceDesktopConfigFile -ErrorAction Stop | ConvertFrom-Json)
@@ -80,6 +77,7 @@ try {
 }
 
 Write-Host "Modify desktop-Config.Json - Finished"
+#>
 
 try {
 	#Delete the Cookies file. This is a fix for when the joining as anonymous, and prevents the last used guest name from being reused.
@@ -95,6 +93,8 @@ try {
 	Write-Host "No storage removed."
 }
 
+#Clears account from AAD.BrokerPlugin, TokenBroket\Acocunts folders does not exist
+<#
 try {
 	#Try to remove the Link School/Work account if there was one. It can be created if the first time you sign in, the user all
 	$LocalPackagesFolder ="$env:LOCALAPPDATA\Packages"
@@ -104,4 +104,12 @@ try {
 } catch{
 	Write-Host "No linked school or work account"
 }
+#>
 
+#Gets Microsoft.AAD.BroketPlugin
+<#
+if (-not (Get-AppxPackage Microsoft.AAD.BrokerPlugin)) { 
+	Add-AppxPackage -Register "$env:windir\SystemApps\Microsoft.AAD.BrokerPlugin_cw5n1h2txyewy\Appxmanifest.xml" -DisableDevelopmentMode -ForceApplicationShutdown
+	Get-AppxPackage Microsoft.AAD.BrokerPlugin
+}
+#>

@@ -22,7 +22,7 @@ def open_teams(token, user_id):
     account_thread.start()
 
     app = Application(backend='uia').start(fr'C:\Users\{os.getlogin()}\AppData\Local\Microsoft\Teams\Update.exe --processStart "Teams.exe"')
-    time.sleep(5)
+    time.sleep(8)
 
     # Get started button
     mouse.click(button='left', coords=(842, 562))
@@ -52,9 +52,11 @@ def open_teams(token, user_id):
     mouse.click(button='left', coords=(1100, 560))
     time.sleep(8)
 
+    '''
     # Text Verification Button
     mouse.click(button='left', coords=(950, 440))
     time.sleep(2)
+    '''
     
 def close_teams():
     print('\nClosing teams instances .....\n')
@@ -65,4 +67,5 @@ def close_teams():
         stdout=subprocess.DEVNULL, 
         stderr=subprocess.STDOUT
     )
+    
     p.communicate()
