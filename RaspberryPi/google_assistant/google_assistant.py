@@ -27,6 +27,7 @@ except (SystemError, ImportError):
 #import avatar
 from whizzy_avatar import whizzy_speak, set_avatar_state, set_show_mic_state
 from speech_to_text import wav_to_text
+from openai_script import run_command_openai
 
 ASSISTANT_API_ENDPOINT = 'embeddedassistant.googleapis.com'
 DEFAULT_GRPC_DEADLINE = 60 * 3 + 5
@@ -141,24 +142,35 @@ class GoogleAssistant(object):
             
         #play audio if there is no transcript
         if hasTranscript is False:
-            for value in response_audio_data:
-                #put audio data into wav file
-                if not conversation_stream.playing:
-                    set_avatar_state(True)
-                    conversation_stream.stop_recording()
-                    conversation_stream.start_playback()
-                    print('Playing assistant response.....')
-                conversation_stream.write(value)
+            #check if 
+            date_list = ['day', 'date']
+            for word in date_list:
+                if word in text_query:
+                    #record response from google assistant
+                    for value in response_audio_data:
+                        #put audio data into wav file
+                        if not conversation_stream.playing:
+                            set_avatar_state(True)
+                            conversation_stream.stop_recording()
+                            conversation_stream.start_playback()
+                            print('Playing assistant response.....')
+                        conversation_stream.write(value)
+                        
+                    conversation_stream.stop_playback()
+                    set_avatar_state(False)
+                    
+                    #get text from wav file
+                    text_response = wav_to_text()
+                    whizzy_speak(text_response.capitalize())
+                    break
+                    
+            #get response from openai
+            else:
+                text_repsonse = run_command_openai(text_query)
+                whizzy_speak(text_repsonse)
                 
-            conversation_stream.stop_playback()
-            set_avatar_state(False)
-            
-            #get text from wav file
-            text_response = wav_to_text()
-            whizzy_speak(text_response)
-            
         conversation_stream.close()
-
+        
 def start_google_assistant(command):
     credentials = os.path.join(click.get_app_dir('google-oauthlib-tool'), 'credentials.json')
     device_model_id = os.environ.get('DEVICE_MODEL_ID')
