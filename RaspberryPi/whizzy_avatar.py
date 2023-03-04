@@ -5,7 +5,6 @@ import threading
 from textwrap import wrap
 from nltk import tokenize
 from text_to_speech import gtts_speak
-from API_requests import google_text_to_speech
 
 talking = False
 screen = None

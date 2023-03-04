@@ -9,9 +9,9 @@ from picovoice.detect_hotword import detect_hotword
 from speech_to_text import speech_to_text, get_command
 from interactive_discussion import start_interactive_discussion
 from google_assistant.google_assistant import start_google_assistant
-from API_requests import get_logged_in, logout_user, classroom_log, get_user_modes
 from whizzy_avatar import initialize_avatar, set_mode_text, whizzy_speak, set_show_mic_state
 from smart_controls.smart_controls import initialize_devices, start_smart_controls, turn_off_devices
+from API_requests import get_logged_in, logout_user, classroom_log, get_user_modes, get_web_command, clear_web_command
 
 modes = {
     'web_searching': {
@@ -46,6 +46,34 @@ def get_time():
     time = datetime.datetime.now().strftime("%H:%M:%S.%f")
     return time[:-3]
 
+def web_command(command_dictionary):
+    while True:
+        if command_dictionary['command'] != '':
+            return
+            
+        response = get_web_command()
+        if response != None and response != '':
+            command_dictionary['command'] = response
+            #clear user command after execution
+            clear_web_command()
+            return
+            
+        time.sleep(1)
+        
+def get_user_command():
+    command_dictionary = {'command' : ''}
+    
+    #start thread for getting command from web
+    user_command_thread = threading.Thread(target=web_command, args=[command_dictionary], daemon=True)
+    user_command_thread.start()
+    
+    #waiting for hotword
+    if detect_hotword(command_dictionary) is True:
+        command_dictionary['command'] = 'placeholder'
+        command_dictionary['command'] = speech_to_text()
+        
+    return command_dictionary['command']
+    
 def change_mode(command):
     global current_mode, devices_initialized
     
@@ -176,41 +204,39 @@ def main():
         #accepting triggger of input
         set_show_mic_state(True)
         
-        #waiting for hotword
-        if detect_hotword():
-            command = speech_to_text()
+        command = get_user_command();
+        
+        #command is empty, ignore
+        if command == '':
+            #whizzy_speak(get_response('unknownValueError')) (uncomment if using vosk)
+            continue
             
-            #command is empty, ignore
-            if command == '':
-                #whizzy_speak(get_response('unknownValueError')) (uncomment if using vosk)
-                continue
-            
-            #cancel the current command
-            elif 'cancel' in command:
-                whizzy_speak(get_response('cancel'))
+        #cancel the current command
+        elif 'cancel' in command:
+            whizzy_speak(get_response('cancel'))
 
-            #change modes
-            elif change_mode(command) == True:
+        #change modes
+        elif change_mode(command) == True:
+            continue
+            
+        #to get the current mode of Whizzy
+        elif 'current' and 'mode' in command and current_mode is not None:
+            whizzy_speak(f'Currently I am in the {current_mode["keyword"]} mode')
+                
+        #exit message and turn off devices
+        elif command == 'logout':
+            logout()                
+            break
+            
+        #send command to current mode
+        else:
+            #check if there are is no current mode
+            if current_mode is None:
+                whizzy_speak('No available modes, please enable a mode')
                 continue
-            
-            #to get the current mode of Whizzy
-            elif 'current' and 'mode' in command and current_mode is not None:
-                whizzy_speak(f'Currently I am in the {current_mode["keyword"]} mode')
                 
-            #exit message and turn off devices
-            elif command == 'logout':
-                logout()                
-                break
-            
-            #send command to current mode
-            else:
-                #check if there are is no current mode
-                if current_mode is None:
-                    whizzy_speak('No available modes, please enable a mode')
-                    continue
-                
-                current_mode['function'](command)
-                
+            current_mode['function'](command)
+
 if __name__ == '__main__':
     with noalsaerr():
         while True:

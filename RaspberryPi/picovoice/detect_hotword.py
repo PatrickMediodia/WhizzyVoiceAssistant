@@ -3,7 +3,7 @@ import struct
 import pyaudio
 import pvporcupine
 
-def detect_hotword():
+def detect_hotword(command_dictionary):
     porcupine = None
     py_audio = None
     audio_stream = None
@@ -25,6 +25,9 @@ def detect_hotword():
         )
         
         while True:
+            if command_dictionary['command'] != '':
+                return False
+                
             pcm = audio_stream.read(porcupine.frame_length)
             pcm = struct.unpack_from("h" * porcupine.frame_length, pcm)
             keyword_index = porcupine.process(pcm)
