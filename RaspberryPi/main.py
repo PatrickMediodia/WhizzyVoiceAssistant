@@ -58,7 +58,7 @@ def web_command(command_dictionary):
             clear_web_command()
             return
             
-        time.sleep(1)
+        time.sleep(2)
         
 def get_user_command():
     command_dictionary = {'command' : ''}

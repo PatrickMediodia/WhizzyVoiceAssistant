@@ -94,7 +94,7 @@ class GoogleAssistant(object):
             )
         )
           
-        output_audio_file = 'audio/ga_response.wav'
+        output_audio_file = None
         if output_audio_file:
             audio_sink = audio_helpers.WaveSink(
                 open(output_audio_file, 'wb'),
@@ -137,38 +137,23 @@ class GoogleAssistant(object):
                 text_response = resp.dialog_state_out.supplemental_display_text
                 print(f'Transcript of response: {text_response}')
                 whizzy_speak(text_response)
-                hasTranscript = True
-                break
-            
+                #hasTranscript = True
+                #break
+                
         #play audio if there is no transcript
         if hasTranscript is False:
-            #check if asking for date or time
-            date_list = ['day', 'date', 'time', 'year']
-            for word in date_list:
-                if word in text_query:
-                    #record response from google assistant
-                    for value in response_audio_data:
-                        #put audio data into wav file
-                        if not conversation_stream.playing:
-                            set_avatar_state(True)
-                            conversation_stream.stop_recording()
-                            conversation_stream.start_playback()
-                            print('Playing assistant response.....')
-                        conversation_stream.write(value)
+            for value in response_audio_data:
+                #put audio data into wav file
+                if not conversation_stream.playing:
+                    set_avatar_state(True)
+                    conversation_stream.stop_recording()
+                    conversation_stream.start_playback()
+                    print('Playing assistant response.....')
+                conversation_stream.write(value)
                         
-                    conversation_stream.stop_playback()
-                    set_avatar_state(False)
-                    
-                    #get text from wav file
-                    text_response = wav_to_text()
-                    whizzy_speak(text_response.capitalize())
-                    break
-                    
-            #get response from openai
-            else:
-                text_repsonse = run_command_openai(text_query)
-                whizzy_speak(text_repsonse)
-                
+            conversation_stream.stop_playback()
+            set_avatar_state(False)
+            
         conversation_stream.close()
         
 def start_google_assistant(command):

@@ -1,6 +1,7 @@
 import os
 import json
 import random
+from gtts import gTTS
 from google.cloud import texttospeech
 
 os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = 'google_text_to_speech_credentials.json'
@@ -17,7 +18,22 @@ def get_response(type):
     except Exception as e:
         print(e)
         return 'Dialog not found'
+
+#google text to speech (online)
+def gtts_speak(audio_string, index):
+    try:
+        tts = gTTS(text=audio_string, lang='en', tld='com', slow=False)
+        tts.save(f"audio/speech{index}.mp3")
         
+        #play audio
+        #os.system(f"mpg123 audio/speech{index}.mp3 >/dev/null 2>&1")
+        #os.remove("audio/speech.mp3")
+    except AssertionError as e:
+        print(e)
+    except Exception as e:
+        print(e)
+        
+'''
 def gtts_speak(text, index):
     client = texttospeech.TextToSpeechClient()
     input_text = texttospeech.SynthesisInput(text=text)
@@ -40,20 +56,6 @@ def gtts_speak(text, index):
     with open(f"audio/speech{index}.mp3", "wb") as out:
         out.write(response.audio_content)
         
-'''
-#google text to speech (online)
-def gtts_speak(audio_string):
-    try:
-        tts = gTTS(text=audio_string, lang='en', tld='com', slow=False)
-        tts.save("audio/speech.mp3")
-        
-        #play audio
-        os.system("mpg123 audio/speech.mp3 >/dev/null 2>&1")
-        os.remove("audio/speech.mp3")
-    except AssertionError as e:
-        print(e)
-    except Exception as e:
-        print(e)
 '''
 
 '''

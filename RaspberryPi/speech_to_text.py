@@ -79,7 +79,7 @@ def wav_to_text():
             s = r.recognize_google(audio)
             os.remove("audio/ga_response.wav")
             
-            print("Text: "+s)
+            #print("Text: "+s)
             return s
             
         except Exception as e:
