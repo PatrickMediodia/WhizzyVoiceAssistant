@@ -137,8 +137,8 @@ class GoogleAssistant(object):
                 text_response = resp.dialog_state_out.supplemental_display_text
                 print(f'Transcript of response: {text_response}')
                 whizzy_speak(text_response)
-                #hasTranscript = True
-                #break
+                hasTranscript = True
+                break
                 
         #play audio if there is no transcript
         if hasTranscript is False:
