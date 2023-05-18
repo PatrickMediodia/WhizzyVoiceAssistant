@@ -176,25 +176,28 @@ def whizzy_speak(text):
             if len(sentence) > 110:
                 list_of_phrases = wrap(sentence, 110)
                 
+                '''
                 #create mp3 files
                 threading.Thread(target=create_speech_files, args=[list_of_phrases], daemon=True).start()
+                '''
                 
                 for index, phrase in enumerate(list_of_phrases):
                     #wait for file to be created
-                    while os.path.isfile(f'audio/speech{index}.mp3') is False:
-                        continue
+                    #while os.path.isfile(f'audio/speech{index}.mp3') is False:
+                        #continue
                         
                     #play audio
                     subtitle_phrase = phrase
-                    os.system(f"mpg123 audio/speech{index}.mp3 >/dev/null 2>&1")
-                    os.remove(f"audio/speech{index}.mp3")
+                    gtts_speak(phrase)
+                    #os.system(f"mpg123 audio/speech{index}.mp3 >/dev/null 2>&1")
+                    #os.remove(f"audio/speech{index}.mp3")
             else:
                 subtitle_phrase = sentence
-                gtts_speak(sentence,1)
+                gtts_speak(sentence)
                 
                 #play audio
-                os.system("mpg123 audio/speech1.mp3 >/dev/null 2>&1")
-                os.remove("audio/speech1.mp3")
+                #os.system("mpg123 audio/speech1.mp3 >/dev/null 2>&1")
+                #os.remove("audio/speech1.mp3")
                 
         subtitle_phrase = ''
         subtitle_list = []

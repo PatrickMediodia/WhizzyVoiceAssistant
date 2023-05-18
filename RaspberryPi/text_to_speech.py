@@ -20,6 +20,21 @@ def get_response(type):
         return 'Dialog not found'
 
 #google text to speech (online)
+def gtts_speak(audio_string):
+    try:
+        tts = gTTS(text=audio_string, lang='en', tld='com', slow=False)
+        tts.save(f"audio/speech.mp3")
+        
+        #play audio
+        os.system(f"mpg123 audio/speech.mp3 >/dev/null 2>&1")
+        os.remove("audio/speech.mp3")
+    except AssertionError as e:
+        print(e)
+    except Exception as e:
+        print(e)
+
+'''
+#google text to speech (online)
 def gtts_speak(audio_string, index):
     try:
         tts = gTTS(text=audio_string, lang='en', tld='com', slow=False)
@@ -32,7 +47,9 @@ def gtts_speak(audio_string, index):
         print(e)
     except Exception as e:
         print(e)
-        
+'''
+
+
 '''
 def gtts_speak(text, index):
     client = texttospeech.TextToSpeechClient()
