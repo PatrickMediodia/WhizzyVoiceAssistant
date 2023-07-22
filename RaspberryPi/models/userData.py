@@ -1,8 +1,8 @@
-from models.course import Course
+from models.section import Section
 
 class UserData:
-    def __init__(self, id, username, email, courses):
+    def __init__(self, id, username, email, sections):
         self.id = id
         self.username = username
         self.email = email
-        self.courses = [ Course(**course) for course in courses ]
+        self.sections = [ Section(**section) for section in sections ]

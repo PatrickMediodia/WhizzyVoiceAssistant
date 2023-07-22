@@ -54,14 +54,14 @@ def load_lesson_data():
     found = False
     
     #check if courses are available
-    if len(user_data.courses) < 1:
+    if len(user_data.sections) < 1:
         print('\nNo lesson data on this account')
         whizzy_speak('I was not able to get any lesson data on this account')
         found = True
-        
+
     #find lesson
-    for course in user_data.courses:
-        for module in course.modules:
+    for section in user_data.sections:
+        for module in section.modules:
             for lesson in module.lessons:
                 if requested_course == lesson.trigger_word:
                     lesson_data = lesson

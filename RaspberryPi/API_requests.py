@@ -36,7 +36,7 @@ def get_logged_in():
         return True
     
     return False
-
+    
 def logout_user():
     global user_id, room_logged_in_id
     
@@ -65,11 +65,12 @@ def get_user_id():
 
 def get_user_data():
     end_point = url + f'users/{user_id}?'
-    end_point += 'populate[0]=courses'
-    end_point += '&populate[1]=courses.modules'
-    end_point += '&populate[2]=courses.modules.lessons'
-    end_point += '&populate[4]=courses.modules.lessons.trivias'
-    end_point += '&populate[3]=courses.modules.lessons.questions'
+    end_point += 'populate[0]=sections'
+    end_point += '&populate[1]=sections.course'
+    end_point += '&populate[2]=sections.modules'
+    end_point += '&populate[3]=sections.modules.lessons'
+    end_point += '&populate[4]=sections.modules.lessons.trivias'
+    end_point += '&populate[5]=sections.modules.lessons.questions'
     end_point += '&fields=id,username,email'
     
     headers = { 'Authorization': 'Bearer ' + token }
