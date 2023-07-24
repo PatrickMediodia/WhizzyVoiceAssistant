@@ -25,7 +25,7 @@ def open_blackboard(token, user_id, application_instance):
     account_thread.start()
 
     #initialize driver object
-    driver = webdriver.Chrome(service=Service('./drivers/chrome_driver'), options=options)
+    driver = webdriver.Chrome(service=Service('./drivers/chromedriver.exe'), options=options)
     
     #open Brwoser
     driver.get('https://mcl.blackboard.com/')
@@ -37,7 +37,9 @@ def open_blackboard(token, user_id, application_instance):
     
     #check if there are credentials
     if account_details.get('email') is None or account_details.get('password') is None:
-        print('No credentials given')
+        #return instance to main
+        application_instance['blackboard'] = driver
+        print('\nNo credentials given\n')
         return
 
     #fill-up the form
